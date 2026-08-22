@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Protocare — Profile Prototype v2</title>
+<style>
+  :root {
+    --primary: #D8A490;
+    --primary-dark: #94614D;
+    --primary-light: #F7F1F1;
+    --bg: #FBFBF8;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --text-secondary: #8B7E74;
+    --border: #E8E0D9;
+    --error: #FA5655;
+    --success: #6B9E7A;
+    --warning: #F5AD54;
+    --overlay: rgba(216, 164, 144, 0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .phone-frame {
+    max-width: 393px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 80px;
+  }
+
+  .variant-container { display: none; }
+  .variant-container.active { display: block; }
+
+  /* ====== Shared components ====== */
+  .tab-bar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 393px; background: var(--surface);
+    border-top: 0.5px solid var(--border); display: flex; padding: 8px 0 28px; z-index: 100;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 2px; font-size: 10px; color: var(--text-secondary); cursor: pointer; padding: 4px 0;
+  }
+  .tab-item .tab-icon { font-size: 22px; }
+  .tab-item.active { color: var(--primary-dark); }
+
+  /* ====== VARIANT 1: Warm Header + Card ====== */
+  .v1 .header {
+    padding: 56px 20px 24px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+  }
+  .v1 .avatar-row {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .v1 .avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); display: flex; align-items: center;
+    justify-content: center; font-size: 26px; font-weight: 600;
+    border: 2px solid rgba(255,255,255,0.4); flex-shrink: 0;
+  }
+  .v1 .user-info .user-name { font-size: 20px; font-weight: 700; }
+  .v1 .user-info .user-email { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+
+  .v1 .stats-row {
+    display: flex; gap: 1px; margin-top: 20px;
+    background: rgba(255,255,255,0.1); border-radius: 14px; overflow: hidden;
+  }
+  .v1 .stat-item {
+    flex: 1; text-align: center; padding: 14px 8px;
+    background: rgba(255,255,255,0.08);
+  }
+  .v1 .stat-item:first-child { border-radius: 14px 0 0 14px; }
+  .v1 .stat-item:last-child { border-radius: 0 14px 14px 0; }
+  .v1 .stat-value { font-size: 22px; font-weight: 700; }
+  .v1 .stat-label {
+    font-size: 11px; opacity: 0.7; margin-top: 2px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+
+  .v1 .content { padding: 20px 16px; }
+
+  /* Sub card — free */
+  .v1 .sub-card {
+    border-radius: 16px; padding: 20px; margin-bottom: 20px; position: relative; overflow: hidden;
+  }
+  .v1 .sub-card.free {
+    background: linear-gradient(135deg, #2C1810 0%, #5C3425 100%); color: white;
+  }
+  .v1 .sub-card.premium {
+    background: linear-gradient(135deg, #2C1810 0%, #5C3425 100%); color: white;
+  }
+  .v1 .sub-card::after {
+    content: '✨'; position: absolute; top: -5px; right: 10px;
+    font-size: 48px; opacity: 0.12;
+  }
+  .v1 .sub-label {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+    opacity: 0.7; margin-bottom: 4px;
+  }
+  .v1 .sub-tier { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .v1 .sub-features {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+  }
+  .v1 .sub-feature {
+    font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.12); border-radius: 12px;
+  }
+  .v1 .sub-feature.locked { opacity: 0.5; }
+  .v1 .sub-action {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 20px; border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .v1 .sub-action.upgrade { background: var(--primary); color: white; }
+  .v1 .sub-action.manage { background: rgba(255,255,255,0.15); color: white; }
+
+  /* Quick actions — 2 side-by-side */
+  .v1 .quick-actions {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+  }
+  .v1 .quick-action {
+    background: var(--surface); border-radius: 14px; padding: 16px;
+    display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.15s;
+  }
+  .v1 .quick-action:active { transform: scale(0.97); }
+  .v1 .qa-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .v1 .qa-title { font-size: 14px; font-weight: 600; }
+  .v1 .qa-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.3; }
+
+  /* Links */
+  .v1 .links-section {
+    background: var(--surface); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 12px;
+  }
+  .v1 .link-item {
+    display: flex; align-items: center; padding: 14px 18px; gap: 12px; cursor: pointer;
+  }
+  .v1 .link-item:active { background: var(--primary-light); }
+  .v1 .link-icon { font-size: 18px; width: 24px; text-align: center; }
+  .v1 .link-text { flex: 1; font-size: 15px; font-weight: 500; }
+  .v1 .link-chevron { color: var(--border); font-size: 13px; }
+  .v1 .link-divider { height: 0.5px; background: var(--border); margin: 0 18px 0 54px; }
+
+  .v1 .logout-btn {
+    display: block; width: calc(100% - 32px); margin: 8px 16px 16px;
+    padding: 14px; background: var(--surface); border: none; border-radius: 14px;
+    color: var(--error); font-size: 16px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .v1 .app-version {
+    text-align: center; font-size: 12px; color: var(--text-secondary); padding-bottom: 12px;
+  }
+
+  /* ====== VARIANT 2: Flat & Light ====== */
+  .v2 .header {
+    padding: 56px 20px 20px;
+    background: var(--bg);
+  }
+  .v2 .avatar-row {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .v2 .avatar {
+    width: 60px; height: 60px; border-radius: 18px;
+    background: var(--primary); display: flex; align-items: center;
+    justify-content: center; font-size: 24px; color: white; font-weight: 600;
+  }
+  .v2 .user-info .user-name {
+    font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+  }
+  .v2 .tier-pill {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 600;
+  }
+  .v2 .tier-pill.free { background: var(--primary-light); color: var(--primary-dark); }
+  .v2 .tier-pill.premium { background: var(--primary); color: white; }
+  .v2 .user-email { font-size: 14px; color: var(--text-secondary); margin-top: 2px; }
+
+  .v2 .stats-row {
+    display: flex; gap: 10px; margin-top: 16px;
+  }
+  .v2 .stat-item {
+    flex: 1; text-align: center; padding: 14px 8px;
+    background: var(--surface); border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .v2 .stat-value { font-size: 20px; font-weight: 700; color: var(--primary-dark); }
+  .v2 .stat-label {
+    font-size: 11px; color: var(--text-secondary); margin-top: 2px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+
+  .v2 .content { padding: 20px 16px 0; }
+
+  /* Sub card — flat style */
+  .v2 .sub-card {
+    border-radius: 16px; padding: 20px; margin-bottom: 20px; position: relative;
+  }
+  .v2 .sub-card.free {
+    background: var(--surface); border: 1.5px dashed var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .v2 .sub-card.premium {
+    background: var(--surface);
+    border: 1.5px solid var(--primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .v2 .sub-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .v2 .sub-tier { font-size: 17px; font-weight: 700; }
+  .v2 .sub-tier .icon { margin-right: 4px; }
+  .v2 .sub-action {
+    padding: 8px 16px; border: none; border-radius: 10px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .v2 .sub-action.upgrade { background: var(--primary); color: white; }
+  .v2 .sub-action.manage { background: var(--primary-light); color: var(--primary-dark); }
+  .v2 .sub-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+  .v2 .sub-features {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
+  }
+  .v2 .sub-feature {
+    font-size: 11px; padding: 4px 10px; border-radius: 12px;
+  }
+  .v2 .sub-feature.active { background: rgba(107,158,122,0.1); color: var(--success); }
+  .v2 .sub-feature.locked { background: var(--primary-light); color: var(--text-secondary); }
+
+  /* Settings list */
+  .v2 .settings-section {
+    background: var(--surface); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px;
+  }
+  .v2 .section-title {
+    font-size: 13px; font-weight: 600; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 16px 18px 6px;
+  }
+  .v2 .setting-item {
+    display: flex; align-items: center; padding: 14px 18px; gap: 14px; cursor: pointer;
+  }
+  .v2 .setting-item:active { background: var(--primary-light); }
+  .v2 .setting-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+  }
+  .v2 .setting-icon.pink { background: rgba(216,164,144,0.15); color: var(--primary-dark); }
+  .v2 .setting-icon.blue { background: rgba(100,149,237,0.12); color: #4A7FD4; }
+  .v2 .setting-icon.gray { background: rgba(139,126,116,0.1); color: var(--text-secondary); }
+  .v2 .setting-text { flex: 1; }
+  .v2 .setting-text .title { font-size: 16px; font-weight: 500; }
+  .v2 .setting-text .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 1px; }
+  .v2 .setting-chevron { color: var(--border); font-size: 14px; }
+  .v2 .setting-divider { height: 0.5px; background: var(--border); margin: 0 18px 0 66px; }
+
+  .v2 .logout-btn {
+    display: block; width: calc(100% - 32px); margin: 8px 16px 16px;
+    padding: 14px; background: var(--surface); border: none; border-radius: 14px;
+    color: var(--error); font-size: 16px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .v2 .app-version {
+    text-align: center; font-size: 12px; color: var(--text-secondary); padding-bottom: 12px;
+  }
+
+  /* ====== VARIANT 3: Compact + Banner ====== */
+  .v3 .header {
+    padding: 56px 20px 16px;
+    background: var(--bg);
+  }
+  .v3 .avatar-row {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .v3 .avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--primary); display: flex; align-items: center;
+    justify-content: center; font-size: 22px; color: white; font-weight: 600;
+  }
+  .v3 .user-info .user-name { font-size: 20px; font-weight: 700; }
+  .v3 .user-email { font-size: 14px; color: var(--text-secondary); margin-top: 2px; }
+
+  .v3 .stats-strip {
+    display: flex; gap: 24px; margin-top: 20px; padding-left: 72px;
+  }
+  .v3 .stat-item { text-align: left; }
+  .v3 .stat-value { font-size: 18px; font-weight: 700; color: var(--primary-dark); }
+  .v3 .stat-label {
+    font-size: 11px; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+
+  .v3 .content { padding: 16px 16px 0; }
+
+  /* Sub banner */
+  .v3 .sub-banner {
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .v3 .sub-banner.free {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+  }
+  .v3 .sub-banner.premium {
+    background: linear-gradient(135deg, #2C1810 0%, #5C3425 100%);
+    color: white;
+  }
+  .v3 .sub-icon { font-size: 28px; }
+  .v3 .sub-info { flex: 1; }
+  .v3 .sub-tier { font-size: 16px; font-weight: 700; }
+  .v3 .sub-desc { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+  .v3 .sub-action {
+    padding: 8px 14px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+  }
+  .v3 .sub-action.upgrade { background: white; color: var(--primary-dark); }
+  .v3 .sub-action.manage { background: rgba(255,255,255,0.15); color: white; }
+
+  /* Settings rows */
+  .v3 .settings-group {
+    background: var(--surface); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 12px;
+  }
+  .v3 .group-title {
+    font-size: 13px; font-weight: 600; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 16px 18px 6px;
+  }
+  .v3 .row {
+    display: flex; align-items: center; padding: 14px 18px; gap: 14px; cursor: pointer;
+  }
+  .v3 .row:active { background: var(--primary-light); }
+  .v3 .row-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+  }
+  .v3 .row-icon.pink { background: rgba(216,164,144,0.15); color: var(--primary-dark); }
+  .v3 .row-icon.blue { background: rgba(100,149,237,0.12); color: #4A7FD4; }
+  .v3 .row-icon.green { background: rgba(107,158,122,0.12); color: var(--success); }
+  .v3 .row-icon.orange { background: rgba(245,173,84,0.15); color: #C4882A; }
+  .v3 .row-icon.gray { background: rgba(139,126,116,0.1); color: var(--text-secondary); }
+  .v3 .row-text { flex: 1; }
+  .v3 .row-text .title { font-size: 16px; font-weight: 500; }
+  .v3 .row-text .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 1px; }
+  .v3 .row-chevron { color: var(--border); font-size: 14px; }
+  .v3 .row-divider { height: 0.5px; background: var(--border); margin: 0 18px 0 66px; }
+
+  .v3 .logout-btn {
+    display: block; width: calc(100% - 32px); margin: 8px 16px 16px;
+    padding: 14px; background: var(--surface); border: none; border-radius: 14px;
+    color: var(--error); font-size: 16px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .v3 .app-version {
+    text-align: center; font-size: 12px; color: var(--text-secondary); padding-bottom: 12px;
+  }
+
+  /* ====== Tier Toggle (floating) ====== */
+  .tier-toggle {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(26,26,26,0.85); border-radius: 12px; padding: 6px 14px;
+    z-index: 9998; backdrop-filter: blur(12px);
+  }
+  .tier-toggle .label { color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500; }
+  .tier-toggle .toggle-track {
+    width: 44px; height: 26px; background: rgba(255,255,255,0.15);
+    border-radius: 13px; cursor: pointer; position: relative; transition: background 0.2s;
+  }
+  .tier-toggle .toggle-track.active { background: var(--primary); }
+  .tier-toggle .toggle-thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: white; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .tier-toggle .toggle-track.active .toggle-thumb { transform: translateX(18px); }
+  .tier-toggle .tier-label { color: white; font-size: 12px; font-weight: 600; }
+
+  /* ====== Prototype Switcher ====== */
+  .prototype-switcher {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 0;
+    background: #1A1A1A; border-radius: 28px; padding: 4px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25); z-index: 9999; user-select: none;
+  }
+  .prototype-switcher button {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    font-size: 16px; width: 40px; height: 40px; cursor: pointer;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .prototype-switcher button:hover { background: rgba(255,255,255,0.1); color: white; }
+  .prototype-switcher .variant-label {
+    color: white; font-size: 13px; font-weight: 600;
+    padding: 0 12px; white-space: nowrap; min-width: 180px; text-align: center;
+  }
+  .prototype-switcher .variant-key {
+    display: inline-block; background: var(--primary-dark); color: white;
+    padding: 2px 8px; border-radius: 6px; font-size: 12px; margin-right: 6px;
+  }
+
+  /* Transition */
+  .variant-container { animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <!-- ==================== VARIANT 1: Warm Header + Sub Card ==================== -->
+  <div class="variant-container v1" id="variant-1">
+    <div class="header">
+      <div class="avatar-row">
+        <div class="avatar">A</div>
+        <div class="user-info">
+          <div class="user-name">Alex Gorev</div>
+          <div class="user-email">alex@example.com</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Protocols</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">47</div>
+          <div class="stat-label">Streak 🔥</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">156</div>
+          <div class="stat-label">Check-ins</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- FREE state -->
+      <div class="sub-card free" data-tier="free">
+        <div class="sub-label">Your Plan</div>
+        <div class="sub-tier">Free</div>
+        <div class="sub-features">
+          <span class="sub-feature locked">🔒 Full History</span>
+          <span class="sub-feature locked">🔒 Analytics</span>
+          <span class="sub-feature locked">🔒 Custom Protocols</span>
+          <span class="sub-feature locked">🔒 Export</span>
+          <span class="sub-feature locked">🔒 Priority Support</span>
+          <span class="sub-feature locked">🔒 Extra Storage</span>
+        </div>
+        <button class="sub-action upgrade">Upgrade to Premium →</button>
+      </div>
+      <!-- PREMIUM state -->
+      <div class="sub-card premium" data-tier="premium" style="display:none">
+        <div class="sub-label">Your Plan</div>
+        <div class="sub-tier">✨ Premium</div>
+        <div class="sub-features">
+          <span class="sub-feature">Full History</span>
+          <span class="sub-feature">Analytics</span>
+          <span class="sub-feature">Custom Protocols</span>
+          <span class="sub-feature">Export</span>
+          <span class="sub-feature">Priority Support</span>
+          <span class="sub-feature">Extra Storage</span>
+        </div>
+        <button class="sub-action manage">Manage Subscription →</button>
+      </div>
+
+      <div class="quick-actions">
+        <div class="quick-action">
+          <div class="qa-icon" style="background:rgba(216,164,144,0.15);color:var(--primary-dark);">👤</div>
+          <div class="qa-title">Edit Profile</div>
+          <div class="qa-desc">Name, photo, email</div>
+        </div>
+        <div class="quick-action">
+          <div class="qa-icon" style="background:rgba(245,173,84,0.15);color:#C4882A;">🔔</div>
+          <div class="qa-title">Notifications</div>
+          <div class="qa-desc">Reminders & sounds</div>
+        </div>
+      </div>
+
+      <div class="links-section">
+        <div class="link-item">
+          <div class="link-icon">❓</div>
+          <div class="link-text">Help Center</div>
+          <div class="link-chevron">›</div>
+        </div>
+        <div class="link-divider"></div>
+        <div class="link-item">
+          <div class="link-icon">💬</div>
+          <div class="link-text">Send Feedback</div>
+          <div class="link-chevron">›</div>
+        </div>
+        <div class="link-divider"></div>
+        <div class="link-item">
+          <div class="link-icon">📄</div>
+          <div class="link-text">Privacy Policy</div>
+          <div class="link-chevron">›</div>
+        </div>
+        <div class="link-divider"></div>
+        <div class="link-item">
+          <div class="link-icon">🧾</div>
+          <div class="link-text">Terms of Service</div>
+          <div class="link-chevron">›</div>
+        </div>
+      </div>
+
+      <button class="logout-btn">Log Out</button>
+      <div class="app-version">Protocare 1.0.0 (42)</div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT 2: Flat & Light ==================== -->
+  <div class="variant-container v2" id="variant-2">
+    <div class="header">
+      <div class="avatar-row">
+        <div class="avatar">A</div>
+        <div class="user-info">
+          <div class="user-name">
+            Alex Gorev
+            <span class="tier-pill free" data-tier="free">Free</span>
+            <span class="tier-pill premium" data-tier="premium" style="display:none">✨ Premium</span>
+          </div>
+          <div class="user-email">alex@example.com</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Protocols</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">47</div>
+          <div class="stat-label">Streak 🔥</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">156</div>
+          <div class="stat-label">Check-ins</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- FREE state -->
+      <div class="sub-card free" data-tier="free">
+        <div class="sub-top">
+          <div class="sub-tier"><span class="icon">🆓</span> Free Plan</div>
+          <button class="sub-action upgrade">Upgrade →</button>
+        </div>
+        <div class="sub-desc">Unlock full history, advanced analytics, custom protocols, and more.</div>
+        <div class="sub-features">
+          <span class="sub-feature locked">🔒 Full History</span>
+          <span class="sub-feature locked">🔒 Analytics</span>
+          <span class="sub-feature locked">🔒 Custom Protocols</span>
+          <span class="sub-feature locked">🔒 Export</span>
+          <span class="sub-feature locked">🔒 Priority Support</span>
+          <span class="sub-feature locked">🔒 Extra Storage</span>
+        </div>
+      </div>
+      <!-- PREMIUM state -->
+      <div class="sub-card premium" data-tier="premium" style="display:none">
+        <div class="sub-top">
+          <div class="sub-tier"><span class="icon">✨</span> Premium</div>
+          <button class="sub-action manage">Manage →</button>
+        </div>
+        <div class="sub-desc">All features unlocked. Renews Dec 15, 2026.</div>
+        <div class="sub-features">
+          <span class="sub-feature active">✓ Full History</span>
+          <span class="sub-feature active">✓ Analytics</span>
+          <span class="sub-feature active">✓ Custom Protocols</span>
+          <span class="sub-feature active">✓ Export</span>
+          <span class="sub-feature active">✓ Priority Support</span>
+          <span class="sub-feature active">✓ Extra Storage</span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="section-title">Settings</div>
+        <div class="setting-item">
+          <div class="setting-icon pink">👤</div>
+          <div class="setting-text">
+            <div class="title">Edit Profile</div>
+            <div class="subtitle">Name, photo, email</div>
+          </div>
+          <div class="setting-chevron">›</div>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-item">
+          <div class="setting-icon blue">🔔</div>
+          <div class="setting-text">
+            <div class="title">Notifications</div>
+            <div class="subtitle">Reminders & sounds</div>
+          </div>
+          <div class="setting-chevron">›</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="section-title">Support</div>
+        <div class="setting-item">
+          <div class="setting-icon gray">❓</div>
+          <div class="setting-text"><div class="title">Help Center</div></div>
+          <div class="setting-chevron">›</div>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-item">
+          <div class="setting-icon gray">💬</div>
+          <div class="setting-text"><div class="title">Send Feedback</div></div>
+          <div class="setting-chevron">›</div>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-item">
+          <div class="setting-icon gray">📄</div>
+          <div class="setting-text"><div class="title">Privacy Policy</div></div>
+          <div class="setting-chevron">›</div>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-item">
+          <div class="setting-icon gray">🧾</div>
+          <div class="setting-text"><div class="title">Terms of Service</div></div>
+          <div class="setting-chevron">›</div>
+        </div>
+      </div>
+
+      <button class="logout-btn">Log Out</button>
+      <div class="app-version">Protocare 1.0.0 (42)</div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT 3: Compact + Banner ==================== -->
+  <div class="variant-container v3" id="variant-3">
+    <div class="header">
+      <div class="avatar-row">
+        <div class="avatar">A</div>
+        <div class="user-info">
+          <div class="user-name">Alex Gorev</div>
+          <div class="user-email">alex@example.com</div>
+        </div>
+      </div>
+      <div class="stats-strip">
+        <div class="stat-item">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Protocols</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">47</div>
+          <div class="stat-label">Streak 🔥</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">156</div>
+          <div class="stat-label">Check-ins</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- FREE state -->
+      <div class="sub-banner free" data-tier="free">
+        <div class="sub-icon">🚀</div>
+        <div class="sub-info">
+          <div class="sub-tier">Free Plan</div>
+          <div class="sub-desc">Upgrade for full history & analytics</div>
+        </div>
+        <button class="sub-action upgrade">Upgrade</button>
+      </div>
+      <!-- PREMIUM state -->
+      <div class="sub-banner premium" data-tier="premium" style="display:none">
+        <div class="sub-icon">✨</div>
+        <div class="sub-info">
+          <div class="sub-tier">Premium</div>
+          <div class="sub-desc">All features · Renews Dec 15</div>
+        </div>
+        <button class="sub-action manage">Manage</button>
+      </div>
+
+      <div class="settings-group">
+        <div class="group-title">Account</div>
+        <div class="row">
+          <div class="row-icon pink">👤</div>
+          <div class="row-text">
+            <div class="title">Edit Profile</div>
+            <div class="subtitle">Name, photo, email</div>
+          </div>
+          <div class="row-chevron">›</div>
+        </div>
+        <div class="row-divider"></div>
+        <div class="row">
+          <div class="row-icon blue">🔔</div>
+          <div class="row-text">
+            <div class="title">Notifications</div>
+            <div class="subtitle">Reminders & sounds</div>
+          </div>
+          <div class="row-chevron">›</div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="group-title">Support</div>
+        <div class="row">
+          <div class="row-icon gray">❓</div>
+          <div class="row-text"><div class="title">Help Center</div></div>
+          <div class="row-chevron">›</div>
+        </div>
+        <div class="row-divider"></div>
+        <div class="row">
+          <div class="row-icon green">💬</div>
+          <div class="row-text"><div class="title">Send Feedback</div></div>
+          <div class="row-chevron">›</div>
+        </div>
+        <div class="row-divider"></div>
+        <div class="row">
+          <div class="row-icon gray">📄</div>
+          <div class="row-text"><div class="title">Privacy Policy</div></div>
+          <div class="row-chevron">›</div>
+        </div>
+        <div class="row-divider"></div>
+        <div class="row">
+          <div class="row-icon gray">🧾</div>
+          <div class="row-text"><div class="title">Terms of Service</div></div>
+          <div class="row-chevron">›</div>
+        </div>
+      </div>
+
+      <button class="logout-btn">Log Out</button>
+      <div class="app-version">Protocare 1.0.0 (42)</div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">✅</div><div>Daily</div>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">📖</div><div>Journal</div>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">📋</div><div>Protocols</div>
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">👤</div><div>Me</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tier Toggle -->
+<div class="tier-toggle">
+  <div class="label">Tier:</div>
+  <div class="toggle-track" id="tier-track">
+    <div class="toggle-thumb"></div>
+  </div>
+  <div class="tier-label" id="tier-label">Free</div>
+</div>
+
+<!-- Prototype Switcher -->
+<div class="prototype-switcher" id="switcher">
+  <button id="prev-btn">←</button>
+  <div class="variant-label">
+    <span class="variant-key" id="variant-key">1</span>
+    <span id="variant-name">Warm Header</span>
+  </div>
+  <button id="next-btn">→</button>
+</div>
+
+<script>
+const variants = [
+  { key: '1', name: 'Warm Header + Card', id: 'variant-1' },
+  { key: '2', name: 'Flat & Light', id: 'variant-2' },
+  { key: '3', name: 'Compact + Banner', id: 'variant-3' },
+];
+
+let currentIdx = 0;
+let isPremium = false;
+
+function switchTo(idx) {
+  currentIdx = ((idx % variants.length) + variants.length) % variants.length;
+  const v = variants[currentIdx];
+
+  document.querySelectorAll('.variant-container').forEach(el => el.classList.remove('active'));
+  document.getElementById(v.id).classList.add('active');
+
+  document.getElementById('variant-key').textContent = v.key;
+  document.getElementById('variant-name').textContent = v.name;
+
+  const url = new URL(window.location);
+  url.searchParams.set('variant', v.key);
+  history.replaceState(null, '', url);
+
+  applyTier();
+}
+
+function applyTier() {
+  const tier = isPremium ? 'premium' : 'free';
+
+  // Toggle UI elements
+  document.querySelectorAll('[data-tier]').forEach(el => {
+    el.style.display = el.dataset.tier === tier ? '' : 'none';
+  });
+
+  // Toggle track visual
+  const track = document.getElementById('tier-track');
+  track.classList.toggle('active', isPremium);
+  document.getElementById('tier-label').textContent = isPremium ? 'Premium' : 'Free';
+
+  const url = new URL(window.location);
+  url.searchParams.set('tier', tier);
+  history.replaceState(null, '', url);
+}
+
+// Init from URL
+const urlVariant = new URLSearchParams(window.location.search).get('variant');
+const urlTier = new URLSearchParams(window.location.search).get('tier');
+const startIdx = variants.findIndex(v => v.key === urlVariant);
+isPremium = urlTier === 'premium';
+switchTo(startIdx >= 0 ? startIdx : 0);
+
+// Button handlers
+document.getElementById('prev-btn').addEventListener('click', () => switchTo(currentIdx - 1));
+document.getElementById('next-btn').addEventListener('click', () => switchTo(currentIdx + 1));
+
+// Tier toggle
+document.getElementById('tier-track').addEventListener('click', () => {
+  isPremium = !isPremium;
+  applyTier();
+});
+
+// Keyboard
+document.addEventListener('keydown', (e) => {
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+  if (e.key === 'ArrowLeft') switchTo(currentIdx - 1);
+  if (e.key === 'ArrowRight') switchTo(currentIdx + 1);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+//
+//  Staging.xcconfig
+//  Protocare
+//
+//  Staging build configuration - testing environment
+//
+
+// API Configuration
+API_BASE_URL = https:/$()/staging-api.protocare.com/v1
+
+// Build settings
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = STAGING

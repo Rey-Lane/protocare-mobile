@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "29D4EF63-8A0E-4E34-926A-F2C0C83142F0",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Protocare.xcodeproj",
+      "identifier" : "FA8926F82EECA12300FF42F5",
+      "name" : "Protocare"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Protocare.xcodeproj",
+        "identifier" : "FAF6A68C2F40D44500BD3B85",
+        "name" : "ProtocareTests"
+      }
+    }
+  ],
+  "version" : 1
+}

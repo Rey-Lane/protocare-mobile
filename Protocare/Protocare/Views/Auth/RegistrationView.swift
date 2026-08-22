@@ -1,0 +1,151 @@
+import SwiftUI
+
+struct RegistrationFormView: View {
+    @ObservedObject var vm: RegistrationViewModel
+    @FocusState private var focusedField: Field?
+
+    enum Field { case email, password, confirm }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            formCard
+
+            if vm.password.count > 0 && vm.password.count < 8 {
+                Text("Password must be at least 8 characters.")
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+
+            if vm.passwordConfirmation.count > 0 && vm.passwordConfirmation != vm.password {
+                Text("Passwords do not match.")
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+
+            submitButton
+
+            if let error = vm.errorMessage {
+                Text(error)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+
+            termsText
+        }
+    }
+
+    private var formCard: some View {
+        VStack(spacing: 0) {
+            fieldRow(
+                icon: "envelope",
+                placeholder: "Email Address",
+                text: $vm.email,
+                field: .email,
+                keyboardType: .emailAddress
+            )
+
+            Divider().padding(.leading, 44).padding(.vertical, 6)
+
+            fieldRow(
+                icon: "lock",
+                placeholder: "Password (min 8 chars)",
+                text: $vm.password,
+                field: .password,
+                isSecure: true
+            )
+
+            Divider().padding(.leading, 44).padding(.vertical, 6)
+
+            fieldRow(
+                icon: "lock.rotation",
+                placeholder: "Confirm Password",
+                text: $vm.passwordConfirmation,
+                field: .confirm,
+                isSecure: true
+            )
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.04), radius: 16, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(Color.black.opacity(0.03), lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var submitButton: some View {
+        Button {
+            Task { await vm.submit() }
+        } label: {
+            HStack {
+                Spacer()
+                if vm.isLoading {
+                    ProgressView().tint(.white)
+                } else {
+                    Text("Create Account")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+                Spacer()
+            }
+            .padding(.vertical, 18)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(Color.appPrimary)
+            )
+            .shadow(color: Color.appPrimary.opacity(0.25), radius: 16, y: 8)
+        }
+        .disabled(!vm.canSubmit)
+        .opacity(vm.canSubmit ? 1 : 0.6)
+    }
+
+    private var termsText: some View {
+        (
+            Text("By continuing, you agree to our ")
+            + Text("Terms of Service").fontWeight(.semibold).foregroundStyle(Color.appPrimary)
+            + Text(" and ")
+            + Text("Privacy Policy").fontWeight(.semibold).foregroundStyle(Color.appPrimary)
+            + Text(".")
+        )
+        .font(.system(size: 13))
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+    }
+
+    private func fieldRow(
+        icon: String,
+        placeholder: String,
+        text: Binding<String>,
+        field: Field,
+        keyboardType: UIKeyboardType = .default,
+        isSecure: Bool = false
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 20))
+                .foregroundStyle(focusedField == field ? Color.appPrimaryDark : .gray)
+                .frame(width: 24)
+
+            if isSecure {
+                SecureField(placeholder, text: text)
+                    .font(.system(size: 16))
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .focused($focusedField, equals: field)
+            } else {
+                TextField(placeholder, text: text)
+                    .font(.system(size: 16))
+                    .keyboardType(keyboardType)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .focused($focusedField, equals: field)
+            }
+        }
+        .padding(.vertical, 10)
+    }
+}

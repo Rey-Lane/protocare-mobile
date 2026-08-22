@@ -1,0 +1,9 @@
+.build/
+build/
+.swiftpm/
+*.d
+*.dia
+*.swiftdeps
+Packages/
+Package.resolved
+openapi.json

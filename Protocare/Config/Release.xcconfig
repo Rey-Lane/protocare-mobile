@@ -1,0 +1,12 @@
+//
+//  Release.xcconfig
+//  Protocare
+//
+//  Release build configuration - production
+//
+
+// API Configuration
+API_BASE_URL = https:/$()/api.protocare.com/v1
+
+// Build settings
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE

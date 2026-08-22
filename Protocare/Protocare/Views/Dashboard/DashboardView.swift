@@ -1,0 +1,177 @@
+import SwiftUI
+
+struct DailyDashboardView: View {
+    @ObservedObject var vm: DailyDashboardViewModel
+    let api: AuthAPI
+    let authStore: AuthStore
+
+    private let accent = Color.appPrimary
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                header
+
+                if vm.isLoading && vm.dailyStatus == nil {
+                    ProgressView("Loading...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .padding(.top, 40)
+                } else if let error = vm.errorMessage, vm.dailyStatus == nil {
+                    VStack(spacing: 12) {
+                        Text(error)
+                            .foregroundStyle(.red)
+                        Button("Retry") { Task { await vm.load() } }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 40)
+                } else if let status = vm.dailyStatus {
+                    if let error = vm.errorMessage {
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
+                            .padding(.vertical, 6)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    WeekCalendarView(selectedDate: $vm.selectedDate)
+
+                    if !vm.isViewingToday {
+                        pastDayBanner
+                    }
+
+                    statsRow(streak: status.streak, percentage: status.dailyProgressPercentage)
+                    protocolsSection(status.protocols)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 100)
+        }
+        .navigationTitle("")
+        .toolbar(.hidden, for: .navigationBar)
+        .task { await vm.load() }
+        .refreshable { await vm.load() }
+    }
+
+    private var pastDayBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.system(size: 14))
+                .foregroundStyle(.secondary)
+            Text("Viewing past day — check-ins are read-only")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private var header: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(greeting)
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+                Text(userName)
+                    .font(.system(size: 24, weight: .bold))
+            }
+            Spacer()
+            NavigationLink {
+                Text("Notifications")
+            } label: {
+                Image(systemName: "bell")
+                    .font(.system(size: 20))
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var greeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        if hour >= 5, hour < 12 { return "Good morning," }
+        if hour >= 12, hour < 17 { return "Good afternoon," }
+        return "Good evening,"
+    }
+
+    private var userName: String {
+        return "there"
+    }
+
+    private func statsRow(streak: StreakInfo, percentage: Int) -> some View {
+        HStack(spacing: 12) {
+            StreakCardView(streak: streak)
+            ProgressCardView(percentage: percentage)
+        }
+    }
+
+    private func protocolsSection(_ protocols: [DailyProtocolStatus]) -> some View {
+        VStack(spacing: 16) {
+            if protocols.isEmpty {
+                emptyProtocolsView
+            } else {
+                ForEach(protocols) { proto in
+                    protocolSection(proto)
+                }
+            }
+        }
+    }
+
+    private var emptyProtocolsView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "list.clipboard")
+                .font(.system(size: 40))
+                .foregroundStyle(.secondary.opacity(0.5))
+            Text("No active protocols yet")
+                .font(.system(size: 17, weight: .semibold))
+            Text("Create your first protocol to start tracking your routine.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            NavigationLink {
+                ProtocolBuilderView(api: api, authStore: authStore)
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Create Protocol")
+                }
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(accent)
+                .clipShape(Capsule())
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 40)
+    }
+
+    private func protocolSection(_ proto: DailyProtocolStatus) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(proto.protocolName)
+                    .font(.system(size: 17, weight: .semibold))
+                Spacer()
+                Text("\(proto.completedActions)/\(proto.totalActions) Done")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(proto.completedActions == proto.totalActions && proto.totalActions > 0 ? accent : .secondary)
+            }
+
+            ForEach(proto.actions) { action in
+                ActionRowView(action: action, isReadOnly: !vm.isViewingToday, onToggle: {
+                    Task { await vm.toggleAction(protocolId: proto.protocolId, action: action) }
+                }, onCheckinWithDosage: { volume, duration in
+                    Task { await vm.performCheckin(protocolId: proto.protocolId, action: action, volume: volume, durationSeconds: duration) }
+                })
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: Color.black.opacity(0.04), radius: 8, y:4)
+    }
+}

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Protocare — Profile Prototype</title>
+<style>
+  :root {
+    --primary: #D8A490;
+    --primary-dark: #94614D;
+    --primary-light: #F7F1F1;
+    --bg: #FBFBF8;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --text-secondary: #8B7E74;
+    --border: #E8E0D9;
+    --error: #FA5655;
+    --success: #6B9E7A;
+    --warning: #F5AD54;
+    --overlay: rgba(216, 164, 144, 0.2);
+    --safe-top: env(safe-area-inset-top, 20px);
+    --safe-bottom: env(safe-area-inset-bottom, 20px);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .phone-frame {
+    max-width: 393px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* ============== VARIANT A: Card Stack ============== */
+  .variant-a .profile-hero {
+    text-align: center;
+    padding: 60px 24px 24px;
+    background: linear-gradient(180deg, var(--overlay) 0%, var(--bg) 100%);
+  }
+
+  .variant-a .avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 32px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 12px rgba(148, 97, 77, 0.25);
+    position: relative;
+  }
+
+  .variant-a .avatar .edit-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+    background: var(--surface);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    font-size: 13px;
+  }
+
+  .variant-a .user-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .variant-a .user-email {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .variant-a .tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .variant-a .tier-badge.premium {
+    background: linear-gradient(135deg, #D8A490, #94614D);
+    color: white;
+  }
+
+  .variant-a .tier-badge.free {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+  }
+
+  .variant-a .section-card {
+    background: var(--surface);
+    border-radius: 14px;
+    margin: 0 16px 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .variant-a .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 20px 18px 8px;
+  }
+
+  .variant-a .section-card .section-title {
+    padding: 16px 18px 6px;
+  }
+
+  .variant-a .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    gap: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .variant-a .menu-item:active {
+    background: var(--primary-light);
+  }
+
+  .variant-a .menu-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .variant-a .menu-icon.pink { background: rgba(216, 164, 144, 0.15); color: var(--primary-dark); }
+  .variant-a .menu-icon.green { background: rgba(107, 158, 122, 0.12); color: var(--success); }
+  .variant-a .menu-icon.orange { background: rgba(245, 173, 84, 0.15); color: #C4882A; }
+  .variant-a .menu-icon.red { background: rgba(250, 86, 85, 0.1); color: var(--error); }
+  .variant-a .menu-icon.blue { background: rgba(100, 149, 237, 0.12); color: #4A7FD4; }
+  .variant-a .menu-icon.gray { background: rgba(139, 126, 116, 0.1); color: var(--text-secondary); }
+
+  .variant-a .menu-text {
+    flex: 1;
+  }
+
+  .variant-a .menu-text .title {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .variant-a .menu-text .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 1px;
+  }
+
+  .variant-a .menu-chevron {
+    color: var(--border);
+    font-size: 14px;
+  }
+
+  .variant-a .menu-divider {
+    height: 0.5px;
+    background: var(--border);
+    margin: 0 18px 0 66px;
+  }
+
+  .variant-a .logout-section {
+    padding: 16px;
+    margin-bottom: 100px;
+  }
+
+  .variant-a .logout-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--surface);
+    border: none;
+    border-radius: 14px;
+    color: var(--error);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .variant-a .logout-btn:active {
+    background: #FFF0EF;
+  }
+
+  .variant-a .app-version {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    padding-bottom: 20px;
+  }
+
+  /* ============== VARIANT B: Dashboard Profile ============== */
+  .variant-b .profile-header {
+    padding: 56px 20px 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    position: relative;
+  }
+
+  .variant-b .profile-header .settings-btn {
+    position: absolute;
+    top: 56px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+
+  .variant-b .avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .variant-b .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 600;
+    border: 2px solid rgba(255,255,255,0.4);
+    flex-shrink: 0;
+  }
+
+  .variant-b .user-info .user-name {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .variant-b .user-info .user-email {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+
+  .variant-b .stats-row {
+    display: flex;
+    gap: 1px;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .variant-b .stat-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 8px;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .variant-b .stat-item:first-child { border-radius: 14px 0 0 14px; }
+  .variant-b .stat-item:last-child { border-radius: 0 14px 14px 0; }
+
+  .variant-b .stat-value {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .variant-b .stat-label {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .variant-b .content {
+    padding: 20px 16px;
+  }
+
+  .variant-b .subscription-card {
+    background: linear-gradient(135deg, #2C1810 0%, #5C3425 100%);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .variant-b .subscription-card::after {
+    content: '✨';
+    position: absolute;
+    top: -5px;
+    right: 10px;
+    font-size: 48px;
+    opacity: 0.15;
+  }
+
+  .variant-b .sub-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+
+  .variant-b .sub-tier {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .variant-b .sub-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .variant-b .sub-feature {
+    font-size: 11px;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 12px;
+  }
+
+  .variant-b .upgrade-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .variant-b .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .variant-b .quick-action {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .variant-b .quick-action:active { transform: scale(0.97); }
+
+  .variant-b .quick-action .qa-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .variant-b .quick-action .qa-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .variant-b .quick-action .qa-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+  }
+
+  .variant-b .links-section {
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 12px;
+  }
+
+  .variant-b .link-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .variant-b .link-item:active { background: var(--primary-light); }
+
+  .variant-b .link-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+  }
+
+  .variant-b .link-text { flex: 1; font-size: 15px; font-weight: 500; }
+
+  .variant-b .link-chevron { color: var(--border); font-size: 13px; }
+
+  .variant-b .link-divider {
+    height: 0.5px;
+    background: var(--border);
+    margin: 0 18px 0 54px;
+  }
+
+  .variant-b .logout-btn {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 8px 16px 100px;
+    padding: 14px;
+    background: var(--surface);
+    border: none;
+    border-radius: 14px;
+    color: var(--error);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .variant-b .app-version {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding-bottom: 100px;
+  }
+
+  /* ============== VARIANT C: Minimal Scroll ============== */
+  .variant-c {
+    padding: 56px 20px 100px;
+  }
+
+  .variant-c .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .variant-c .page-title {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .variant-c .edit-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text-secondary);
+  }
+
+  .variant-c .profile-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .variant-c .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: white;
+    font-weight: 600;
+  }
+
+  .variant-c .user-name {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .variant-c .user-email {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 1px;
+  }
+
+  .variant-c .tier-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+
+  .variant-c .tier-pill.free {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+  }
+
+  .variant-c .tier-pill.premium {
+    background: var(--primary);
+    color: white;
+  }
+
+  .variant-c .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  .variant-c .section-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .variant-c .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+  }
+
+  .variant-c .info-row .label {
+    font-size: 15px;
+    color: var(--text-secondary);
+  }
+
+  .variant-c .info-row .value {
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .variant-c .info-row .value.accent {
+    color: var(--primary-dark);
+  }
+
+  .variant-c .premium-banner {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 16px;
+    padding: 20px;
+    color: white;
+    margin: 0 0 24px;
+  }
+
+  .variant-c .premium-banner .pb-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .variant-c .premium-banner .pb-desc {
+    font-size: 13px;
+    opacity: 0.85;
+    line-height: 1.4;
+    margin-bottom: 14px;
+  }
+
+  .variant-c .premium-banner .pb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: white;
+    color: var(--primary-dark);
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .variant-c .feature-list {
+    margin-bottom: 24px;
+  }
+
+  .variant-c .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    font-size: 15px;
+  }
+
+  .variant-c .feature-item .check {
+    color: var(--success);
+    font-size: 16px;
+  }
+
+  .variant-c .feature-item .check.locked {
+    color: var(--border);
+  }
+
+  .variant-c .feature-item .feat-label {
+    flex: 1;
+  }
+
+  .variant-c .feature-item .feat-label.locked {
+    color: var(--text-secondary);
+  }
+
+  .variant-c .nav-items {
+    margin-bottom: 24px;
+  }
+
+  .variant-c .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+    gap: 14px;
+    cursor: pointer;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .variant-c .nav-item:last-child { border-bottom: none; }
+
+  .variant-c .nav-item .nav-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+  }
+
+  .variant-c .nav-item .nav-text {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .variant-c .nav-item .nav-chevron {
+    color: var(--border);
+    font-size: 13px;
+  }
+
+  .variant-c .logout-link {
+    display: block;
+    text-align: center;
+    padding: 16px;
+    color: var(--error);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .variant-c .app-version {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 16px;
+  }
+
+  /* ============== Floating Switcher ============== */
+  .prototype-switcher {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: #1A1A1A;
+    border-radius: 28px;
+    padding: 4px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+    z-index: 9999;
+    user-select: none;
+  }
+
+  .prototype-switcher button {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .prototype-switcher button:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+  }
+
+  .prototype-switcher .variant-label {
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 12px;
+    white-space: nowrap;
+    min-width: 160px;
+    text-align: center;
+  }
+
+  .prototype-switcher .variant-label .variant-key {
+    display: inline-block;
+    background: var(--primary-dark);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-right: 6px;
+  }
+
+  /* Hidden variant */
+  .variant-container { display: none; }
+  .variant-container.active { display: block; }
+
+  /* Tab bar mock */
+  .tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 393px;
+    background: var(--surface);
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    padding: 8px 0;
+    padding-bottom: calc(8px + var(--safe-bottom));
+    z-index: 100;
+  }
+
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .tab-item .tab-icon { font-size: 22px; }
+  .tab-item.active { color: var(--primary-dark); }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <!-- ==================== VARIANT A: Card Stack ==================== -->
+  <div class="variant-container variant-a" id="variant-a">
+    <div class="profile-hero">
+      <div class="avatar">
+        A
+        <div class="edit-badge">📷</div>
+      </div>
+      <div class="user-name">Alex Gorev</div>
+      <div class="user-email">alex@example.com</div>
+      <div class="tier-badge premium">✨ Premium</div>
+    </div>
+
+    <div style="height:16px"></div>
+
+    <div class="section-title">Account</div>
+    <div class="section-card">
+      <div class="menu-item">
+        <div class="menu-icon pink">👤</div>
+        <div class="menu-text">
+          <div class="title">Edit Profile</div>
+          <div class="subtitle">Name, photo, email</div>
+        </div>
+        <div class="menu-chevron">›</div>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="menu-icon orange">⭐</div>
+        <div class="menu-text">
+          <div class="title">Subscription</div>
+          <div class="subtitle">Premium · Renews Dec 15</div>
+        </div>
+        <div class="menu-chevron">›</div>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="menu-icon green">🔐</div>
+        <div class="menu-text">
+          <div class="title">Change Password</div>
+        </div>
+        <div class="menu-chevron">›</div>
+      </div>
+    </div>
+
+    <div class="section-title">Preferences</div>
+    <div class="section-card">
+      <div class="menu-item">
+        <div class="menu-icon blue">🔔</div>
+        <div class="menu-text">
+          <div class="title">Notifications</div>
+          <div class="subtitle">Reminders, badges, sounds</div>
+        </div>
+        <div class="menu-chevron">›</div>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="menu-icon pink">📊</div>
+        <div class="menu-text">
+          <div class="title">Data & Export</div>
+          <div class="subtitle">Download your data</div>
+        </div>
+        <div class="menu-chevron">›</div>
+      </div>
+    </div>
+
+    <div class="section-title">Support</div>
+    <div class="section-card">
+      <div class="menu-item">
+        <div class="menu-icon gray">❓</div>
+        <div class="menu-text">
+          <div class="title">Help Center</div>
+        </div>
+        <div class="menu-chevron">›</div>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="menu-icon gray">💬</div>
+        <div class="menu-text">
+          <div class="title">Send Feedback</div>
+        </div>
+        <div class="menu-chevron">›</div>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <div class="menu-icon gray">📄</div>
+        <div class="menu-text">
+          <div class="title">Privacy Policy</div>
+        </div>
+        <div class="menu-chevron">›</div>
+      </div>
+    </div>
+
+    <div class="logout-section">
+      <button class="logout-btn">Log Out</button>
+      <div class="app-version">Protocare 1.0.0 (42)</div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT B: Dashboard Profile ==================== -->
+  <div class="variant-container variant-b" id="variant-b">
+    <div class="profile-header">
+      <div class="settings-btn">⚙️</div>
+      <div class="avatar-row">
+        <div class="avatar">A</div>
+        <div class="user-info">
+          <div class="user-name">Alex Gorev</div>
+          <div class="user-email">alex@example.com</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Protocols</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">47</div>
+          <div class="stat-label">Streak 🔥</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">156</div>
+          <div class="stat-label">Check-ins</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="subscription-card">
+        <div class="sub-label">Your Plan</div>
+        <div class="sub-tier">✨ Premium</div>
+        <div class="sub-features">
+          <span class="sub-feature">Full History</span>
+          <span class="sub-feature">Analytics</span>
+          <span class="sub-feature">Export</span>
+          <span class="sub-feature">Custom Protocols</span>
+          <span class="sub-feature">Priority Support</span>
+          <span class="sub-feature">Extra Storage</span>
+        </div>
+        <button class="upgrade-btn">Manage Subscription →</button>
+      </div>
+
+      <div class="quick-actions">
+        <div class="quick-action">
+          <div class="qa-icon" style="background:rgba(216,164,144,0.15);color:var(--primary-dark);">👤</div>
+          <div class="qa-title">Edit Profile</div>
+          <div class="qa-desc">Name, photo, email</div>
+        </div>
+        <div class="quick-action">
+          <div class="qa-icon" style="background:rgba(107,158,122,0.12);color:var(--success);">📊</div>
+          <div class="qa-title">Export Data</div>
+          <div class="qa-desc">Download as CSV</div>
+        </div>
+        <div class="quick-action">
+          <div class="qa-icon" style="background:rgba(245,173,84,0.15);color:#C4882A;">🔔</div>
+          <div class="qa-title">Notifications</div>
+          <div class="qa-desc">Reminders & sounds</div>
+        </div>
+        <div class="quick-action">
+          <div class="qa-icon" style="background:rgba(100,149,237,0.12);color:#4A7FD4;">🔐</div>
+          <div class="qa-title">Security</div>
+          <div class="qa-desc">Password & privacy</div>
+        </div>
+      </div>
+
+      <div class="links-section">
+        <div class="link-item">
+          <div class="link-icon">❓</div>
+          <div class="link-text">Help Center</div>
+          <div class="link-chevron">›</div>
+        </div>
+        <div class="link-divider"></div>
+        <div class="link-item">
+          <div class="link-icon">💬</div>
+          <div class="link-text">Send Feedback</div>
+          <div class="link-chevron">›</div>
+        </div>
+        <div class="link-divider"></div>
+        <div class="link-item">
+          <div class="link-icon">📄</div>
+          <div class="link-text">Privacy Policy</div>
+          <div class="link-chevron">›</div>
+        </div>
+        <div class="link-divider"></div>
+        <div class="link-item">
+          <div class="link-icon">🧾</div>
+          <div class="link-text">Terms of Service</div>
+          <div class="link-chevron">›</div>
+        </div>
+      </div>
+
+      <button class="logout-btn">Log Out</button>
+      <div class="app-version">Protocare 1.0.0 (42)</div>
+    </div>
+  </div>
+
+  <!-- ==================== VARIANT C: Minimal Scroll ==================== -->
+  <div class="variant-container variant-c" id="variant-c">
+    <div class="top-bar">
+      <div class="page-title">Me</div>
+      <div class="edit-btn">✏️</div>
+    </div>
+
+    <div class="profile-row">
+      <div class="avatar">A</div>
+      <div>
+        <div class="user-name">
+          Alex Gorev
+          <span class="tier-pill premium">✨ Premium</span>
+        </div>
+        <div class="user-email">alex@example.com</div>
+      </div>
+    </div>
+
+    <div class="premium-banner">
+      <div class="pb-title">You're on Premium ✨</div>
+      <div class="pb-desc">Full history, advanced analytics, custom protocols, data export & more. Renews Dec 15, 2026.</div>
+      <button class="pb-btn">Manage →</button>
+    </div>
+
+    <div class="section-header">Features</div>
+    <div class="feature-list">
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <span class="feat-label">Full History</span>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <span class="feat-label">Advanced Analytics</span>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <span class="feat-label">Custom Protocols</span>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <span class="feat-label">Data Export</span>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <span class="feat-label">Priority Support</span>
+      </div>
+      <div class="feature-item">
+        <span class="check">✓</span>
+        <span class="feat-label">Enhanced Storage</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-header">Account</div>
+    <div class="info-row">
+      <span class="label">Email</span>
+      <span class="value">alex@example.com</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Password</span>
+      <span class="value accent">Change →</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Member since</span>
+      <span class="value">Jan 2026</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-header">Settings</div>
+    <div class="nav-items">
+      <div class="nav-item">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-text">Notifications</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Export Data</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">❓</span>
+        <span class="nav-text">Help & Support</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">📄</span>
+        <span class="nav-text">Privacy Policy</span>
+        <span class="nav-chevron">›</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="logout-link">Log Out</div>
+    <div class="app-version">Protocare 1.0.0 (42)</div>
+  </div>
+
+  <!-- Tab Bar (shared, decorative) -->
+  <div class="tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">✅</div>
+      <div>Daily</div>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">📖</div>
+      <div>Journal</div>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">📋</div>
+      <div>Protocols</div>
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">👤</div>
+      <div>Me</div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Prototype Switcher -->
+<div class="prototype-switcher" id="switcher">
+  <button id="prev-btn" aria-label="Previous variant">←</button>
+  <div class="variant-label" id="variant-label">
+    <span class="variant-key" id="variant-key">A</span>
+    <span id="variant-name">Card Stack</span>
+  </div>
+  <button id="next-btn" aria-label="Next variant">→</button>
+</div>
+
+<script>
+const variants = [
+  { key: 'A', name: 'Card Stack', id: 'variant-a' },
+  { key: 'B', name: 'Dashboard Profile', id: 'variant-b' },
+  { key: 'C', name: 'Minimal Scroll', id: 'variant-c' },
+];
+
+let current = 0;
+
+function switchTo(idx) {
+  current = ((idx % variants.length) + variants.length) % variants.length;
+  const v = variants[current];
+
+  // Hide all variants
+  document.querySelectorAll('.variant-container').forEach(el => el.classList.remove('active'));
+  // Show selected
+  document.getElementById(v.id).classList.add('active');
+
+  // Update label
+  document.getElementById('variant-key').textContent = v.key;
+  document.getElementById('variant-name').textContent = v.name;
+
+  // Update URL
+  const url = new URL(window.location);
+  url.searchParams.set('variant', v.key);
+  history.replaceState(null, '', url);
+}
+
+// Init from URL param
+const urlParam = new URLSearchParams(window.location.search).get('variant');
+const initialIdx = variants.findIndex(v => v.key === urlParam);
+switchTo(initialIdx >= 0 ? initialIdx : 0);
+
+// Button handlers
+document.getElementById('prev-btn').addEventListener('click', () => switchTo(current - 1));
+document.getElementById('next-btn').addEventListener('click', () => switchTo(current + 1));
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+  if (e.key === 'ArrowLeft') switchTo(current - 1);
+  if (e.key === 'ArrowRight') switchTo(current + 1);
+});
+</script>
+
+</body>
+</html>

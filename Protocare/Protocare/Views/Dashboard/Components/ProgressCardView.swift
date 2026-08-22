@@ -1,0 +1,58 @@
+import SwiftUI
+
+struct ProgressCardView: View {
+    let percentage: Int
+
+    private let accent = Color.appPrimary
+
+    private var motivationalText: String {
+        if percentage == 100 { return "All done!" }
+        if percentage >= 67 { return "Almost there!" }
+        if percentage >= 34 { return "Keep it up!" }
+        return "Keep going!"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 4) {
+                Image(systemName: "chart.pie.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(accent)
+                Text("PROGRESS")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.secondary)
+            }
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .stroke(Color(.systemGray5), lineWidth: 5)
+                    Circle()
+                        .trim(from: 0, to: CGFloat(percentage) / 100.0)
+                        .rotation(Angle.degrees(-90))
+                        .stroke(accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                    Text("\(percentage)")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(accent)
+                    Text("%")
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundStyle(accent)
+                        .offset(x: 14, y: -6)
+                }
+                .frame(width: 48, height: 48)
+                VStack(alignment: .leading, spacing: 2) {
+                    Image(systemName: "trending_up")
+                        .font(.system(size: 12))
+                        .foregroundStyle(accent)
+                    Text(motivationalText)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+    }
+}

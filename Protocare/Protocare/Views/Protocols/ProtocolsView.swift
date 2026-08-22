@@ -1,0 +1,754 @@
+import SwiftUI
+
+struct ProtocolsView: View {
+    @ObservedObject var vm: ProtocolsViewModel
+    let api: AuthAPI
+    let authStore: AuthStore
+    @State private var showingBuilder = false
+    @State private var showingTemplates = false
+    @State private var selectedProtocol: ProtocolItem?
+    @State private var openEditOnAppear = false
+    @State private var protocolToDelete: ProtocolItem? = nil
+    @State private var isSearching = false
+    @State private var showCreateOptions = false
+
+
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                VStack(spacing: 0) {
+                    header
+                    if !vm.availableCategories.isEmpty {
+                        categoryChips
+                    }
+                    if vm.isLoading && vm.protocols.isEmpty {
+                        ProgressView("Loading protocols...")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                            .padding(.top, 40)
+                    } else if let error = vm.errorMessage {
+                        VStack(spacing: 12) {
+                            Text(error)
+                                .foregroundStyle(Color(.systemRed))
+                            Button("Retry") { Task { await vm.load() } }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .padding(.top, 40)
+                    } else if vm.filteredProtocols.isEmpty {
+                        VStack(spacing: 14) {
+                            Image(systemName: "leaf")
+                                .font(.system(size: 48))
+                                .foregroundStyle(Color.appPrimary)
+                            Text("No protocols yet")
+                                .font(.system(size: 20, weight: .bold))
+                            Text("Start building your first self-care routine...")
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                            Button {
+                                showCreateOptions = true
+                            } label: {
+                                Text("Create Protocol")
+                                    .fontWeight(.semibold)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 12)
+                                    .background(Color.appPrimary)
+                                    .foregroundStyle(.white)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .padding(.top, 40)
+                    } else {
+                        List {
+                            ForEach(vm.filteredProtocols) { item in
+                                ProtocolCardView(item: item, imageURL: vm.protocolImageURLs[item.id])
+                                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
+                                    .listRowSeparator(.hidden)
+                                    .listRowBackground(Color.clear)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                        Button(role: .destructive) {
+                                            protocolToDelete = item
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+
+                                        Button {
+                                            openEditOnAppear = true
+                                            selectedProtocol = item
+                                        } label: {
+                                            Label("Edit", systemImage: "pencil")
+                                        }
+                                        .tint(Color.appWarning)
+                                    }
+                                    .onTapGesture {
+                                        selectedProtocol = item
+                                    }
+                                    .onAppear { showCreateOptions = false }
+                            }
+                        }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                    }
+                }
+
+                fab
+            }
+            .navigationTitle("")
+            .toolbar(.hidden, for: .navigationBar)
+            .task { await vm.load() }
+            .navigationDestination(item: $selectedProtocol) { item in
+                ProtocolDetailView(
+                    item: item,
+                    actionsLookup: vm.actionsLookup,
+                    userActionsLookup: vm.userActionsLookup,
+                    api: api,
+                    authStore: authStore,
+                    viewModel: vm,
+                    initialProtocolImageURL: vm.protocolImageURLs[item.id],
+                    autoOpenEdit: openEditOnAppear
+                )
+            }
+            .navigationDestination(isPresented: $showingBuilder) {
+                ProtocolBuilderView(
+                    api: api,
+                    authStore: authStore,
+                    onSaved: {
+                        showingBuilder = false
+                        Task { await vm.load() }
+                    }
+                )
+            }
+            .navigationDestination(isPresented: $showingTemplates) {
+                TemplatesView(
+                    api: api,
+                    authStore: authStore,
+                    onProtocolCreated: {
+                        showingTemplates = false
+                        Task { await vm.load() }
+                    }
+                )
+            }
+            .onChange(of: selectedProtocol) { _, _ in
+                if selectedProtocol == nil {
+                    openEditOnAppear = false
+                }
+            }
+
+            .alert("Unable to Delete Protocol", isPresented: deleteErrorPresented) {
+                Button("OK", role: .cancel) {
+                    vm.deletionErrorMessage = nil
+                }
+            } message: {
+                Text(vm.deletionErrorMessage ?? "Something went wrong.")
+            }
+            .overlay {
+                if protocolToDelete != nil {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    protocolToDelete = nil
+                                }
+                            }
+
+                        VStack(spacing: 0) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(Color.appError)
+                                    .frame(width: 32, height: 32)
+                                    .background(Color.red.opacity(0.12))
+                                    .clipShape(Circle())
+
+                                Text("Delete Protocol?")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.primary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 16)
+                            .padding(.bottom, 8)
+
+                            Text("This action cannot be undone. The protocol and all its data will be permanently removed.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 16)
+
+                            Divider()
+                                .padding(.horizontal, 16)
+
+                            HStack(spacing: 12) {
+                                Button {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                        protocolToDelete = nil
+                                    }
+                                } label: {
+                                    Text("Cancel")
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(Color(.secondarySystemBackground))
+                                        .foregroundStyle(.primary)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                }
+                                .buttonStyle(.plain)
+
+                                Button {
+                                    if let item = protocolToDelete {
+                                        Task { await vm.deleteProtocol(item) }
+                                    }
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                        protocolToDelete = nil
+                                    }
+                                } label: {
+                                    Text("Delete")
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(Color.appError)
+                                        .foregroundStyle(.white)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                        }
+                        .frame(width: 280)
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .shadow(color: Color.black.opacity(0.15), radius: 20, y: 8)
+                        .transition(.scale(scale: 0.85).combined(with: .opacity))
+                    }
+                }
+            }
+        }
+    }
+
+    private var header: some View {
+        HStack(spacing: 12) {
+            if isSearching {
+                HStack {
+                    TextField("Search protocols...", text: $vm.searchQuery)
+                        .textFieldStyle(.plain)
+                        .font(.body)
+
+                    Button {
+                        vm.searchQuery = ""
+                        isSearching = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            } else {
+                Text("Protocol Library")
+                    .font(.system(size: 24, weight: .bold))
+            }
+
+            Spacer()
+
+            if !isSearching {
+                Button {
+                    isSearching = true
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(.primary)
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+    }
+
+    private var categoryChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                CategoryChip(
+                    label: "All",
+                    isSelected: vm.selectedCategory == nil,
+                    color: Color.appPrimary
+                ) {
+                    vm.selectedCategory = nil
+                }
+
+                ForEach(vm.availableCategories) { category in
+                    CategoryChip(
+                        label: category.displayName,
+                        isSelected: vm.selectedCategory == category,
+                        color: category.tagColor
+                    ) {
+                        vm.selectedCategory = category
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.bottom, 4)
+    }
+
+    private var fab: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                VStack(spacing: 10) {
+                    if showCreateOptions {
+                        VStack(spacing: 0) {
+                            Button {
+                                showCreateOptions = false
+                                showingTemplates = true
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "square.grid.2x2")
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .foregroundStyle(Color.appPrimary)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color(.secondarySystemBackground))
+                                        .clipShape(Circle())
+
+                                    Text("From Template")
+                                        .font(.subheadline.weight(.medium))
+                                        .foregroundStyle(.primary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 12)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+
+                            Divider()
+                                .padding(.horizontal, 14)
+
+                            Button {
+                                showCreateOptions = false
+                                showingBuilder = true
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "pencil.line")
+                                        .font(.system(size: 15, weight: .semibold))
+                                        .foregroundStyle(Color.appPrimary)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color(.secondarySystemBackground))
+                                        .clipShape(Circle())
+
+                                    Text("Manual")
+                                        .font(.subheadline.weight(.medium))
+                                        .foregroundStyle(.primary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 12)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .frame(width: 200)
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .shadow(color: Color.black.opacity(0.12), radius: 16, y: 4)
+                        .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
+                    }
+
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            showCreateOptions.toggle()
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(.white)
+                            .frame(width: 52, height: 52)
+                            .background(Color.appPrimary)
+                            .clipShape(Circle())
+                            .shadow(color: Color.appPrimary.opacity(0.4), radius: 10, y: 4)
+                            .rotationEffect(.degrees(showCreateOptions ? 45 : 0))
+                    }
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 24)
+            }
+        }
+    }
+
+    private var deleteErrorPresented: Binding<Bool> {
+        Binding(
+            get: { vm.deletionErrorMessage != nil },
+            set: { isPresented in
+                if isPresented == false {
+                    vm.deletionErrorMessage = nil
+                }
+            }
+        )
+    }
+}
+
+private struct CategoryChip: View {
+    let label: String
+    let isSelected: Bool
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .font(.subheadline.weight(.semibold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(isSelected ? color : Color(.systemBackground))
+                .foregroundStyle(isSelected ? .white : .secondary)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(isSelected ? Color.clear : Color(.separator).opacity(0.3), lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct ProtocolCardView: View {
+    let item: ProtocolItem
+    let imageURL: String?
+    private let primary = Color.appPrimary
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                if let category = item.category {
+                    Text(category.displayName.uppercased())
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(category.tagColor.opacity(0.18))
+                        .foregroundStyle(category.tagColor)
+                        .clipShape(Capsule())
+                }
+
+                Text(item.name)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+
+                HStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "list.bullet")
+                            .font(.system(size: 11))
+                        Text(item.stepsLabel)
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.secondary)
+
+                    if item.streak > 0 {
+                        HStack(spacing: 4) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 11))
+                                .foregroundStyle(Color.appWarning)
+                            Text(item.streakLabel)
+                                .font(.caption)
+                                .foregroundStyle(Color.appWarning)
+                        }
+                    }
+                }
+
+                Button {
+                } label: {
+                    Text(item.isActive == true ? "Active" : "Paused")
+                        .font(.caption.weight(.bold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(item.isActive == true ? Color.appPrimaryLight : Color(.systemGray5))
+                        .foregroundStyle(item.isActive == true ? Color.appPrimaryDark : .secondary)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+
+            Spacer()
+
+            if let imageURL, !imageURL.isEmpty {
+                ZStack(alignment: .topTrailing) {
+                    ResilientAsyncImage(urlString: imageURL) {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(Color(.systemGray6))
+                            .frame(width: 100, height: 100)
+                    }
+                    .frame(width: 100, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .grayscale(item.isActive == true ? 0 : 0.8)
+
+                    if item.streak > 0 {
+                        HStack(spacing: 3) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 9, weight: .bold))
+                            Text("\(item.streak)d")
+                                .font(.caption2.weight(.bold))
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(Color.appWarning)
+                        .foregroundStyle(.white)
+                        .clipShape(Capsule())
+                        .offset(x: 4, y: -6)
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color(.separator).opacity(0.08))
+        )
+        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+        .opacity(item.isActive == true ? 1.0 : 0.6)
+    }
+}
+
+struct ProtocolsView_Previews: PreviewProvider {
+    struct PreviewAPI: AuthAPI {
+        func register(email: String, password: String) async throws -> AccessToken { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r", tokenType: "Bearer") }
+        func login(email: String, password: String) async throws -> AccessToken { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r", tokenType: "Bearer") }
+        func refresh(request: RefreshTokenRequest) async throws -> TokenPair { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r") }
+        func logout(refreshToken: String) async throws {}
+        func fetchProtocols(token: String, category: ProtocolCategory? = nil) async throws -> [ProtocolItem] {
+            [
+                ProtocolItem(
+                    id: UUID().uuidString,
+                    userId: UUID().uuidString,
+                    name: "Morning Glow",
+                    actions: [],
+                    isActive: true,
+                    startedAt: "2026-01-01",
+                    endedAt: nil,
+                    category: .skincare,
+                    streak: 5
+                ),
+                ProtocolItem(
+                    id: UUID().uuidString,
+                    userId: UUID().uuidString,
+                    name: "Circadian Ritual",
+                    actions: [],
+                    isActive: true,
+                    startedAt: "2025-12-20",
+                    endedAt: nil,
+                    category: .biohacking,
+                    streak: 0
+                )
+            ]
+        }
+        func fetchActions(token: String, query: String? = nil) async throws -> [Action] { [] }
+        func fetchSubstances(token: String, query: String? = nil) async throws -> [Substance] { [] }
+        func createProtocol(token: String, payload: ProtocolCreateRequest) async throws -> ProtocolItem {
+            ProtocolItem(
+                id: UUID().uuidString,
+                userId: payload.userId,
+                name: payload.name,
+                actions: payload.actions.map { action in
+                    ProtocolAction(
+                        id: UUID().uuidString,
+                        actionId: action.actionId,
+                        userActionId: action.userActionId,
+                        rrule: action.rrule,
+                        position: action.position,
+                        checkins: nil
+                    )
+                },
+                isActive: payload.isActive,
+                startedAt: payload.startedAt,
+                endedAt: payload.endedAt,
+                category: payload.category,
+                streak: 0
+            )
+        }
+        func deleteProtocol(token: String, protocolId: String) async throws { }
+        func createProtocolWithImage(token: String, payload: ProtocolCreateRequest, imageData: Data?) async throws -> ProtocolItem {
+            ProtocolItem(
+                id: UUID().uuidString,
+                userId: payload.userId,
+                name: payload.name,
+                actions: payload.actions.map { action in
+                    ProtocolAction(
+                        id: UUID().uuidString,
+                        actionId: action.actionId,
+                        userActionId: action.userActionId,
+                        rrule: action.rrule,
+                        position: action.position,
+                        checkins: nil
+                    )
+                },
+                isActive: payload.isActive,
+                startedAt: payload.startedAt,
+                endedAt: payload.endedAt,
+                category: payload.category,
+                streak: 0
+            )
+        }
+        func updateProtocol(token: String, protocolId: String, payload: ProtocolUpdate) async throws -> ProtocolItem {
+            ProtocolItem(id: protocolId, userId: UUID().uuidString, name: payload.name ?? "Updated", actions: [], isActive: payload.isActive, startedAt: payload.startedAt, endedAt: payload.endedAt, category: payload.category, streak: 0)
+        }
+        func createCheckin(token: String, payload: ProtocolCheckinCreate) async throws -> CheckIn {
+            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, appliedVolume: payload.appliedVolume, appliedDurationSeconds: payload.appliedDurationSeconds, id: UUID().uuidString, userId: nil)
+        }
+        func deleteCheckin(token: String, protocolId: String, checkinId: String) async throws {}
+        func uploadProtocolImage(token: String, protocolId: String, imageData: Data) async throws -> ImageAttachmentCreate {
+            ImageAttachmentCreate(id: UUID().uuidString, filename: "image.jpg", contentType: "image/jpeg", fileSize: imageData.count, width: 100, height: 100, url: "https://example.com/image.jpg")
+        }
+        func fetchProtocolImage(token: String, protocolId: String) async throws -> ImageAttachment {
+            ImageAttachment(id: UUID().uuidString, ownerId: UUID().uuidString, attachableType: "protocol", attachableId: protocolId, filename: "image.jpg", contentType: "image/jpeg", fileSize: 1024, width: 100, height: 100, url: "https://example.com/image.jpg", createdAt: "2024-01-01T12:00:00Z")
+        }
+        func deleteImage(token: String, imageId: String) async throws { }
+
+        func fetchDailyStatus(token: String, date: Date?) async throws -> DailyStatusResponse {
+            DailyStatusResponse(date: "", streak: StreakInfo(currentStreak: 0, longestStreak: 0), dailyProgressPercentage: 0, totalActions: 0, completedActions: 0, protocols: [])
+        }
+        func fetchProtocolDailyStatus(token: String, protocolId: String, date: Date?) async throws -> ProtocolDailyStatus {
+            let fmt = DateFormatter()
+            fmt.dateFormat = "yyyy-MM-dd"
+            let dateString = fmt.string(from: date ?? Date())
+
+            return ProtocolDailyStatus(
+                protocolId: protocolId,
+                date: dateString,
+                totalActions: 3,
+                completedActions: 1,
+                completionPercentage: 33,
+                actions: [
+                    ActionCheckinStatus(
+                        protocolActionId: UUID().uuidString,
+                        actionId: UUID().uuidString,
+                        actionName: "Morning Cleanser",
+                        position: 0,
+                        scheduledTime: "08:00",
+                        isCompleted: true,
+                        completedAt: "2024-01-01T10:00:00Z",
+                        checkinId: UUID().uuidString,
+                        appliedVolume: Quantity(amount: 2, unit: .ml),
+                        appliedDurationSeconds: nil
+                    ),
+                    ActionCheckinStatus(
+                        protocolActionId: UUID().uuidString,
+                        actionId: UUID().uuidString,
+                        actionName: "Toner",
+                        position: 1,
+                        scheduledTime: "08:05",
+                        isCompleted: false,
+                        completedAt: nil,
+                        checkinId: nil,
+                        appliedVolume: nil,
+                        appliedDurationSeconds: nil
+                    ),
+                    ActionCheckinStatus(
+                        protocolActionId: UUID().uuidString,
+                        actionId: UUID().uuidString,
+                        actionName: "Moisturizer",
+                        position: 2,
+                        scheduledTime: "08:10",
+                        isCompleted: false,
+                        completedAt: nil,
+                        checkinId: nil,
+                        appliedVolume: nil,
+                        appliedDurationSeconds: nil
+                    )
+                ]
+            )
+        }
+        func fetchProtocolWithCheckins(token: String, protocolId: String) async throws -> ProtocolWithCheckins {
+            ProtocolWithCheckins(id: protocolId, userId: UUID().uuidString, name: "Preview", actions: [], isActive: true, startedAt: nil, endedAt: nil)
+        }
+        func fetchProtocolCheckins(token: String, protocolId: String, dateFrom: Date?, dateTo: Date?) async throws -> [CheckIn] { [] }
+        func fetchTemplates(token: String) async throws -> [ProtocolTemplate] { [] }
+        func fetchTemplate(token: String, templateId: String) async throws -> ProtocolTemplate {
+            ProtocolTemplate(id: templateId, name: "Preview Template", category: .morningRoutine, actionDrafts: [])
+        }
+        func createProtocolFromTemplate(token: String, templateId: String) async throws -> ProtocolItem {
+            ProtocolItem(id: UUID().uuidString, userId: UUID().uuidString, name: "Template Protocol", actions: [], isActive: true, startedAt: nil, endedAt: nil)
+        }
+        func fetchTemplateImage(token: String, templateId: String) async throws -> ImageAttachment {
+            ImageAttachment(id: UUID().uuidString, ownerId: UUID().uuidString, attachableType: "template", attachableId: templateId, filename: "image.jpg", contentType: "image/jpeg", fileSize: 1024, width: 100, height: 100, url: "https://example.com/image.jpg", createdAt: "2024-01-01T12:00:00Z")
+        }
+        func fetchJournalEntries(token: String, protocolId: String, dateFrom: String?, dateTo: String?) async throws -> [JournalEntry] { [] }
+        func fetchJournalEntry(token: String, protocolId: String, date: String) async throws -> JournalEntryDetail {
+            JournalEntryDetail(id: UUID().uuidString, protocolId: protocolId, date: date, dayNumber: 1, metrics: [:], availableMetrics: [], checkins: [], createdAt: "2024-01-01T12:00:00Z", updatedAt: "2024-01-01T12:00:00Z")
+        }
+        func saveJournalEntry(token: String, protocolId: String, date: String, metrics: [String: Int], notes: String?) async throws -> JournalEntry {
+            JournalEntry(id: UUID().uuidString, protocolId: protocolId, date: date, dayNumber: 1, metrics: metrics, notes: notes)
+        }
+        func uploadJournalPhoto(token: String, protocolId: String, date: String, imageData: Data) async throws -> JournalEntry {
+            JournalEntry(id: UUID().uuidString, protocolId: protocolId, date: date, dayNumber: 1, metrics: [:], photoUrl: "https://example.com/photo.jpg")
+        }
+        func fetchNotificationSchedules(token: String, protocolActionId: String?) async throws -> [NotificationScheduleResponse] { [] }
+        func fetchNotificationSchedule(token: String, scheduleId: String) async throws -> NotificationScheduleResponse {
+            NotificationScheduleResponse(id: scheduleId, protocolActionId: UUID().uuidString, userId: UUID().uuidString, preferredTime: "08:00", timezone: "UTC", isEnabled: true, createdAt: "2024-01-01T12:00:00Z")
+        }
+        func createNotificationSchedule(token: String, payload: NotificationScheduleCreate) async throws -> NotificationScheduleResponse {
+            NotificationScheduleResponse(id: UUID().uuidString, protocolActionId: payload.protocolActionId, userId: UUID().uuidString, preferredTime: payload.preferredTime, timezone: payload.timezone, isEnabled: payload.isEnabled ?? true, createdAt: "2024-01-01T12:00:00Z")
+        }
+        func updateNotificationSchedule(token: String, scheduleId: String, payload: NotificationScheduleUpdate) async throws -> NotificationScheduleResponse {
+            NotificationScheduleResponse(id: scheduleId, protocolActionId: UUID().uuidString, userId: UUID().uuidString, preferredTime: "08:00", timezone: "UTC", isEnabled: true, createdAt: "2024-01-01T12:00:00Z")
+        }
+        func deleteNotificationSchedule(token: String, scheduleId: String) async throws { }
+        func upsertNotificationSchedule(token: String, actionId: String, payload: NotificationScheduleCreate) async throws -> NotificationScheduleResponse {
+            NotificationScheduleResponse(id: UUID().uuidString, protocolActionId: actionId, userId: UUID().uuidString, preferredTime: payload.preferredTime, timezone: payload.timezone, isEnabled: payload.isEnabled ?? true, createdAt: "2024-01-01T12:00:00Z")
+        }
+
+        func fetchUserActions(token: String, category: ActionCategory?, isActive: Bool?, page: Int?, pageSize: Int?) async throws -> PaginatedUserActions {
+            PaginatedUserActions(items: [], total: 0, page: 1, pageSize: 20)
+        }
+        func createUserAction(token: String, payload: UserActionCreate) async throws -> UserAction {
+            UserAction(id: UUID(), userId: UUID(), name: payload.name, category: payload.category)
+        }
+        func fetchUserAction(token: String, actionId: UUID) async throws -> UserAction {
+            UserAction(id: actionId, userId: UUID(), name: "", category: .custom)
+        }
+        func updateUserAction(token: String, actionId: UUID, payload: UserActionUpdate) async throws -> UserAction {
+            UserAction(id: actionId, userId: UUID(), name: payload.name ?? "", category: .custom)
+        }
+        func deleteUserAction(token: String, actionId: UUID) async throws {}
+        func fetchUserActionTemplates(token: String) async throws -> [UserAction] { [] }
+        func duplicateUserAction(token: String, actionId: UUID) async throws -> UserAction {
+            UserAction(id: UUID(), userId: UUID(), name: "", category: .custom)
+        }
+        func fetchUserActionUsage(token: String, actionId: UUID) async throws -> UserActionUsage {
+            []
+        }
+        func fetchCurrentUser(token: String) async throws -> UserMeResponse {
+            UserMeResponse(id: UUID().uuidString, email: "preview@protocare.app", isActive: true, role: "user", timezone: nil, protocolsCount: 3, streak: StreakInfo(currentStreak: 7, longestStreak: 14), totalCheckins: 42)
+        }
+        func reorderProtocolActions(token: String, protocolId: String, actionIds: [String]) async throws {}
+        func fetchProtocolNotificationSchedules(token: String, protocolId: String) async throws -> [String: NotificationScheduleResponse] { [:] }
+        func addActionToProtocol(token: String, protocolId: String, payload: ProtocolActionCreate) async throws -> ProtocolItem {
+            ProtocolItem(id: protocolId, userId: UUID().uuidString, name: "Preview", actions: [], isActive: true, startedAt: nil, endedAt: nil)
+        }
+        func removeActionFromProtocol(token: String, protocolId: String, protocolActionId: String) async throws {}
+        func fetchMetricsTrend(token: String, protocolId: String, days: Int?) async throws -> MetricTrendResponse {
+            MetricTrendResponse(protocolId: protocolId, days: 14, series: [])
+        }
+    }
+
+    static var previews: some View {
+        let api = PreviewAPI()
+        let authStore: AuthStore = {
+            let store = AuthStore()
+            store.setAuth(tokens: AuthTokens(userId: UUID().uuidString, accessToken: "preview", refreshToken: "preview", tokenType: "Bearer"))
+            return store
+        }()
+
+        return ProtocolsView(
+            vm: ProtocolsViewModel(api: api, authStore: authStore),
+            api: api,
+            authStore: authStore
+        )
+    }
+}

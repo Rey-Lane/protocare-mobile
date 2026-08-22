@@ -1,0 +1,163 @@
+import SwiftUI
+
+struct ActionCheckinCard: View {
+    let checkin: JournalCheckinSummary
+    let isExpanded: Bool
+    let onToggleExpand: () -> Void
+    let onComplete: (QuantityOutput?, Int?) -> Void
+
+    @State private var volumeAmount: Double
+    @State private var durationSeconds: Double
+
+    init(checkin: JournalCheckinSummary, isExpanded: Bool, onToggleExpand: @escaping () -> Void, onComplete: @escaping (QuantityOutput?, Int?) -> Void) {
+        self.checkin = checkin
+        self.isExpanded = isExpanded
+        self.onToggleExpand = onToggleExpand
+        self.onComplete = onComplete
+        _volumeAmount = State(initialValue: checkin.defaultVolume?.amount ?? 0)
+        _durationSeconds = State(initialValue: Double(checkin.defaultDurationSeconds ?? 60))
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            headerRow
+
+            if isExpanded && !checkin.isCompleted {
+                miniForm
+            }
+        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(.rect(cornerRadius: 12))
+    }
+
+    private var headerRow: some View {
+        Button {
+            if !checkin.isCompleted {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    onToggleExpand()
+                }
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: checkin.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundStyle(checkin.isCompleted ? Color.appPrimary : .secondary)
+                    .accessibilityLabel(checkin.isCompleted ? "Completed" : "Not completed")
+
+                Text(checkin.actionName)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+
+                Spacer()
+
+                if checkin.isCompleted {
+                    if let summary = checkin.completedSummary {
+                        Text(summary)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.green)
+                    } else {
+                        Text("Done")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.green)
+                    }
+                } else {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+        }
+        .disabled(checkin.isCompleted)
+    }
+
+    private var miniForm: some View {
+        VStack(spacing: 14) {
+            Divider()
+                .padding(.horizontal, 14)
+
+            if checkin.hasVolume {
+                volumeSlider
+            }
+
+            if checkin.hasDuration {
+                durationSlider
+            }
+
+            Button {
+                let vol: QuantityOutput? = checkin.hasVolume
+                    ? QuantityOutput(amount: volumeAmount, unit: checkin.defaultVolume?.unit ?? .ml)
+                    : nil
+                let dur: Int? = checkin.hasDuration ? Int(durationSeconds) : nil
+                onComplete(vol, dur)
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 15, weight: .bold))
+                    Text("Complete")
+                        .font(.system(size: 15, weight: .bold))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.appPrimary)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .padding(.horizontal, 14)
+            .padding(.bottom, 12)
+        }
+    }
+
+    private var volumeSlider: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Amount")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(volumeDisplay)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.primary)
+            }
+
+            Slider(value: $volumeAmount, in: 0...checkin.volumeUpperBound, step: 0.5)
+                .tint(Color.appPrimary)
+        }
+        .padding(.horizontal, 14)
+    }
+
+    private var durationSlider: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Duration")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(durationDisplay)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.primary)
+            }
+
+            Slider(value: $durationSeconds, in: 0...checkin.durationUpperBound, step: 5)
+                .tint(Color.appPrimary)
+        }
+        .padding(.horizontal, 14)
+    }
+
+    private var volumeDisplay: String {
+        let unit = checkin.defaultVolume?.unit.displayName ?? "ml"
+        let value = volumeAmount.roundedString(maxFractionDigits: 1)
+        return "\(value) \(unit)"
+    }
+
+    private var durationDisplay: String {
+        let seconds = Int(durationSeconds)
+        if seconds >= 60 {
+            let minutes = Double(seconds) / 60.0
+            return "\(minutes.roundedString(maxFractionDigits: 1)) min"
+        } else {
+            return "\(seconds)s"
+        }
+    }
+}

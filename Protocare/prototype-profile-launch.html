@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Protocare — Profile (Launch)</title>
+<style>
+  :root {
+    --primary: #D8A490;
+    --primary-dark: #94614D;
+    --primary-light: #F7F1F1;
+    --bg: #FBFBF8;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --text-secondary: #8B7E74;
+    --border: #E8E0D9;
+    --error: #FA5655;
+    --success: #6B9E7A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .phone-frame {
+    max-width: 393px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* ====== Header ====== */
+  .header {
+    padding: 56px 20px 24px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-radius: 24px 24px 24px 24px;
+  }
+  .avatar-row {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); display: flex; align-items: center;
+    justify-content: center; font-size: 26px; font-weight: 600;
+    border: 2px solid rgba(255,255,255,0.4); flex-shrink: 0;
+  }
+  .user-info .user-name { font-size: 20px; font-weight: 700; }
+  .user-email { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+
+  /* ====== Stats ====== */
+  .stats-row {
+    display: flex; gap: 1px; margin-top: 20px;
+    background: rgba(255,255,255,0.1); border-radius: 14px; overflow: hidden;
+  }
+  .stat-item {
+    flex: 1; text-align: center; padding: 14px 8px;
+    background: rgba(255,255,255,0.08);
+  }
+  .stat-item:first-child { border-radius: 14px 0 0 14px; }
+  .stat-item:last-child { border-radius: 0 14px 14px 0; }
+  .stat-value { font-size: 22px; font-weight: 700; }
+  .stat-label {
+    font-size: 11px; opacity: 0.7; margin-top: 2px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+
+  /* ====== Settings ====== */
+  .content { padding: 20px 16px 0; }
+
+  .settings-section {
+    background: var(--surface); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 13px; font-weight: 600; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 16px 18px 6px;
+  }
+  .setting-item {
+    display: flex; align-items: center; padding: 14px 18px; gap: 14px; cursor: pointer;
+  }
+  .setting-item:active { background: var(--primary-light); }
+  .setting-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+  }
+  .setting-icon.pink { background: rgba(216,164,144,0.15); color: var(--primary-dark); }
+  .setting-icon.blue { background: rgba(100,149,237,0.12); color: #4A7FD4; }
+  .setting-icon.gray { background: rgba(139,126,116,0.1); color: var(--text-secondary); }
+  .setting-text { flex: 1; }
+  .setting-text .title { font-size: 16px; font-weight: 500; }
+  .setting-text .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 1px; }
+  .setting-chevron { color: var(--border); font-size: 14px; }
+  .setting-divider { height: 0.5px; background: var(--border); margin: 0 18px 0 66px; }
+
+  .logout-btn {
+    display: block; width: calc(100% - 32px); margin: 8px 16px 16px;
+    padding: 14px; background: var(--surface); border: none; border-radius: 14px;
+    color: var(--error); font-size: 16px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .app-version {
+    text-align: center; font-size: 12px; color: var(--text-secondary); padding-bottom: 12px;
+  }
+
+  /* ====== Tab Bar ====== */
+  .tab-bar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 393px; background: var(--surface);
+    border-top: 0.5px solid var(--border); display: flex;
+    padding: 8px 0 28px; z-index: 100;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 2px; font-size: 10px; color: var(--text-secondary); cursor: pointer; padding: 4px 0;
+  }
+  .tab-item .tab-icon { font-size: 22px; }
+  .tab-item.active { color: var(--primary-dark); }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="header">
+    <div class="avatar-row">
+      <div class="avatar">A</div>
+      <div class="user-info">
+        <div class="user-name">Alex Gorev</div>
+        <div class="user-email">alex@example.com</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-value">12</div>
+        <div class="stat-label">Protocols</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">47</div>
+        <div class="stat-label">Streak 🔥</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">156</div>
+        <div class="stat-label">Check-ins</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="settings-section">
+      <div class="section-title">Account</div>
+      <div class="setting-item">
+        <div class="setting-icon pink">👤</div>
+        <div class="setting-text">
+          <div class="title">Edit Profile</div>
+          <div class="subtitle">Name, photo, email</div>
+        </div>
+        <div class="setting-chevron">›</div>
+      </div>
+      <div class="setting-divider"></div>
+      <div class="setting-item">
+        <div class="setting-icon blue">🔔</div>
+        <div class="setting-text">
+          <div class="title">Notifications</div>
+          <div class="subtitle">Reminders & sounds</div>
+        </div>
+        <div class="setting-chevron">›</div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="section-title">Support</div>
+      <div class="setting-item">
+        <div class="setting-icon gray">❓</div>
+        <div class="setting-text"><div class="title">Help Center</div></div>
+        <div class="setting-chevron">›</div>
+      </div>
+      <div class="setting-divider"></div>
+      <div class="setting-item">
+        <div class="setting-icon gray">💬</div>
+        <div class="setting-text"><div class="title">Send Feedback</div></div>
+        <div class="setting-chevron">›</div>
+      </div>
+      <div class="setting-divider"></div>
+      <div class="setting-item">
+        <div class="setting-icon gray">📄</div>
+        <div class="setting-text"><div class="title">Privacy Policy</div></div>
+        <div class="setting-chevron">›</div>
+      </div>
+      <div class="setting-divider"></div>
+      <div class="setting-item">
+        <div class="setting-icon gray">🧾</div>
+        <div class="setting-text"><div class="title">Terms of Service</div></div>
+        <div class="setting-chevron">›</div>
+      </div>
+    </div>
+
+    <button class="logout-btn">Log Out</button>
+    <div class="app-version">Protocare 1.0.0 (42)</div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item">
+      <div class="tab-icon">✅</div><div>Daily</div>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">📖</div><div>Journal</div>
+    </div>
+    <div class="tab-item">
+      <div class="tab-icon">📋</div><div>Protocols</div>
+    </div>
+    <div class="tab-item active">
+      <div class="tab-icon">👤</div><div>Me</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

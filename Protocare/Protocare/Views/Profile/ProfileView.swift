@@ -120,13 +120,7 @@ struct ProfileView: View {
                 subtitle: "Name, photo, email"
             )
             divider
-            settingsRow(
-                icon: "bell.fill",
-                iconColor: Color(red: 0.35, green: 0.50, blue: 0.85),
-                iconBg: Color(red: 0.35, green: 0.50, blue: 0.85).opacity(0.12),
-                title: "Notifications",
-                subtitle: "Reminders & sounds"
-            )
+            notificationsRow
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -230,6 +224,41 @@ struct ProfileView: View {
         Divider()
             .padding(.leading, 48)
             .foregroundStyle(Color.appBorder)
+    }
+
+    // MARK: - Notifications Row
+
+    private var notificationsRow: some View {
+        NavigationLink {
+            NotificationSettingsView(api: api, authStore: authStore)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "bell.fill")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.appPrimary)
+                    .frame(width: 34, height: 34)
+                    .background(Color.appPrimary.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Notifications")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color.appText)
+                    Text("Reminders & schedules")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.appTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.appBorder)
+            }
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private var logoutButton: some View {

@@ -149,7 +149,14 @@ struct ProtocolDetailView: View {
                 ?? action.userActionId.flatMap { viewModel.userActionsLookup[$0.uuidString] }
             if let actionItem {
                 ScheduleActionSheet(action: actionItem) { schedule, slots in
-                    // Schedule saved locally; backend sync happens via protocol save
+                    Task {
+                        await saveNotificationSchedule(
+                            protocolAction: action,
+                            actionItem: actionItem,
+                            schedule: schedule,
+                            slots: slots
+                        )
+                    }
                 }
                 .presentationDetents([.large])
                 .presentationDragIndicator(.hidden)
@@ -383,6 +390,50 @@ struct ProtocolDetailView: View {
         .background(viewModel.protocolImageURL == nil ? Color(.systemGray5) : Color.black.opacity(0.35))
         .foregroundStyle(viewModel.protocolImageURL == nil ? Color.secondary : Color.white)
         .clipShape(Capsule())
+    }
+
+    // MARK: - Notification Schedule Save
+
+    private func saveNotificationSchedule(
+        protocolAction: ProtocolAction,
+        actionItem: ActionItem,
+        schedule: ActionSchedule,
+        slots: [ScheduleSlot]
+    ) async {
+        guard let token = viewModel.authStore.accessToken else { return }
+        let granted = await NotificationManager.shared.requestAuthorization()
+        guard granted else { return }
+
+        let reminderSlots = slots.filter { $0.isReminderOn }
+        guard !reminderSlots.isEmpty else {
+            // No reminders — cancel any existing schedule for this action
+            NotificationManager.shared.cancelNotificationsForSlot(
+                slotId: UUID(), protocolActionId: protocolAction.id
+            )
+            return
+        }
+
+        for slot in reminderSlots {
+            let payload = NotificationScheduleCreate(
+                protocolActionId: protocolAction.id,
+                preferredTime: slot.timeLabel,
+                timezone: TimeZone.current.identifier,
+                isEnabled: true
+            )
+            do {
+                let result = try await viewModel.api.upsertNotificationSchedule(
+                    token: token, actionId: protocolAction.id, payload: payload
+                )
+                NotificationManager.shared.scheduleLocalNotification(
+                    schedule: result, actionName: actionItem.displayName
+                )
+            } catch {
+                // Non-critical: per-slot upsert failure shouldn't block save
+            }
+        }
+
+        // Refresh daily status to reflect schedule changes
+        await viewModel.loadDailyStatus()
     }
 }
 

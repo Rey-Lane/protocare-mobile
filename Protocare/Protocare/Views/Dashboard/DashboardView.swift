@@ -79,13 +79,6 @@ struct DailyDashboardView: View {
                     .font(.system(size: 24, weight: .bold))
             }
             Spacer()
-            NavigationLink {
-                Text("Notifications")
-            } label: {
-                Image(systemName: "bell")
-                    .font(.system(size: 20))
-                    .foregroundStyle(.secondary)
-            }
         }
     }
 

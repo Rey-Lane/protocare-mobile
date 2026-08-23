@@ -107,10 +107,27 @@ final class ProtocolSettingsViewModel: ObservableObject {
                 item.schedule = schedule
                 resolvedItem = item
             }
-            if let resolvedItem {
+            if var resolvedItem {
                 actionItemToProtocolActionId[resolvedItem.id] = pa.id
+                // Restore slots from notification schedule so ScheduleActionSheet
+                // shows the previously saved time instead of defaulting to 8:00
+                if resolvedItem.slots.isEmpty, let notifSchedule = pa.notificationSchedule {
+                    let parts = notifSchedule.preferredTime.split(separator: ":")
+                    let hour = parts.count >= 1 ? Int(parts[0]) ?? 8 : 8
+                    let minute = parts.count >= 2 ? Int(parts[1]) ?? 0 : 0
+                    let snappedMinute = (minute / 5) * 5
+                    resolvedItem.slots = [
+                        ScheduleSlot(
+                            hour: hour,
+                            minute: snappedMinute,
+                            isReminderOn: notifSchedule.isEnabled,
+                            reminderOffsetMinutes: 0
+                        )
+                    ]
+                }
+                return resolvedItem
             }
-            return resolvedItem
+            return nil
         }
     }
 

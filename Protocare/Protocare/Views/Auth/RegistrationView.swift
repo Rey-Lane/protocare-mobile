@@ -4,7 +4,7 @@ struct RegistrationFormView: View {
     @ObservedObject var vm: RegistrationViewModel
     @FocusState private var focusedField: Field?
 
-    enum Field { case email, password, confirm }
+    enum Field { case name, email, password, confirm }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -36,6 +36,15 @@ struct RegistrationFormView: View {
 
     private var formCard: some View {
         VStack(spacing: 0) {
+            fieldRow(
+                icon: "person",
+                placeholder: "Your Name",
+                text: $vm.name,
+                field: .name
+            )
+
+            Divider().padding(.leading, 44).padding(.vertical, 6)
+
             fieldRow(
                 icon: "envelope",
                 placeholder: "Email Address",

@@ -35,7 +35,7 @@ enum APIError: Error, LocalizedError {
 // MARK: - Auth API Protocol
 
 protocol AuthAPI {
-    func register(email: String, password: String) async throws -> AccessToken
+    func register(email: String, password: String, name: String) async throws -> AccessToken
     func login(email: String, password: String) async throws -> AccessToken
     func refresh(request: RefreshTokenRequest) async throws -> TokenPair
     func logout(refreshToken: String) async throws
@@ -101,6 +101,9 @@ protocol AuthAPI {
 
     // MARK: - User Profile
     func fetchCurrentUser(token: String) async throws -> UserMeResponse
+    func updateProfile(token: String, payload: ProfileUpdateRequest) async throws -> UserMeResponse
+    func uploadProfileImage(token: String, imageData: Data) async throws -> UserMeResponse
+    func deleteAccount(token: String) async throws
 }
 
 // MARK: - API Client Implementation
@@ -208,8 +211,8 @@ final class APIClient: AuthAPI, @unchecked Sendable {
 
     // MARK: - Authentication
 
-    func register(email: String, password: String) async throws -> AccessToken {
-        let payload = UserCreate(email: email, password: password)
+    func register(email: String, password: String, name: String) async throws -> AccessToken {
+        let payload = UserCreate(email: email, password: password, name: name)
         return try await post(path: "/auth/register", body: payload)
     }
 
@@ -610,7 +613,31 @@ final class APIClient: AuthAPI, @unchecked Sendable {
     // MARK: - User Profile
 
     func fetchCurrentUser(token: String) async throws -> UserMeResponse {
-        try await get(path: "/users/me", token: token)
+        try await get(path: "/profile", token: token)
+    }
+
+    func updateProfile(token: String, payload: ProfileUpdateRequest) async throws -> UserMeResponse {
+        guard let url = resolveURL(path: "/profile") else {
+            throw APIError.invalidURL
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try encoder.encode(payload)
+        return try await perform(request: request)
+    }
+
+    func uploadProfileImage(token: String, imageData: Data) async throws -> UserMeResponse {
+        try await uploadImage(
+            path: "/profile/avatar",
+            imageData: imageData,
+            token: token
+        )
+    }
+
+    func deleteAccount(token: String) async throws {
+        try await delete(path: "/profile", token: token)
     }
 
     // MARK: - Generic Image Upload

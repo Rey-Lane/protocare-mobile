@@ -4,6 +4,7 @@ struct DailyDashboardView: View {
     @ObservedObject var vm: DailyDashboardViewModel
     let api: AuthAPI
     let authStore: AuthStore
+    @ObservedObject var profileVM: ProfileViewModel
 
     private let accent = Color.appPrimary
 
@@ -49,8 +50,14 @@ struct DailyDashboardView: View {
         }
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
-        .task { await vm.load() }
-        .refreshable { await vm.load() }
+        .task {
+            await profileVM.loadProfile()
+            await vm.load()
+        }
+        .refreshable {
+            await profileVM.loadProfile()
+            await vm.load()
+        }
     }
 
     private var pastDayBanner: some View {
@@ -90,7 +97,12 @@ struct DailyDashboardView: View {
     }
 
     private var userName: String {
-        return "there"
+        let name = profileVM.profile.name
+        if name == "—" || name.isEmpty {
+            return "there"
+        }
+        // Use first name only for the greeting
+        return name.components(separatedBy: " ").first ?? name
     }
 
     private func statsRow(streak: StreakInfo, percentage: Int) -> some View {

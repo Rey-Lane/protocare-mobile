@@ -145,10 +145,12 @@ public struct RefreshTokenRequest: Codable, Hashable, Sendable {
 public struct UserCreate: Codable, Hashable, Sendable {
     public var email: String
     public var password: String
+    public var name: String
 
-    public init(email: String, password: String) {
+    public init(email: String, password: String, name: String) {
         self.email = email
         self.password = password
+        self.name = name
     }
 }
 

@@ -518,7 +518,7 @@ private struct ProtocolCardView: View {
 
 struct ProtocolsView_Previews: PreviewProvider {
     struct PreviewAPI: AuthAPI {
-        func register(email: String, password: String) async throws -> AccessToken { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r", tokenType: "Bearer") }
+        func register(email: String, password: String, name: String) async throws -> AccessToken { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r", tokenType: "Bearer") }
         func login(email: String, password: String) async throws -> AccessToken { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r", tokenType: "Bearer") }
         func refresh(request: RefreshTokenRequest) async throws -> TokenPair { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r") }
         func logout(refreshToken: String) async throws {}
@@ -724,8 +724,15 @@ struct ProtocolsView_Previews: PreviewProvider {
             []
         }
         func fetchCurrentUser(token: String) async throws -> UserMeResponse {
-            UserMeResponse(id: UUID().uuidString, email: "preview@protocare.app", isActive: true, role: "user", timezone: nil, protocolsCount: 3, streak: StreakInfo(currentStreak: 7, longestStreak: 14), totalCheckins: 42)
+            UserMeResponse(id: UUID().uuidString, email: "preview@protocare.app", name: "Preview", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 3, streak: StreakInfo(currentStreak: 7, longestStreak: 14), totalCheckins: 42)
         }
+        func updateProfile(token: String, payload: ProfileUpdateRequest) async throws -> UserMeResponse {
+            UserMeResponse(id: UUID().uuidString, email: "preview@protocare.app", name: "Preview", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 3, streak: StreakInfo(currentStreak: 7, longestStreak: 14), totalCheckins: 42)
+        }
+        func uploadProfileImage(token: String, imageData: Data) async throws -> UserMeResponse {
+            UserMeResponse(id: UUID().uuidString, email: "preview@protocare.app", name: "Preview", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 3, streak: StreakInfo(currentStreak: 7, longestStreak: 14), totalCheckins: 42)
+        }
+        func deleteAccount(token: String) async throws {}
         func reorderProtocolActions(token: String, protocolId: String, actionIds: [String]) async throws {}
         func fetchProtocolNotificationSchedules(token: String, protocolId: String) async throws -> [String: NotificationScheduleResponse] { [:] }
         func addActionToProtocol(token: String, protocolId: String, payload: ProtocolActionCreate) async throws -> ProtocolItem {

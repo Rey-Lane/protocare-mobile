@@ -62,18 +62,30 @@ struct ProfileView: View {
     }
 
     private var avatar: some View {
-        ZStack {
-            Circle()
-                .fill(.white.opacity(0.25))
-                .frame(width: 64, height: 64)
-                .overlay(
-                    Circle()
-                        .stroke(.white.opacity(0.4), lineWidth: 2)
-                )
-            Text(vm.profile.initials)
-                .font(.system(size: 26, weight: .semibold))
-                .foregroundStyle(.white)
+        ResilientAsyncImage(urlString: vm.profile.avatarURL, contentMode: .fill) {
+            initialsCircle
         }
+        .frame(width: 64, height: 64)
+        .clipShape(Circle())
+        .overlay(
+            Circle()
+                .stroke(.white.opacity(0.4), lineWidth: 2)
+        )
+    }
+
+    private var initialsCircle: some View {
+        Circle()
+            .fill(.white.opacity(0.25))
+            .frame(width: 64, height: 64)
+            .overlay(
+                Circle()
+                    .stroke(.white.opacity(0.4), lineWidth: 2)
+            )
+            .overlay {
+                Text(vm.profile.initials)
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
     }
 
     private var statsRow: some View {
@@ -112,13 +124,7 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 0) {
             sectionTitle("ACCOUNT")
 
-            settingsRow(
-                icon: "person.fill",
-                iconColor: Color.appPrimaryDark,
-                iconBg: Color.appPrimary.opacity(0.15),
-                title: "Edit Profile",
-                subtitle: "Name, photo, email"
-            )
+            editProfileRow
             divider
             notificationsRow
         }
@@ -224,6 +230,41 @@ struct ProfileView: View {
         Divider()
             .padding(.leading, 48)
             .foregroundStyle(Color.appBorder)
+    }
+
+    // MARK: - Notifications Row
+
+    private var editProfileRow: some View {
+        NavigationLink {
+            EditProfileView(vm: vm, api: api, authStore: authStore)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "person.fill")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.appPrimaryDark)
+                    .frame(width: 34, height: 34)
+                    .background(Color.appPrimary.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Edit Profile")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color.appText)
+                    Text("Name, photo")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.appTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.appBorder)
+            }
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Notifications Row

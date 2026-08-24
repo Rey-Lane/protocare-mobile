@@ -11,6 +11,7 @@ import Combine
 @MainActor
 final class RegistrationViewModel: ObservableObject {
     // Ввод пользователя
+    @Published var name: String = ""
     @Published var email: String = ""
     @Published var password: String = ""
     @Published var passwordConfirmation: String = ""
@@ -29,6 +30,7 @@ final class RegistrationViewModel: ObservableObject {
     }
     
     var canSubmit: Bool {
+        guard name.trimmingCharacters(in: .whitespaces).count >= 1 else { return false }
         guard email.isValidEmail else { return false }
         guard password.count >= 8 else { return false }
         guard password == passwordConfirmation else { return false }
@@ -43,7 +45,7 @@ final class RegistrationViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            let result = try await api.register(email: email, password: password)
+            let result = try await api.register(email: email, password: password, name: name.trimmingCharacters(in: .whitespaces))
             authStore.setAuth(tokens: result)
             isRegistered = true
         } catch {

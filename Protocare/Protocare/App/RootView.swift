@@ -47,7 +47,8 @@ private struct MainTabView: View {
             DailyDashboardView(
                 vm: dashboardVM,
                 api: api,
-                authStore: authStore
+                authStore: authStore,
+                profileVM: profileVM
             )
             .tabItem {
                 Label("Daily", systemImage: "checklist")
@@ -80,7 +81,7 @@ private struct MainTabView: View {
                 authStore: authStore
             )
             .tabItem {
-                Label("Me", systemImage: "person.fill")
+                Label("Profile", systemImage: "person.fill")
             }
             .tag(3)
         }

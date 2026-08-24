@@ -213,7 +213,7 @@ class MockAuthAPI: AuthAPI {
 
 
     // MARK: - Auth Methods
-    func register(email: String, password: String) async throws -> AccessToken {
+    func register(email: String, password: String, name: String) async throws -> AccessToken {
         switch registerResult {
         case .success(let response):
             return response
@@ -561,13 +561,50 @@ class MockAuthAPI: AuthAPI {
     // MARK: - User Profile
 
     var fetchCurrentUserResult: Result<UserMeResponse, Error> = .success(
-        UserMeResponse(id: UUID().uuidString, email: "mock@protocare.app", isActive: true, role: "user", timezone: nil, protocolsCount: 1, streak: StreakInfo(currentStreak: 3, longestStreak: 5), totalCheckins: 10)
+        UserMeResponse(id: UUID().uuidString, email: "mock@protocare.app", name: "Mock User", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 1, streak: StreakInfo(currentStreak: 3, longestStreak: 5), totalCheckins: 10)
     )
 
     func fetchCurrentUser(token: String) async throws -> UserMeResponse {
         switch fetchCurrentUserResult {
         case .success(let response):
             return response
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    var updateProfileResult: Result<UserMeResponse, Error> = .success(
+        UserMeResponse(id: UUID().uuidString, email: "mock@protocare.app", name: "Mock User", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 1, streak: StreakInfo(currentStreak: 3, longestStreak: 5), totalCheckins: 10)
+    )
+
+    func updateProfile(token: String, payload: ProfileUpdateRequest) async throws -> UserMeResponse {
+        switch updateProfileResult {
+        case .success(let response):
+            return response
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    var uploadProfileImageResult: Result<UserMeResponse, Error> = .success(
+        UserMeResponse(id: UUID().uuidString, email: "mock@protocare.app", name: "Mock User", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 1, streak: StreakInfo(currentStreak: 3, longestStreak: 5), totalCheckins: 10)
+    )
+
+    func uploadProfileImage(token: String, imageData: Data) async throws -> UserMeResponse {
+        switch uploadProfileImageResult {
+        case .success(let response):
+            return response
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    var deleteAccountResult: Result<Void, Error> = .success(())
+
+    func deleteAccount(token: String) async throws {
+        switch deleteAccountResult {
+        case .success:
+            return
         case .failure(let error):
             throw error
         }

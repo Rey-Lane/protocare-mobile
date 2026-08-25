@@ -5,12 +5,10 @@ struct ProtocolsView: View {
     let api: AuthAPI
     let authStore: AuthStore
     @State private var showingBuilder = false
-    @State private var showingTemplates = false
     @State private var selectedProtocol: ProtocolItem?
     @State private var openEditOnAppear = false
     @State private var protocolToDelete: ProtocolItem? = nil
     @State private var isSearching = false
-    @State private var showCreateOptions = false
 
 
 
@@ -45,7 +43,7 @@ struct ProtocolsView: View {
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
                             Button {
-                                showCreateOptions = true
+                                showingBuilder = true
                             } label: {
                                 Text("Create Protocol")
                                     .fontWeight(.semibold)
@@ -83,7 +81,7 @@ struct ProtocolsView: View {
                                     .onTapGesture {
                                         selectedProtocol = item
                                     }
-                                    .onAppear { showCreateOptions = false }
+
                             }
                         }
                         .listStyle(.plain)
@@ -114,16 +112,6 @@ struct ProtocolsView: View {
                     authStore: authStore,
                     onSaved: {
                         showingBuilder = false
-                        Task { await vm.load() }
-                    }
-                )
-            }
-            .navigationDestination(isPresented: $showingTemplates) {
-                TemplatesView(
-                    api: api,
-                    authStore: authStore,
-                    onProtocolCreated: {
-                        showingTemplates = false
                         Task { await vm.load() }
                     }
                 )
@@ -300,79 +288,16 @@ struct ProtocolsView: View {
             Spacer()
             HStack {
                 Spacer()
-                VStack(spacing: 10) {
-                    if showCreateOptions {
-                        VStack(spacing: 0) {
-                            Button {
-                                showCreateOptions = false
-                                showingTemplates = true
-                            } label: {
-                                HStack(spacing: 10) {
-                                    Image(systemName: "square.grid.2x2")
-                                        .font(.system(size: 15, weight: .semibold))
-                                        .foregroundStyle(Color.appPrimary)
-                                        .frame(width: 32, height: 32)
-                                        .background(Color(.secondarySystemBackground))
-                                        .clipShape(Circle())
-
-                                    Text("From Template")
-                                        .font(.subheadline.weight(.medium))
-                                        .foregroundStyle(.primary)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 12)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-
-                            Divider()
-                                .padding(.horizontal, 14)
-
-                            Button {
-                                showCreateOptions = false
-                                showingBuilder = true
-                            } label: {
-                                HStack(spacing: 10) {
-                                    Image(systemName: "pencil.line")
-                                        .font(.system(size: 15, weight: .semibold))
-                                        .foregroundStyle(Color.appPrimary)
-                                        .frame(width: 32, height: 32)
-                                        .background(Color(.secondarySystemBackground))
-                                        .clipShape(Circle())
-
-                                    Text("Manual")
-                                        .font(.subheadline.weight(.medium))
-                                        .foregroundStyle(.primary)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 12)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .frame(width: 200)
-                        .background(Color(.systemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .shadow(color: Color.black.opacity(0.12), radius: 16, y: 4)
-                        .transition(.scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity))
-                    }
-
-                    Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            showCreateOptions.toggle()
-                        }
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(.white)
-                            .frame(width: 52, height: 52)
-                            .background(Color.appPrimary)
-                            .clipShape(Circle())
-                            .shadow(color: Color.appPrimary.opacity(0.4), radius: 10, y: 4)
-                            .rotationEffect(.degrees(showCreateOptions ? 45 : 0))
-                    }
+                Button {
+                    showingBuilder = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(.white)
+                        .frame(width: 52, height: 52)
+                        .background(Color.appPrimary)
+                        .clipShape(Circle())
+                        .shadow(color: Color.appPrimary.opacity(0.4), radius: 10, y: 4)
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 24)
@@ -668,16 +593,6 @@ struct ProtocolsView_Previews: PreviewProvider {
             ProtocolWithCheckins(id: protocolId, userId: UUID().uuidString, name: "Preview", actions: [], isActive: true, startedAt: nil, endedAt: nil)
         }
         func fetchProtocolCheckins(token: String, protocolId: String, dateFrom: Date?, dateTo: Date?) async throws -> [CheckIn] { [] }
-        func fetchTemplates(token: String) async throws -> [ProtocolTemplate] { [] }
-        func fetchTemplate(token: String, templateId: String) async throws -> ProtocolTemplate {
-            ProtocolTemplate(id: templateId, name: "Preview Template", category: .morningRoutine, actionDrafts: [])
-        }
-        func createProtocolFromTemplate(token: String, templateId: String) async throws -> ProtocolItem {
-            ProtocolItem(id: UUID().uuidString, userId: UUID().uuidString, name: "Template Protocol", actions: [], isActive: true, startedAt: nil, endedAt: nil)
-        }
-        func fetchTemplateImage(token: String, templateId: String) async throws -> ImageAttachment {
-            ImageAttachment(id: UUID().uuidString, ownerId: UUID().uuidString, attachableType: "template", attachableId: templateId, filename: "image.jpg", contentType: "image/jpeg", fileSize: 1024, width: 100, height: 100, url: "https://example.com/image.jpg", createdAt: "2024-01-01T12:00:00Z")
-        }
         func fetchJournalEntries(token: String, protocolId: String, dateFrom: String?, dateTo: String?) async throws -> [JournalEntry] { [] }
         func fetchJournalEntry(token: String, protocolId: String, date: String) async throws -> JournalEntryDetail {
             JournalEntryDetail(id: UUID().uuidString, protocolId: protocolId, date: date, dayNumber: 1, metrics: [:], availableMetrics: [], checkins: [], createdAt: "2024-01-01T12:00:00Z", updatedAt: "2024-01-01T12:00:00Z")

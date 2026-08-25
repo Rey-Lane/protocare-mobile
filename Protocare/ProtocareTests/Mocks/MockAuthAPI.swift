@@ -81,39 +81,6 @@ class MockAuthAPI: AuthAPI {
     )
     var deleteImageResult: Result<Void, Error> = .success(())
 
-    // MARK: - Templates
-    var fetchTemplatesResult: Result<[ProtocolTemplate], Error> = .success([])
-    var fetchTemplateResult: Result<ProtocolTemplate, Error> = .success(
-        ProtocolTemplate(
-            id: "test-template-id",
-            name: "Test Template",
-            description: "A test template",
-            category: .morningRoutine,
-            actionDrafts: []
-        )
-    )
-    var createProtocolFromTemplateResult: Result<ProtocolItem, Error> = .success(
-        ProtocolItem(
-            id: "test-protocol-id",
-            userId: "test-user-id",
-            name: "Test Protocol From Template",
-            actions: [],
-            isActive: true
-        )
-    )
-    var fetchTemplateImageResult: Result<ImageAttachment, Error> = .success(
-        ImageAttachment(
-            id: "test-image-id",
-            ownerId: "test-owner-id",
-            attachableType: "template",
-            attachableId: "test-template-id",
-            filename: "test.jpg",
-            contentType: "image/jpeg",
-            fileSize: 1024,
-            createdAt: "2024-01-01T12:00:00Z"
-        )
-    )
-
     // MARK: - Notification Schedules
     var fetchNotificationSchedulesResult: Result<[NotificationScheduleResponse], Error> = .success([])
     var fetchNotificationScheduleResult: Result<NotificationScheduleResponse, Error> = .success(
@@ -388,43 +355,6 @@ class MockAuthAPI: AuthAPI {
         switch fetchProtocolCheckinsResult {
         case .success(let checkins):
             return checkins
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    // MARK: - Templates
-    func fetchTemplates(token: String) async throws -> [ProtocolTemplate] {
-        switch fetchTemplatesResult {
-        case .success(let templates):
-            return templates
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func fetchTemplate(token: String, templateId: String) async throws -> ProtocolTemplate {
-        switch fetchTemplateResult {
-        case .success(let template):
-            return template
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func createProtocolFromTemplate(token: String, templateId: String) async throws -> ProtocolItem {
-        switch createProtocolFromTemplateResult {
-        case .success(let protocolItem):
-            return protocolItem
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func fetchTemplateImage(token: String, templateId: String) async throws -> ImageAttachment {
-        switch fetchTemplateImageResult {
-        case .success(let response):
-            return response
         case .failure(let error):
             throw error
         }

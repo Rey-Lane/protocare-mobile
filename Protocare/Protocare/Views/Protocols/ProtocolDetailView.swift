@@ -620,16 +620,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
             ProtocolWithCheckins(id: protocolId, userId: UUID().uuidString, name: "Preview", actions: [], isActive: true, startedAt: nil, endedAt: nil)
         }
         func fetchProtocolCheckins(token: String, protocolId: String, dateFrom: Date?, dateTo: Date?) async throws -> [CheckIn] { [] }
-        func fetchTemplates(token: String) async throws -> [ProtocolTemplate] { [] }
-        func fetchTemplate(token: String, templateId: String) async throws -> ProtocolTemplate {
-            ProtocolTemplate(id: templateId, name: "Preview Template", category: .morningRoutine, actionDrafts: [])
-        }
-        func createProtocolFromTemplate(token: String, templateId: String) async throws -> ProtocolItem {
-            ProtocolItem(id: UUID().uuidString, userId: UUID().uuidString, name: "Template Protocol", actions: [], isActive: true, startedAt: nil, endedAt: nil)
-        }
-        func fetchTemplateImage(token: String, templateId: String) async throws -> ImageAttachment {
-            ImageAttachment(id: UUID().uuidString, ownerId: UUID().uuidString, attachableType: "template", attachableId: templateId, filename: "image.jpg", contentType: "image/jpeg", fileSize: 1024, width: 100, height: 100, url: "https://example.com/image.jpg", createdAt: "2024-01-01T12:00:00Z")
-        }
         func fetchJournalEntries(token: String, protocolId: String, dateFrom: String?, dateTo: String?) async throws -> [JournalEntry] { [] }
         func fetchJournalEntry(token: String, protocolId: String, date: String) async throws -> JournalEntryDetail {
             JournalEntryDetail(id: UUID().uuidString, protocolId: protocolId, date: date, dayNumber: 1, metrics: [:], availableMetrics: [], checkins: [], createdAt: "2024-01-01T12:00:00Z", updatedAt: "2024-01-01T12:00:00Z")

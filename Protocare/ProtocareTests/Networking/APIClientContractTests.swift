@@ -20,47 +20,6 @@ final class APIClientContractTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - Templates
-
-    func test_fetchTemplates_sendsGETToTemplatesEndpoint() async throws {
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url?.path, "/v1/templates")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, Data("[]".utf8))
-        }
-
-        _ = try await client.fetchTemplates(token: "test-token")
-    }
-
-    func test_fetchTemplate_sendsGETToTemplateByIdEndpoint() async throws {
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url?.path, "/v1/templates/tpl-123")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    {"id":"tpl-123","name":"Test","description":null,"category":"morning_routine","action_drafts":[]}
-                    """.utf8))
-        }
-
-        _ = try await client.fetchTemplate(token: "test-token", templateId: "tpl-123")
-    }
-
-    func test_createProtocolFromTemplate_sendsPOSTToFromTemplateEndpoint() async throws {
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "POST")
-            XCTAssertTrue(request.url?.path.contains("/v1/protocols/from-template/tpl-123") ?? false)
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    {"id":"proto-1","user_id":"u-1","name":"Test","actions":[],"is_active":true}
-                    """.utf8))
-        }
-
-        _ = try await client.createProtocolFromTemplate(token: "test-token", templateId: "tpl-123")
-    }
-
     // MARK: - Notification Schedules
 
     func test_fetchNotificationSchedules_sendsGETToScheduleEndpoint() async throws {

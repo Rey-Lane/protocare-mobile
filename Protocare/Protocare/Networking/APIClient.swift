@@ -55,12 +55,6 @@ protocol AuthAPI {
     func fetchProtocolWithCheckins(token: String, protocolId: String) async throws -> ProtocolWithCheckins
     func fetchProtocolCheckins(token: String, protocolId: String, dateFrom: Date?, dateTo: Date?) async throws -> [CheckIn]
 
-    // MARK: - Templates
-    func fetchTemplates(token: String) async throws -> [ProtocolTemplate]
-    func fetchTemplate(token: String, templateId: String) async throws -> ProtocolTemplate
-    func createProtocolFromTemplate(token: String, templateId: String) async throws -> ProtocolItem
-    func fetchTemplateImage(token: String, templateId: String) async throws -> ImageAttachment
-
     // MARK: - Journal
     func fetchJournalEntries(token: String, protocolId: String, dateFrom: String?, dateTo: String?) async throws -> [JournalEntry]
     func fetchJournalEntry(token: String, protocolId: String, date: String) async throws -> JournalEntryDetail
@@ -341,24 +335,6 @@ final class APIClient: AuthAPI, @unchecked Sendable {
         let body = ["action_ids": actionIds]
         let request = try makeRequest(path: "/protocols/\(protocolId)/actions/reorder", method: "PUT", body: body, token: token)
         _ = try await performData(request: request)
-    }
-
-    // MARK: - Templates
-
-    func fetchTemplates(token: String) async throws -> [ProtocolTemplate] {
-        try await get(path: "/templates", token: token)
-    }
-
-    func fetchTemplate(token: String, templateId: String) async throws -> ProtocolTemplate {
-        try await get(path: "/templates/\(templateId)", token: token)
-    }
-
-    func createProtocolFromTemplate(token: String, templateId: String) async throws -> ProtocolItem {
-        try await post(path: "/protocols/from-template/\(templateId)", body: EmptyBody(), token: token)
-    }
-
-    func fetchTemplateImage(token: String, templateId: String) async throws -> ImageAttachment {
-        try await get(path: "/images/templates/\(templateId)", token: token)
     }
 
     // MARK: - User Actions

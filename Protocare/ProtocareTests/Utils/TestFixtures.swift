@@ -117,46 +117,6 @@ enum TestFixtures {
         message: "Not found"
     )
 
-    // MARK: - Templates
-
-    static let morningRoutineTemplate = ProtocolTemplate(
-        id: "tpl-001",
-        name: "Morning Routine",
-        description: "A complete morning skincare routine",
-        category: .morningRoutine,
-        actionDrafts: [
-            TemplateActionDraft(
-                id: "draft-001",
-                substanceName: "Cleanser",
-                substanceType: "topical",
-                volume: Quantity(amount: 5.0, unit: .ml),
-                durationSeconds: nil,
-                rrule: "FREQ=DAILY;BYHOUR=7;BYMINUTE=0",
-                position: 0
-            )
-        ]
-    )
-
-    static let supplementTemplate = ProtocolTemplate(
-        id: "tpl-002",
-        name: "Daily Supplements",
-        description: "Essential daily supplements",
-        category: .supplement,
-        actionDrafts: [
-            TemplateActionDraft(
-                id: "draft-002",
-                substanceName: "Vitamin D",
-                substanceType: "oral",
-                volume: Quantity(amount: 1.0, unit: .capsule),
-                durationSeconds: nil,
-                rrule: "FREQ=DAILY;BYHOUR=8;BYMINUTE=0",
-                position: 0
-            )
-        ]
-    )
-
-    static let testTemplates = [morningRoutineTemplate, supplementTemplate]
-
     // MARK: - Checkins
 
     static func makeCheckinCreate(

@@ -530,7 +530,9 @@ public struct ProtocolItem: Codable, Hashable, Sendable, Identifiable {
 
 public struct ProtocolAction: Codable, Hashable, Sendable, Identifiable {
     public var id: String
-    public var actionId: String?
+    /// Single unified action reference (Step 23). The backend contract makes
+    /// `action_id` required on every protocol action — the dual-ID system is gone.
+    public var actionId: String
     /// Per-protocol dosage override. Merges over `Action.defaultParameters`:
     /// `effective = {**action.default_parameters, **user_parameters}`.
     public var userParameters: [String: AnyCodable]?
@@ -539,7 +541,7 @@ public struct ProtocolAction: Codable, Hashable, Sendable, Identifiable {
     public var checkins: [CheckIn]?
     public var notificationSchedule: NotificationScheduleResponse?
 
-    public init(id: String, actionId: String? = nil, userParameters: [String: AnyCodable]? = nil, rrule: String, position: Int? = nil, checkins: [CheckIn]? = nil, notificationSchedule: NotificationScheduleResponse? = nil) {
+    public init(id: String, actionId: String, userParameters: [String: AnyCodable]? = nil, rrule: String, position: Int? = nil, checkins: [CheckIn]? = nil, notificationSchedule: NotificationScheduleResponse? = nil) {
         self.id = id
         self.actionId = actionId
         self.userParameters = userParameters
@@ -560,7 +562,7 @@ public struct ProtocolAction: Codable, Hashable, Sendable, Identifiable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
-        actionId = try container.decodeIfPresent(String.self, forKey: .actionId)
+        actionId = try container.decode(String.self, forKey: .actionId)
         userParameters = try container.decodeIfPresent([String: AnyCodable].self, forKey: .userParameters)
         rrule = try container.decode(String.self, forKey: .rrule)
         position = try container.decodeIfPresent(Int.self, forKey: .position)
@@ -570,14 +572,16 @@ public struct ProtocolAction: Codable, Hashable, Sendable, Identifiable {
 }
 
 public struct ProtocolActionCreate: Codable, Hashable, Sendable {
-    public var actionId: String?
+    /// Unified action reference (Step 23): required single `action_id`,
+    /// matching the backend contract (`required: [action_id, rrule]`).
+    public var actionId: String
     public var userParameters: [String: AnyCodable]?
     public var rrule: String
     public var position: Int?
     public var notificationTime: String?
     public var notificationTimezone: String?
 
-    public init(actionId: String? = nil, userParameters: [String: AnyCodable]? = nil, rrule: String, position: Int? = nil, notificationTime: String? = nil, notificationTimezone: String? = nil) {
+    public init(actionId: String, userParameters: [String: AnyCodable]? = nil, rrule: String, position: Int? = nil, notificationTime: String? = nil, notificationTimezone: String? = nil) {
         self.actionId = actionId
         self.userParameters = userParameters
         self.rrule = rrule
@@ -596,7 +600,7 @@ public struct ProtocolActionCreate: Codable, Hashable, Sendable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        actionId = try container.decodeIfPresent(String.self, forKey: .actionId)
+        actionId = try container.decode(String.self, forKey: .actionId)
         userParameters = try container.decodeIfPresent([String: AnyCodable].self, forKey: .userParameters)
         rrule = try container.decode(String.self, forKey: .rrule)
         position = try container.decodeIfPresent(Int.self, forKey: .position)
@@ -606,7 +610,7 @@ public struct ProtocolActionCreate: Codable, Hashable, Sendable {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(actionId, forKey: .actionId)
+        try container.encode(actionId, forKey: .actionId)
         try container.encodeIfPresent(userParameters, forKey: .userParameters)
         try container.encode(rrule, forKey: .rrule)
         try container.encodeIfPresent(position, forKey: .position)
@@ -726,8 +730,8 @@ public struct ProtocolCheckinCreate: Encodable {
 public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
     public var id: String { protocolActionId }
     public var protocolActionId: String
+    /// Single unified action reference (Step 23) — matches the backend contract.
     public var actionId: String?
-    public var userActionId: UUID?
     public var actionName: String
     public var position: Int
     public var scheduledTime: String?
@@ -737,10 +741,9 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
     public var appliedVolume: QuantityOutput?
     public var appliedDurationSeconds: Int?
 
-    public init(protocolActionId: String, actionId: String? = nil, userActionId: UUID? = nil, actionName: String, position: Int, scheduledTime: String? = nil, isCompleted: Bool, completedAt: String? = nil, checkinId: String? = nil, appliedVolume: QuantityOutput? = nil, appliedDurationSeconds: Int? = nil) {
+    public init(protocolActionId: String, actionId: String? = nil, actionName: String, position: Int, scheduledTime: String? = nil, isCompleted: Bool, completedAt: String? = nil, checkinId: String? = nil, appliedVolume: QuantityOutput? = nil, appliedDurationSeconds: Int? = nil) {
         self.protocolActionId = protocolActionId
         self.actionId = actionId
-        self.userActionId = userActionId
         self.actionName = actionName
         self.position = position
         self.scheduledTime = scheduledTime
@@ -754,7 +757,6 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case protocolActionId = "protocol_action_id"
         case actionId = "action_id"
-        case userActionId = "user_action_id"
         case actionName = "action_name"
         case position
         case scheduledTime = "scheduled_time"
@@ -769,7 +771,6 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         protocolActionId = try container.decode(String.self, forKey: .protocolActionId)
         actionId = try container.decodeIfPresent(String.self, forKey: .actionId)
-        userActionId = try container.decodeIfPresent(UUID.self, forKey: .userActionId)
         actionName = try container.decode(String.self, forKey: .actionName)
         position = try container.decode(Int.self, forKey: .position)
         scheduledTime = try container.decodeIfPresent(String.self, forKey: .scheduledTime)
@@ -784,7 +785,6 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(protocolActionId, forKey: .protocolActionId)
         try container.encodeIfPresent(actionId, forKey: .actionId)
-        try container.encodeIfPresent(userActionId, forKey: .userActionId)
         try container.encode(actionName, forKey: .actionName)
         try container.encode(position, forKey: .position)
         try container.encodeIfPresent(scheduledTime, forKey: .scheduledTime)

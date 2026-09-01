@@ -190,14 +190,17 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
     }
 
     func testEncode_WithoutOptionalFields_OmitsThemFromJSON() throws {
+        // Step 23: action_id is required by the unified backend contract,
+        // so only user_parameters/position/notification fields stay omittable.
         let payload = ProtocolActionCreate(
+            actionId: "action-123",
             rrule: "FREQ=DAILY"
         )
 
         let data = try JSONEncoder().encode(payload)
         let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
 
-        XCTAssertFalse(json.keys.contains("action_id"))
+        XCTAssertEqual(json["action_id"] as? String, "action-123")
         XCTAssertFalse(json.keys.contains("user_parameters"))
         XCTAssertFalse(json.keys.contains("position"))
         XCTAssertFalse(json.keys.contains("notification_time"))

@@ -482,6 +482,31 @@ struct ProtocolSettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(action.displayName)
                                 .font(.system(size: 15, weight: .semibold))
+                            // Unified model (Step 23): category + modality badges
+                            // replace provenance ("Library"/"Custom") labels.
+                            HStack(spacing: 6) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: action.category.tagIcon)
+                                        .font(.system(size: 10, weight: .semibold))
+                                    Text(action.category.displayName)
+                                        .font(.system(size: 11, weight: .semibold))
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .foregroundStyle(action.category.tagColor)
+                                .background(action.category.tagColor.opacity(0.14))
+                                .clipShape(Capsule())
+
+                                if let modality = action.modality {
+                                    Text(modality.displayName)
+                                        .font(.system(size: 11, weight: .medium))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 3)
+                                        .foregroundStyle(.secondary)
+                                        .background(Color(.systemGray5))
+                                        .clipShape(Capsule())
+                                }
+                            }
                             if !action.scheduleSummaryText.isEmpty {
                                 Text(action.scheduleSummaryText)
                                     .font(.caption)

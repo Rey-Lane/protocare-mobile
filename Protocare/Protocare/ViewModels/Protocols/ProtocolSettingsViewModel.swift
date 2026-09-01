@@ -90,37 +90,31 @@ final class ProtocolSettingsViewModel: ObservableObject {
             hasEditEndedAt = true
         }
 
-        // Build action items from protocol actions
+        // Build action items from protocol actions.
+        // Unified model (Step 23): every ProtocolAction carries a single
+        // non-optional `action_id`; resolve names straight from actionsLookup.
         editActions = item.actions.sorted(by: { ($0.position ?? 0) < ($1.position ?? 0) }).compactMap { pa in
-            let schedule = ActionSchedule.fromRRule(pa.rrule)
-            var resolvedItem: ActionItem?
-            if let actionId = pa.actionId, let action = actionsLookup[actionId] {
-                var item = action
-                item.schedule = schedule
-                item.userParameters = pa.userParameters
-                resolvedItem = item
+            guard var item = actionsLookup[pa.actionId] else { return nil }
+            item.schedule = ActionSchedule.fromRRule(pa.rrule)
+            item.userParameters = pa.userParameters
+            actionItemToProtocolActionId[item.id] = pa.id
+            // Restore slots from notification schedule so ScheduleActionSheet
+            // shows the previously saved time instead of defaulting to 8:00
+            if item.slots.isEmpty, let notifSchedule = pa.notificationSchedule {
+                let parts = notifSchedule.preferredTime.split(separator: ":")
+                let hour = parts.count >= 1 ? Int(parts[0]) ?? 8 : 8
+                let minute = parts.count >= 2 ? Int(parts[1]) ?? 0 : 0
+                let snappedMinute = (minute / 5) * 5
+                item.slots = [
+                    ScheduleSlot(
+                        hour: hour,
+                        minute: snappedMinute,
+                        isReminderOn: notifSchedule.isEnabled,
+                        reminderOffsetMinutes: 0
+                    )
+                ]
             }
-            if var resolvedItem {
-                actionItemToProtocolActionId[resolvedItem.id] = pa.id
-                // Restore slots from notification schedule so ScheduleActionSheet
-                // shows the previously saved time instead of defaulting to 8:00
-                if resolvedItem.slots.isEmpty, let notifSchedule = pa.notificationSchedule {
-                    let parts = notifSchedule.preferredTime.split(separator: ":")
-                    let hour = parts.count >= 1 ? Int(parts[0]) ?? 8 : 8
-                    let minute = parts.count >= 2 ? Int(parts[1]) ?? 0 : 0
-                    let snappedMinute = (minute / 5) * 5
-                    resolvedItem.slots = [
-                        ScheduleSlot(
-                            hour: hour,
-                            minute: snappedMinute,
-                            isReminderOn: notifSchedule.isEnabled,
-                            reminderOffsetMinutes: 0
-                        )
-                    ]
-                }
-                return resolvedItem
-            }
-            return nil
+            return item
         }
     }
 

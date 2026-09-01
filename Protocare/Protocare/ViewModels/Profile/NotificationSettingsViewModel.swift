@@ -49,7 +49,8 @@ final class NotificationSettingsViewModel: ObservableObject {
             var actionLookup: [String: (actionName: String, protocolName: String)] = [:]
             for proto in protocolsResponse {
                 for pa in proto.actions {
-                    let name = pa.actionId.flatMap { actionsLookup[$0]?.name }
+                    // Unified model (Step 23): single non-optional action_id lookup.
+                    let name = actionsLookup[pa.actionId]?.name
                     actionLookup[pa.id] = (actionName: name ?? "Action", protocolName: proto.name)
                 }
             }

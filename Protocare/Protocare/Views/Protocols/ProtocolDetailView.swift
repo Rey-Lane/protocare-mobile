@@ -130,7 +130,7 @@ struct ProtocolDetailView: View {
                 ActionCheckinView(
                     protocolId: viewModel.item.id,
                     protocolAction: action,
-                    action: action.actionId.flatMap { viewModel.actionsLookup[$0] },
+                    action: viewModel.actionsLookup[action.actionId],
                     vm: ActionCheckinViewModel(api: viewModel.api, authStore: viewModel.authStore, protocolId: viewModel.item.id, protocolActionId: action.id),
                     onSubmit: {
                         Task {
@@ -141,7 +141,8 @@ struct ProtocolDetailView: View {
             }
         }
         .sheet(item: $viewModel.selectedActionForSchedule) { action in
-            let actionItem = action.actionId.flatMap { viewModel.actionsLookup[$0] }
+            // Unified model (Step 23): single non-optional action_id lookup.
+            let actionItem = viewModel.actionsLookup[action.actionId]
             if let actionItem {
                 ScheduleActionSheet(action: actionItem) { schedule, slots in
                     Task {
@@ -267,17 +268,16 @@ struct ProtocolDetailView: View {
                 VStack(spacing: 10) {
                     ForEach(sorted) { actionStatus in
                         let protocolAction = viewModel.currentProtocol.actions.first { $0.id == actionStatus.protocolActionId }
-                        let categoryIcon: String = {
-                            if let actionId = actionStatus.actionId,
-                               let actionItem = viewModel.actionsLookup[actionId] {
-                                return actionItem.category.tagIcon
-                            }
-                            return "star.fill"
-                        }()
+                        // Unified model (Step 23): single action_id resolution —
+                        // category icon comes straight from the unified Action.
+                        let resolvedAction = actionStatus.actionId.flatMap { viewModel.actionsLookup[$0] }
+                        let categoryIcon = resolvedAction?.category.tagIcon ?? "star.fill"
                         StepRow(
                             title: actionStatus.actionName,
                             subtitle: actionStatus.subtitle,
                             categoryIcon: categoryIcon,
+                            category: resolvedAction?.category,
+                            modality: resolvedAction?.modality,
                             isCompleted: actionStatus.isCompleted,
                             onCheckin: {
                                 if let pa = protocolAction {
@@ -435,6 +435,8 @@ private struct StepRow: View {
     let title: String
     let subtitle: String
     let categoryIcon: String
+    var category: ActionCategory?
+    var modality: ActionModality?
     let isCompleted: Bool
     let onCheckin: () -> Void
     let onSettings: () -> Void
@@ -449,10 +451,10 @@ private struct StepRow: View {
             } else {
                 ZStack {
                     Circle()
-                        .fill(Color(.systemGray5))
+                        .fill((category?.tagColor ?? Color(.systemGray5)).opacity(0.16))
                     Image(systemName: categoryIcon)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(category?.tagColor ?? .secondary)
                 }
                 .frame(width: 36, height: 36)
             }
@@ -464,6 +466,33 @@ private struct StepRow: View {
                 Text(subtitle)
                     .font(.caption)
                     .foregroundStyle(isCompleted ? accent : .secondary)
+                // Unified model (Step 23): show category/modality instead of
+                // the old "Library"/"Custom" provenance labels.
+                if !isCompleted, let category {
+                    HStack(spacing: 6) {
+                        HStack(spacing: 4) {
+                            Image(systemName: category.tagIcon)
+                                .font(.system(size: 10, weight: .semibold))
+                            Text(category.displayName)
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .foregroundStyle(category.tagColor)
+                        .background(category.tagColor.opacity(0.14))
+                        .clipShape(Capsule())
+
+                        if let modality {
+                            Text(modality.displayName)
+                                .font(.system(size: 11, weight: .medium))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .foregroundStyle(.secondary)
+                                .background(Color(.systemGray5))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
             }
 
             Spacer()

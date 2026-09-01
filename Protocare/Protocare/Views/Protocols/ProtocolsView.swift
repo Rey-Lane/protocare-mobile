@@ -98,7 +98,6 @@ struct ProtocolsView: View {
                 ProtocolDetailView(
                     item: item,
                     actionsLookup: vm.actionsLookup,
-                    userActionsLookup: vm.userActionsLookup,
                     api: api,
                     authStore: authStore,
                     viewModel: vm,

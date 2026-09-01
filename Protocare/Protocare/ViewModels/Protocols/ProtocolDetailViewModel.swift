@@ -6,7 +6,6 @@ import SwiftUI
 final class ProtocolDetailViewModel: ObservableObject {
     let item: ProtocolItem
     let actionsLookup: [String: ActionItem]
-    let userActionsLookup: [String: ActionItem]
     let api: AuthAPI
     let authStore: AuthStore
     let parentViewModel: ProtocolsViewModel
@@ -35,7 +34,6 @@ final class ProtocolDetailViewModel: ObservableObject {
     init(
         item: ProtocolItem,
         actionsLookup: [String: ActionItem],
-        userActionsLookup: [String: ActionItem],
         api: AuthAPI,
         authStore: AuthStore,
         parentViewModel: ProtocolsViewModel,
@@ -44,7 +42,6 @@ final class ProtocolDetailViewModel: ObservableObject {
     ) {
         self.item = item
         self.actionsLookup = actionsLookup
-        self.userActionsLookup = userActionsLookup
         self.api = api
         self.authStore = authStore
         self.parentViewModel = parentViewModel

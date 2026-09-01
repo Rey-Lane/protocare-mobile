@@ -1,7 +1,18 @@
 import Foundation
 
-// ActionCategory now lives in APIModels.swift (moved as part of the unified action model refactor).
-// It was extended with the `medical` case, `tagColor`, and `tagIcon` (spec Section 2.1b).
+// LEGACY — unified action model migration (Step 20).
+// `Models/UserActionModels.swift` and `Stores/UserActionsStore.swift` were
+// deleted; the types below survive ONLY so existing call sites keep compiling
+// until their steps land:
+//
+//  - ActionField / ActionFieldType / ActionParameters are used by
+//    ActionCreatorView until it is rewritten to POST /actions.
+//    TODO(Step 25d): delete together with the ActionCreatorView rewrite.
+//  - UserAction and its API payload types are used only by APIClient's
+//    /user-actions methods (plus their mocks and preview stubs).
+//    TODO(Step 31): delete together with the APIClient user-action methods.
+//
+// Do not use these types in new code — everything is a unified `Action` now.
 
 // MARK: - Action Field Type
 
@@ -75,7 +86,7 @@ public struct ActionParameters: Codable, Hashable, Sendable {
     }
 }
 
-// MARK: - User Action
+// MARK: - User Action (legacy API shape)
 
 public struct UserAction: Codable, Hashable, Sendable, Identifiable {
     public let id: UUID
@@ -266,9 +277,6 @@ public struct PaginatedUserActions: Codable, Hashable, Sendable {
     }
 }
 
-// MARK: - AnyCodable
-// AnyCodable moved to APIModels.swift (unified Action/ProtocolAction models depend on it).
-
 // MARK: - User Action + UI Helpers
 
 extension UserAction {
@@ -285,5 +293,3 @@ extension UserAction {
         return fields.count == 1 ? "1 parameter" : "\(fields.count) parameters"
     }
 }
-
-

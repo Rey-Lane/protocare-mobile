@@ -1,23 +1,34 @@
 import SwiftUI
 
+// NOTE(Step 22): previously bound to ProtocolBuilderViewModel.ActionsCategory,
+// which was removed with the builder's dual action list. The builder no longer
+// embeds category chips (ActionPickerView owns filtering now). Kept compiling
+// via SubstanceType until Step 25b replaces it with the new ActionCategory +
+// ActionModality chip design.
 struct CategoryChips: View {
-    @Binding var selectedCategory: ProtocolBuilderViewModel.ActionsCategory?
-    let onSelect: (ProtocolBuilderViewModel.ActionsCategory?) -> Void
+    @Binding var selectedCategory: SubstanceType?
+    let onSelect: (SubstanceType?) -> Void
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(ProtocolBuilderViewModel.ActionsCategory.allCases) { category in
+                CategoryChip(
+                    title: "All",
+                    isSelected: selectedCategory == nil,
+                    action: {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedCategory = nil
+                        }
+                        onSelect(selectedCategory)
+                    }
+                )
+                ForEach(SubstanceType.allCases, id: \.self) { category in
                     CategoryChip(
-                        title: category.rawValue,
+                        title: category.rawValue.capitalized,
                         isSelected: selectedCategory == category,
                         action: {
                             withAnimation(.easeInOut(duration: 0.2)) {
-                                if selectedCategory == category && category == .all {
-                                    selectedCategory = nil
-                                } else {
-                                    selectedCategory = category
-                                }
+                                selectedCategory = category
                             }
                             onSelect(selectedCategory)
                         }

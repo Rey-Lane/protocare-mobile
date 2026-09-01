@@ -26,15 +26,15 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
 
     func testAddAction_DoesNotDuplicate() {
         let action = TestFixtures.morningCleanse
-        sut.addPredefinedAction(action)
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
+        sut.addAction(action)
 
         XCTAssertEqual(sut.draft.actions.count, 1)
     }
 
     func testRemoveAction_RemovesAction() {
         let action = TestFixtures.morningCleanse
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         sut.removeAction(action)
         XCTAssertTrue(sut.draft.actions.isEmpty)
@@ -46,13 +46,13 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
         sut.draft.name = "Test Protocol"
         XCTAssertFalse(sut.canSave)
 
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
         XCTAssertTrue(sut.canSave)
     }
 
     func testCanSave_FalseWhileSaving() {
         sut.draft.name = "Test Protocol"
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
         XCTAssertTrue(sut.canSave)
 
         sut.isSaving = true
@@ -62,7 +62,7 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
     func testSave_FailsWithoutAuth() async {
         mockAuthStore.mockAccessToken = nil
         sut.draft.name = "Test"
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
 
         let result = await sut.save()
         XCTAssertFalse(result)
@@ -72,7 +72,7 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
     func testSave_FailsWithoutUserId() async {
         mockAuthStore.mockUserId = nil
         sut.draft.name = "Test"
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
 
         let result = await sut.save()
         XCTAssertFalse(result)
@@ -81,7 +81,7 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
 
     func testSave_ProtocolCreationFails() async {
         sut.draft.name = "Test Protocol"
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
 
         mockAPI.createProtocolWithImageResult = .failure(
             APIError.server(status: 500, message: "Internal Server Error")
@@ -106,57 +106,20 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
         mockAPI.fetchActionsResult = .success([
             Action(id: "action-1", name: "Minoxidil Spray", category: .hair, modality: .topical)
         ])
-        mockAPI.fetchSubstancesResult = .success([])
 
         await sut.loadActions()
         XCTAssertEqual(sut.availableActions.count, 1)
         XCTAssertNil(sut.errorMessage)
     }
 
-    // MARK: - Custom Action ID (no ua- prefix)
+    // MARK: - Unified Add (single ID space)
 
-    func testAddUserAction_UsesUUIDStringWithoutUaPrefix() {
-        let userAction = TestFixtures.testUserAction
-        sut.addUserAction(userAction)
-
-        XCTAssertEqual(sut.draft.actions.count, 1)
-        XCTAssertEqual(sut.draft.actions.first?.id, userAction.id.uuidString)
-        XCTAssertFalse(sut.draft.actions.first!.id.hasPrefix("ua-"))
-    }
-
-    func testAddUserAction_DoesNotDuplicate() {
-        let userAction = TestFixtures.testUserAction
-        sut.addUserAction(userAction)
-        sut.addUserAction(userAction)
+    func testAddAction_UsesActionItemIDirectly() {
+        let action = ActionItem(id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d", name: "Meditation", category: .mindfulness)
+        sut.addAction(action)
 
         XCTAssertEqual(sut.draft.actions.count, 1)
-    }
-
-    func testCustomActionItems_UsesUUIDStringWithoutUaPrefix() {
-        let userAction = TestFixtures.testUserAction
-        sut.userActions = [userAction]
-
-        let items = sut.customActionItems
-        XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(items.first?.id, userAction.id.uuidString)
-        XCTAssertFalse(items.first!.id.hasPrefix("ua-"))
-        XCTAssertEqual(items.first?.category, userAction.category)
-    }
-
-    func testCustomActionItems_ExcludesInactiveUserActions() {
-        let activeAction = TestFixtures.testUserAction
-        let inactiveAction = UserAction(
-            id: UUID(),
-            userId: UUID(),
-            name: "Inactive",
-            category: .custom,
-            isActive: false
-        )
-        sut.userActions = [activeAction, inactiveAction]
-
-        let items = sut.customActionItems
-        XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(items.first?.id, activeAction.id.uuidString)
+        XCTAssertEqual(sut.draft.actions.first?.id, action.id)
     }
 
     // MARK: - Alert Binding Pattern (SW-03)

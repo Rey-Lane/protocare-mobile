@@ -5,7 +5,6 @@ import Combine
 final class ProtocolsViewModel: ObservableObject {
     @Published private(set) var protocols: [ProtocolItem] = []
     @Published private(set) var actionsLookup: [String: ActionItem] = [:]
-    @Published private(set) var userActionsLookup: [String: ActionItem] = [:]
     @Published private(set) var protocolImageURLs: [String: String] = [:]
     @Published private(set) var deletingProtocolIDs: Set<String> = []
     @Published var isLoading: Bool = false
@@ -54,23 +53,14 @@ final class ProtocolsViewModel: ObservableObject {
             async let fetchedProtocols = api.fetchProtocols(token: token, category: nil)
             async let fetchedActions = api.fetchActions(token: token, query: nil)
             async let fetchedSubstances = api.fetchSubstances(token: token, query: nil)
-            async let fetchedUserActions = api.fetchUserActions(token: token, category: nil, isActive: nil, page: nil, pageSize: nil)
 
-            let (protocolsResponse, actionsResponse, substances, userActionsResponse) = try await (fetchedProtocols, fetchedActions, fetchedSubstances, fetchedUserActions)
+            let (protocolsResponse, actionsResponse, substances) = try await (fetchedProtocols, fetchedActions, fetchedSubstances)
             protocols = protocolsResponse
             protocolImageURLs = await fetchProtocolImageURLs(for: protocolsResponse, token: authStore.accessToken ?? token)
+            // Unified action model: GET /actions already returns library AND
+            // user-created actions, so one lookup covers every protocol action.
             let enriched = actionsResponse.toActionItems(using: substances)
             actionsLookup = Dictionary(uniqueKeysWithValues: enriched.map { ($0.id, $0) }) as [String: ActionItem]
-            // Legacy dual-ID source: user actions map onto the unified ActionItem
-            // (category preserved; ID stays the user-action UUID until Step 20 removes this path).
-            userActionsLookup = Dictionary(uniqueKeysWithValues: userActionsResponse.items.compactMap { ua -> (String, ActionItem)? in
-                let item = ActionItem(
-                    id: ua.id.uuidString,
-                    name: ua.name,
-                    category: ua.category
-                )
-                return (ua.id.uuidString, item)
-            })
         } catch {
             errorMessage = (error as? LocalizedError)?.errorDescription ?? "Failed to load protocols."
         }

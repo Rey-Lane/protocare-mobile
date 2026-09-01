@@ -150,9 +150,21 @@ struct ProtocolBuilderView: View {
                 }
 
                 Section {
-                    if vm.isLoading && vm.draft.actions.isEmpty {
-                        ProgressView("Loading actions...")
-                            .frame(maxWidth: .infinity, alignment: .center)
+                    if vm.draft.actions.isEmpty {
+                        VStack(spacing: 10) {
+                            Image(systemName: "square.stack.3d.up.slash")
+                                .font(.system(size: 26))
+                                .foregroundStyle(.secondary)
+                            Text("No actions yet")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                            Text("Add actions from the unified library to build your protocol.")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
                     } else {
                         ForEach(vm.draft.actions) { action in
                             ActionRow(
@@ -177,47 +189,15 @@ struct ProtocolBuilderView: View {
                 }
 
                 Section {
-                    Picker("", selection: $vm.selectedTab) {
-                        Text("Library").tag(ProtocolBuilderViewModel.Tab.library)
-                        Text("Custom").tag(ProtocolBuilderViewModel.Tab.custom)
+                    Button {
+                        isShowingActionPicker = true
+                    } label: {
+                        Label("Add Action", systemImage: "plus.circle.fill")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Color.appPrimary)
+                            .frame(maxWidth: .infinity)
                     }
-                    .pickerStyle(.segmented)
-
-                    if vm.selectedTab == .library {
-                        CategoryChips(
-                            selectedCategory: $vm.selectedCategory,
-                            onSelect: { _ in }
-                        )
-                        .padding(.vertical, 6)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-
-                        HStack(spacing: 8) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 14))
-                            TextField("Search actions...", text: $vm.searchQuery)
-                                .font(.system(size: 15))
-                            if !vm.searchQuery.isEmpty {
-                                Button {
-                                    vm.searchQuery = ""
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundStyle(.secondary)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 14)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 4, trailing: 16))
-
-                        libraryTabContent
-                    } else {
-                        customTabContent
-                    }
+                    .buttonStyle(.plain)
                 }
             }
             .listStyle(.insetGrouped)
@@ -262,9 +242,6 @@ struct ProtocolBuilderView: View {
                     vm.selectImage(data)
                 }
             }
-            .task {
-                await vm.loadActions()
-            }
             .sheet(item: $scheduleAction) { action in
                 ScheduleActionSheet(action: action) { schedule, slots in
                     vm.updateSchedule(for: action, schedule: schedule, slots: slots)
@@ -277,7 +254,7 @@ struct ProtocolBuilderView: View {
                     api: vm.api,
                     authStore: vm.authStore,
                     onSelect: { actionItem in
-                        vm.addPredefinedAction(actionItem)
+                        vm.addAction(actionItem)
                     }
                 )
             }
@@ -433,79 +410,5 @@ struct ProtocolBuilderView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 4)
-    }
-
-    @ViewBuilder
-    private var libraryTabContent: some View {
-        if vm.isLoading && vm.availableActions.isEmpty {
-            ProgressView("Loading actions...")
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.vertical, 10)
-        } else if vm.filteredActions.isEmpty {
-            VStack(spacing: 8) {
-                Text(vm.searchQuery.isEmpty && vm.selectedCategory == nil ? "No actions found." : "No matching actions.")
-                    .foregroundStyle(.secondary)
-                if vm.searchQuery.isEmpty && vm.selectedCategory == nil {
-                    Button("Reload") {
-                        Task { await vm.loadActions() }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity)
-        } else {
-            ForEach(vm.filteredActions) { action in
-                LibraryListRow(
-                    action: action,
-                    onAdd: { vm.addPredefinedAction(action) }
-                )
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var customTabContent: some View {
-        if vm.customActionItems.isEmpty && vm.userActions.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 28))
-                        .foregroundStyle(.secondary)
-                    Text("Create custom actions")
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    Text("Build your own tracking actions with custom parameters, then add them to your protocols.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.leading)
-                    Button {
-                        isShowingActionPicker = true
-                    } label: {
-                        Label("Browse & Create Actions", systemImage: "plus.circle.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.appPrimary)
-                }
-                .padding(.vertical, 16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                ForEach(vm.customActionItems) { action in
-                    CustomActionRow(
-                        action: action,
-                        userAction: vm.userActions.first(where: { $0.id.uuidString == action.id }),
-                        onAdd: { vm.addPredefinedAction(action) }
-                    )
-                }
-
-                Button {
-                    isShowingActionPicker = true
-                } label: {
-                    Label("New Custom Action", systemImage: "plus.circle.fill")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.appPrimary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                }
-                .buttonStyle(.plain)
-            }
     }
 }

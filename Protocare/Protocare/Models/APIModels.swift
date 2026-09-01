@@ -133,12 +133,24 @@ public enum ActionCategory: String, CaseIterable, Codable, Hashable, Sendable, I
     }
 }
 
-public enum ActionModality: String, CaseIterable, Codable, Hashable, Sendable {
+public enum ActionModality: String, CaseIterable, Codable, Hashable, Sendable, Identifiable {
     case topical = "topical"
     case oral = "oral"
     case device = "device"
     case hygiene = "hygiene"
     case activity = "activity"
+
+    public var id: String { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .topical: return "Topical"
+        case .oral: return "Oral"
+        case .device: return "Device"
+        case .hygiene: return "Hygiene"
+        case .activity: return "Activity"
+        }
+    }
 }
 
 // MARK: - Auth Types

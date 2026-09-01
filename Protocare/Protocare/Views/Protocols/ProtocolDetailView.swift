@@ -11,7 +11,6 @@ struct ProtocolDetailView: View {
     init(
         item: ProtocolItem,
         actionsLookup: [String: ActionItem],
-        userActionsLookup: [String: ActionItem],
         api: AuthAPI,
         authStore: AuthStore,
         viewModel: ProtocolsViewModel,
@@ -21,7 +20,6 @@ struct ProtocolDetailView: View {
         _viewModel = StateObject(wrappedValue: ProtocolDetailViewModel(
             item: item,
             actionsLookup: actionsLookup,
-            userActionsLookup: userActionsLookup,
             api: api,
             authStore: authStore,
             parentViewModel: viewModel,
@@ -67,7 +65,6 @@ struct ProtocolDetailView: View {
                         settingsVM = ProtocolSettingsViewModel(
                             item: viewModel.currentProtocol,
                             actionsLookup: viewModel.actionsLookup,
-                            userActionsLookup: viewModel.userActionsLookup,
                             api: viewModel.api,
                             authStore: viewModel.authStore,
                             protocolImageURL: viewModel.protocolImageURL,
@@ -119,7 +116,6 @@ struct ProtocolDetailView: View {
                 settingsVM = ProtocolSettingsViewModel(
                     item: viewModel.currentProtocol,
                     actionsLookup: viewModel.actionsLookup,
-                    userActionsLookup: viewModel.userActionsLookup,
                     api: viewModel.api,
                     authStore: viewModel.authStore,
                     protocolImageURL: viewModel.protocolImageURL,
@@ -724,7 +720,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
                 endedAt: nil
             ),
             actionsLookup: [:],
-            userActionsLookup: [:],
             api: api,
             authStore: authStore,
             viewModel: vm

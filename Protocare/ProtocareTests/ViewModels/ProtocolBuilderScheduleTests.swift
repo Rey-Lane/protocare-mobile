@@ -77,7 +77,7 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
 
     func testUpdateSchedule_UpdatesActionScheduleAndSlots() {
         let action = ActionItem(id: "a1", name: "Test Action")
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         let schedule = ActionSchedule(frequency: .weekly, days: [.tuesday, .thursday], hour: 10, minute: 0)
         let slots = [ScheduleSlot(hour: 10, minute: 0, isReminderOn: true, reminderOffsetMinutes: 5)]
@@ -92,7 +92,7 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
     func testSave_UsesScheduleRRule() async {
         sut.draft.name = "Test Protocol"
         let action = ActionItem(id: "action-1", name: "Test")
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         let schedule = ActionSchedule(frequency: .weekly, days: [.monday, .wednesday, .friday], hour: 21, minute: 30)
         sut.updateSchedule(for: action, schedule: schedule)
@@ -111,7 +111,7 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
     func testSave_DefaultScheduleWhenNoneSet_UsesDailyRRule() async {
         sut.draft.name = "Test Protocol"
         let action = ActionItem(id: "action-1", name: "Test")
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         mockAPI.createProtocolWithImageResult = .success(
             ProtocolItem(id: "new-protocol", userId: "test-user-id", name: "Test Protocol", actions: [], isActive: true)
@@ -131,7 +131,7 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
             category: .mindfulness
         )
         sut.draft.name = "Test"
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         let schedule = ActionSchedule(frequency: .daily, days: ScheduleDay.allCases, hour: 7, minute: 30)
         sut.updateSchedule(for: action, schedule: schedule)
@@ -153,7 +153,7 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
     func testEndToEnd_ScheduleToRRuleToPayloadWithSlots() async {
         sut.draft.name = "Skincare Protocol"
         let action = ActionItem(id: "action-1", name: "Tretinoin")
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         let schedule = ActionSchedule(frequency: .weekly, days: [.monday, .wednesday, .friday], hour: 21, minute: 30)
         let slots = [

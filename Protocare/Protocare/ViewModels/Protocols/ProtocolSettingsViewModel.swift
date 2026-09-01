@@ -6,7 +6,6 @@ import SwiftUI
 final class ProtocolSettingsViewModel: ObservableObject {
     let item: ProtocolItem
     let actionsLookup: [String: ActionItem]
-    let userActionsLookup: [String: ActionItem]
     let api: AuthAPI
     let authStore: AuthStore
 
@@ -46,7 +45,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
 
     // Library loading (for action picker)
     @Published var availableActions: [ActionItem] = []
-    @Published var userActions: [UserAction] = []
     @Published var isLoadingActions = false
 
     var currentProtocol: ProtocolItem { item }
@@ -60,7 +58,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
     init(
         item: ProtocolItem,
         actionsLookup: [String: ActionItem],
-        userActionsLookup: [String: ActionItem],
         api: AuthAPI,
         authStore: AuthStore,
         protocolImageURL: String? = nil,
@@ -68,7 +65,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
     ) {
         self.item = item
         self.actionsLookup = actionsLookup
-        self.userActionsLookup = userActionsLookup
         self.api = api
         self.authStore = authStore
         self.protocolImageURL = protocolImageURL
@@ -132,18 +128,15 @@ final class ProtocolSettingsViewModel: ObservableObject {
 
     func loadAvailableActions() async {
         guard let token = authStore.accessToken else { return }
-        guard availableActions.isEmpty && userActions.isEmpty else { return } // Load once
+        guard availableActions.isEmpty else { return } // Load once
         isLoadingActions = true
         defer { isLoadingActions = false }
 
         do {
-            async let fetchedActions = api.fetchActions(token: token, query: nil)
-            async let fetchedSubstances = api.fetchSubstances(token: token, query: nil)
-            async let fetchedUserActions = api.fetchUserActions(token: token, category: nil, isActive: nil, page: nil, pageSize: nil)
-
-            let (actions, substances, userActionsPage) = try await (fetchedActions, fetchedSubstances, fetchedUserActions)
-            availableActions = actions.toActionItems(using: substances)
-            userActions = userActionsPage.items
+            // Unified action source: GET /actions returns library + user-created
+            // actions. No user-actions fetch, no substances needed for display.
+            let fetchedActions = try await api.fetchActions(token: token, query: nil)
+            availableActions = fetchedActions.toActionItems(using: [])
         } catch {
             // Non-critical — picker will show empty state
         }
@@ -154,17 +147,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
     func addAction(_ action: ActionItem) {
         guard !editActions.contains(where: { $0.id == action.id }) else { return }
         editActions.append(action)
-    }
-
-    func addUserAction(_ userAction: UserAction) {
-        let actionItemId = userAction.id.uuidString
-        guard !editActions.contains(where: { $0.id == actionItemId }) else { return }
-        let item = ActionItem(
-            id: actionItemId,
-            name: userAction.name,
-            category: userAction.category
-        )
-        editActions.append(item)
     }
 
     func removeAction(_ action: ActionItem) {

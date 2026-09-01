@@ -1,6 +1,9 @@
 import XCTest
 @testable import Protocare
 
+/// Tests for the models that survived the UserAction stack removal (Step 20):
+/// ActionCategory, ActionFieldType/ActionField/ActionParameters (kept in
+/// UserActionLegacy.swift until Steps 25d/31), and AnyCodable.
 final class UserActionModelTests: XCTestCase {
 
     // MARK: - ActionCategory
@@ -72,105 +75,6 @@ final class UserActionModelTests: XCTestCase {
         XCTAssertEqual(params.fields.count, 2)
     }
 
-    // MARK: - UserAction
-
-    func testUserActionCreation() {
-        let action = TestFixtures.testUserAction
-        XCTAssertEqual(action.name, "Cold Plunge")
-        XCTAssertEqual(action.category, .mindfulness)
-        XCTAssertFalse(action.isTemplate)
-        XCTAssertTrue(action.isActive)
-        XCTAssertEqual(action.protocolCount, 3)
-    }
-
-    func testUserActionDisplayIcon() {
-        let action = TestFixtures.testUserAction
-        XCTAssertEqual(action.displayIcon, "snowflake")
-
-        let actionWithoutIcon = UserAction(
-            id: UUID(),
-            userId: UUID(),
-            name: "Test",
-            category: .supplement
-        )
-        XCTAssertEqual(actionWithoutIcon.displayIcon, "pill.fill")
-    }
-
-    func testUserActionDisplayColor() {
-        let action = TestFixtures.testUserAction
-        XCTAssertEqual(action.displayColor, "#007AFF")
-
-        let actionWithoutColor = UserAction(
-            id: UUID(),
-            userId: UUID(),
-            name: "Test",
-            category: .custom
-        )
-        XCTAssertEqual(actionWithoutColor.displayColor, "#34C759")
-    }
-
-    func testUserActionFieldCountLabel() {
-        let action = TestFixtures.testUserAction
-        XCTAssertEqual(action.fieldCountLabel, "2 parameters")
-
-        let actionNoParams = UserAction(
-            id: UUID(),
-            userId: UUID(),
-            name: "Test",
-            category: .custom,
-            parameters: nil
-        )
-        XCTAssertEqual(actionNoParams.fieldCountLabel, "No parameters")
-
-        let actionEmptyParams = UserAction(
-            id: UUID(),
-            userId: UUID(),
-            name: "Test",
-            category: .custom,
-            parameters: ActionParameters(fields: [])
-        )
-        XCTAssertEqual(actionEmptyParams.fieldCountLabel, "No parameters")
-
-        let actionSingleParam = UserAction(
-            id: UUID(),
-            userId: UUID(),
-            name: "Test",
-            category: .custom,
-            parameters: ActionParameters(fields: [
-                ActionField(key: "x", label: "X", type: .text)
-            ])
-        )
-        XCTAssertEqual(actionSingleParam.fieldCountLabel, "1 parameter")
-    }
-
-    func testUserActionTemplateFlag() {
-        let template = TestFixtures.testUserActionTemplate
-        XCTAssertTrue(template.isTemplate)
-
-        let regular = TestFixtures.testUserAction
-        XCTAssertFalse(regular.isTemplate)
-    }
-
-    // MARK: - UserActionCreate
-
-    func testUserActionCreate() {
-        let payload = TestFixtures.testUserActionCreate
-        XCTAssertEqual(payload.name, "Red Light Therapy")
-        XCTAssertEqual(payload.category, .mindfulness)
-        XCTAssertEqual(payload.iconKey, "sunrise.fill")
-        XCTAssertEqual(payload.color, "#FF9500")
-    }
-
-    // MARK: - UserActionUpdate
-
-    func testUserActionUpdate() {
-        let payload = TestFixtures.testUserActionUpdate
-        XCTAssertEqual(payload.name, "Updated Cold Plunge")
-        XCTAssertEqual(payload.description, "Updated description")
-        XCTAssertNil(payload.category)
-        XCTAssertNil(payload.isActive)
-    }
-
     // MARK: - AnyCodable
 
     func testAnyCodableBool() {
@@ -196,33 +100,6 @@ final class UserActionModelTests: XCTestCase {
         XCTAssertNotEqual(codable, AnyCodable("world"))
     }
 
-    // MARK: - PaginatedUserActions
-
-    func testPaginatedUserActions() {
-        let page = TestFixtures.testPaginatedUserActions
-        XCTAssertEqual(page.items.count, 1)
-        XCTAssertEqual(page.total, 1)
-        XCTAssertEqual(page.page, 1)
-        XCTAssertEqual(page.pageSize, 20)
-    }
-
-    // MARK: - UserActionUsage
-
-    func testUserActionUsageEntry() {
-        let entry = UserActionUsageEntry(
-            protocolId: UUID(),
-            protocolName: "Test Protocol",
-            protocolActionId: UUID()
-        )
-        XCTAssertEqual(entry.protocolName, "Test Protocol")
-    }
-
-    func testUserActionUsage() {
-        let usage = TestFixtures.testUserActionUsage
-        XCTAssertEqual(usage.count, 2)
-        XCTAssertEqual(usage.first?.protocolName, "Morning Routine")
-    }
-
     // MARK: - Coding Keys
 
     func testActionFieldCodingKeys() {
@@ -246,18 +123,5 @@ final class UserActionModelTests: XCTestCase {
         XCTAssertEqual(json["default_value"] as? Int, 5)
         XCTAssertEqual(json["min_value"] as? Int, 0)
         XCTAssertEqual(json["max_value"] as? Int, 100)
-    }
-
-    func testUserActionCodingKeys() {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        let data = try! encoder.encode(TestFixtures.testUserAction)
-        let json = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
-
-        XCTAssertNotNil(json["id"])
-        XCTAssertNotNil(json["user_id"])
-        XCTAssertEqual(json["is_template"] as? Bool, false)
-        XCTAssertEqual(json["is_active"] as? Bool, true)
-        XCTAssertEqual(json["protocol_count"] as? Int, 3)
     }
 }

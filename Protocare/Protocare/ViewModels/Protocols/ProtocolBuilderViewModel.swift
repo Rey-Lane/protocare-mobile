@@ -44,7 +44,7 @@ final class ProtocolBuilderViewModel: ObservableObject {
 
         do {
             let fetchedActions = try await api.fetchActions(token: token, query: nil)
-            availableActions = fetchedActions.toActionItems(using: [])
+            availableActions = fetchedActions.toActionItems()
             allActions = availableActions
         } catch {
             errorMessage = (error as? LocalizedError)?.errorDescription ?? "Не удалось загрузить действия."

@@ -473,6 +473,12 @@ struct ProtocolsView_Previews: PreviewProvider {
             ]
         }
         func fetchActions(token: String, query: String? = nil) async throws -> [Action] { [] }
+        func createAction(token: String, payload: ActionCreate) async throws -> Action {
+            Action(id: UUID().uuidString, name: payload.name, description: payload.description, category: payload.category, modality: payload.modality)
+        }
+        func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action {
+            Action(id: actionId, name: payload.name ?? "", category: payload.category ?? .custom)
+        }
         func fetchSubstances(token: String, query: String? = nil) async throws -> [Substance] { [] }
         func createProtocol(token: String, payload: ProtocolCreateRequest) async throws -> ProtocolItem {
             ProtocolItem(

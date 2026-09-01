@@ -1,16 +1,25 @@
 import SwiftUI
 import Combine
 
+/// Unified action creator (Step 25d of the unified action model migration).
+///
+/// Creates/edits a user-created `Action` via `POST /actions` /
+/// `PATCH /actions/{id}` — the former `POST /user-actions` flow is gone.
+/// Category (primary axis) + modality (secondary axis) pickers replace the
+/// old single category picker, and default parameters are derived from a
+/// simple amount/unit or duration input instead of the legacy
+/// `ActionField`/`ActionParameters` schema system.
 struct ActionCreatorView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: ActionCreatorViewModel
-    @State private var newFieldKey = ""
-    @State private var newFieldLabel = ""
-    @State private var newFieldType: ActionFieldType = .text
-    @State private var showingNewFieldSheet = false
-    private let onCreated: (UserAction) -> Void
+    private let onCreated: (Action) -> Void
 
-    init(api: AuthAPI, authStore: AuthStore, editingAction: UserAction? = nil, onCreated: @escaping (UserAction) -> Void) {
+    init(
+        api: AuthAPI,
+        authStore: AuthStore,
+        editingAction: Action? = nil,
+        onCreated: @escaping (Action) -> Void
+    ) {
         _viewModel = StateObject(wrappedValue: ActionCreatorViewModel(api: api, authStore: authStore, editingAction: editingAction))
         self.onCreated = onCreated
     }
@@ -30,11 +39,64 @@ struct ActionCreatorView: View {
 
                 Section {
                     Picker("Category", selection: $viewModel.category) {
-                        ForEach(ActionCategory.allCases, id: \.self) { cat in
+                        ForEach(ActionCategory.allCases) { cat in
                             Label(cat.displayName, systemImage: cat.tagIcon).tag(cat)
                         }
                     }
 
+                    Picker("Modality", selection: $viewModel.modality) {
+                        Text("None").tag(ActionModality?.none)
+                        ForEach(ActionModality.allCases, id: \.self) { mod in
+                            Text(mod.displayName).tag(ActionModality?.some(mod))
+                        }
+                    }
+                } header: {
+                    Text("Classification")
+                } footer: {
+                    Text("Category is the primary filter; modality describes how the action is performed.")
+                }
+
+                Section {
+                    Picker("Default tracking", selection: $viewModel.parameterMode) {
+                        ForEach(ActionCreatorViewModel.ParameterMode.allCases, id: \.self) { mode in
+                            Text(mode.displayName).tag(mode)
+                        }
+                    }
+
+                    switch viewModel.parameterMode {
+                    case .none:
+                        Text("Just a yes/no check-in each day.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    case .amount:
+                        HStack {
+                            TextField("Amount", value: $viewModel.amount, format: .number)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                            Picker("Unit", selection: $viewModel.unit) {
+                                ForEach(SubstanceUnit.amountUnits, id: \.self) { unit in
+                                    Text(unit.displayName).tag(unit)
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(maxWidth: 110)
+                        }
+                    case .duration:
+                        HStack {
+                            TextField("Minutes", value: $viewModel.durationMinutes, format: .number)
+                                .keyboardType(.numberPad)
+                                .multilineTextAlignment(.trailing)
+                            Text("min")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } header: {
+                    Text("Default Parameters")
+                } footer: {
+                    Text("Pre-fills the check-in form when this action is added to a protocol.")
+                }
+
+                Section {
                     ColorPicker("Color", selection: $viewModel.accentColor)
 
                     Picker("Icon", selection: $viewModel.iconKey) {
@@ -44,47 +106,6 @@ struct ActionCreatorView: View {
                     }
                 } header: {
                     Text("Appearance")
-                }
-
-                Section {
-                    if viewModel.fields.isEmpty {
-                        VStack(spacing: 8) {
-                            Image(systemName: "list.bullet.rectangle")
-                                .font(.system(size: 28))
-                                .foregroundStyle(.secondary)
-                            Text("No parameter fields yet")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Text("Add fields to let users customize this action when adding it to a protocol.")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
-                                .multilineTextAlignment(.center)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                    } else {
-                        ForEach(viewModel.fields) { field in
-                            FieldRow(field: field, onRemove: {
-                                withAnimation { viewModel.removeField(field) }
-                            })
-                        }
-                    }
-
-                    Button {
-                        showingNewFieldSheet = true
-                    } label: {
-                        Label("Add Field", systemImage: "plus.circle.fill")
-                    }
-                } header: {
-                    HStack {
-                        Text("Parameters")
-                        Spacer()
-                        if !viewModel.fields.isEmpty {
-                            Text("\(viewModel.fields.count)/20")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
                 }
             }
             .formStyle(.grouped)
@@ -114,116 +135,6 @@ struct ActionCreatorView: View {
                 Button("OK") { viewModel.errorMessage = nil }
             } message: {
                 Text(viewModel.errorMessage ?? "")
-            }
-            .sheet(isPresented: $showingNewFieldSheet) {
-                AddFieldSheet(
-                    key: $newFieldKey,
-                    label: $newFieldLabel,
-                    type: $newFieldType,
-                    onAdd: {
-                        let field = ActionField(
-                            key: newFieldKey,
-                            label: newFieldLabel,
-                            type: newFieldType
-                        )
-                        viewModel.addField(field)
-                        newFieldKey = ""
-                        newFieldLabel = ""
-                        newFieldType = .text
-                        showingNewFieldSheet = false
-                    }
-                )
-            }
-        }
-    }
-}
-
-private struct FieldRow: View {
-    let field: ActionField
-    let onRemove: () -> Void
-
-    var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(field.label)
-                    .font(.system(size: 15, weight: .medium))
-                HStack(spacing: 6) {
-                    Text(field.type.rawValue.capitalized)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    if field.isRequired {
-                        Text("Required")
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(Color.appWarning)
-                    }
-                    if let unit = field.unit {
-                        Text("· \(unit)")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-
-            Spacer()
-
-            Button(action: onRemove) {
-                Image(systemName: "minus.circle.fill")
-                    .foregroundStyle(.red.opacity(0.6))
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.vertical, 4)
-    }
-}
-
-private struct AddFieldSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var key: String
-    @Binding var label: String
-    @Binding var type: ActionFieldType
-    let onAdd: () -> Void
-
-    private var canAdd: Bool {
-        !key.trimmingCharacters(in: .whitespaces).isEmpty
-        && !label.trimmingCharacters(in: .whitespaces).isEmpty
-        && key.allSatisfy { $0.isLetter || $0.isNumber || $0 == "_" }
-    }
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    TextField("Field key (e.g. dosage_amount)", text: $key)
-                        .textInputAutocapitalization(.none)
-                        .font(.system(.body, design: .monospaced))
-                    TextField("Display label (e.g. Dosage Amount)", text: $label)
-                        .textInputAutocapitalization(.words)
-                    Picker("Type", selection: $type) {
-                        ForEach(ActionFieldType.allCases, id: \.self) { fieldType in
-                            Text(fieldType.rawValue.capitalized).tag(fieldType)
-                        }
-                    }
-                } header: {
-                    Text("New Parameter Field")
-                } footer: {
-                    Text("Key must be alphanumeric with underscores only.")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .navigationTitle("Add Field")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Add") {
-                        onAdd()
-                    }
-                    .disabled(!canAdd)
-                    .fontWeight(.semibold)
-                }
             }
         }
     }
@@ -271,21 +182,42 @@ enum ActionIcon: String, CaseIterable {
 
 @MainActor
 final class ActionCreatorViewModel: ObservableObject {
+    /// Which default-parameter shape the new action carries.
+    enum ParameterMode: String, CaseIterable, Identifiable {
+        case none
+        case amount
+        case duration
+
+        var id: String { rawValue }
+
+        var displayName: String {
+            switch self {
+            case .none: return "None (yes/no)"
+            case .amount: return "Amount"
+            case .duration: return "Duration"
+            }
+        }
+    }
+
     @Published var name: String = ""
     @Published var description: String = ""
     @Published var category: ActionCategory = .custom
+    @Published var modality: ActionModality?
+    @Published var parameterMode: ParameterMode = .none
+    @Published var amount: Double?
+    @Published var unit: SubstanceUnit = .ml
+    @Published var durationMinutes: Double?
     @Published var iconKey: String? = "sparkles"
     @Published var accentColor: Color = .green
-    @Published var fields: [ActionField] = []
     @Published var errorMessage: String? = nil
     @Published var isSaving: Bool = false
 
     let isEditing: Bool
-    private let editingActionId: UUID?
+    private let editingActionId: String?
     private let api: AuthAPI
     let authStore: AuthStore
 
-    init(api: AuthAPI, authStore: AuthStore, editingAction: UserAction? = nil) {
+    init(api: AuthAPI, authStore: AuthStore, editingAction: Action? = nil) {
         self.api = api
         self.authStore = authStore
         self.editingActionId = editingAction?.id
@@ -295,10 +227,28 @@ final class ActionCreatorViewModel: ObservableObject {
             self.name = action.name
             self.description = action.description ?? ""
             self.category = action.category
+            self.modality = action.modality
             self.iconKey = action.iconKey
-            self.fields = action.parameters?.fields ?? []
             if let hex = action.color {
                 self.accentColor = Color(hex: hex)
+            }
+            // Derive the parameter mode from the existing default_parameters,
+            // mirroring CheckInFormResolver's key priority.
+            let formKind = CheckInFormResolver.formKind(for: action.defaultParameters)
+            switch formKind {
+            case .substance:
+                self.parameterMode = .amount
+                if let quantity = CheckInFormResolver.defaultQuantity(in: action.defaultParameters) {
+                    self.amount = quantity.amount
+                    self.unit = quantity.unit
+                }
+            case .timedActivity:
+                self.parameterMode = .duration
+                if let seconds = CheckInFormResolver.defaultDurationSeconds(in: action.defaultParameters) {
+                    self.durationMinutes = Double(seconds) / 60.0
+                }
+            case .binary:
+                self.parameterMode = .none
             }
         }
     }
@@ -310,16 +260,27 @@ final class ActionCreatorViewModel: ObservableObject {
         && !isSaving
     }
 
-    func addField(_ field: ActionField) {
-        guard fields.count < 20 else { return }
-        fields.append(field)
+    /// Builds `default_parameters` from the picker inputs, using the backend's
+    /// canonical keys (`volume_amount`/`volume_unit` or `duration_seconds`).
+    private var defaultParameters: [String: AnyCodable]? {
+        switch parameterMode {
+        case .none:
+            return nil
+        case .amount:
+            guard let amount, amount > 0 else { return nil }
+            return [
+                "volume_amount": AnyCodable(amount),
+                "volume_unit": AnyCodable(unit.rawValue)
+            ]
+        case .duration:
+            guard let minutes = durationMinutes, minutes > 0 else { return nil }
+            return [
+                "duration_seconds": AnyCodable(Int(minutes * 60))
+            ]
+        }
     }
 
-    func removeField(_ field: ActionField) {
-        fields.removeAll { $0.key == field.key }
-    }
-
-    func save() async -> UserAction? {
+    func save() async -> Action? {
         guard canSave else { return nil }
         isSaving = true
         errorMessage = nil
@@ -330,39 +291,45 @@ final class ActionCreatorViewModel: ObservableObject {
             return nil
         }
 
-        let parameters = fields.isEmpty ? nil : ActionParameters(fields: fields)
         let colorHex = accentColor.toHex()
 
         if let editingId = editingActionId {
-            let payload = UserActionUpdate(
+            let payload = ActionUpdate(
                 name: name,
                 description: description.isEmpty ? nil : description,
                 category: category,
-                parameters: parameters,
+                modality: modality,
+                defaultParameters: defaultParameters,
                 iconKey: iconKey,
                 color: colorHex
             )
             do {
-                return try await api.updateUserAction(token: token, actionId: editingId, payload: payload)
+                return try await api.updateAction(token: token, actionId: editingId, payload: payload)
             } catch {
                 errorMessage = (error as? LocalizedError)?.errorDescription ?? "Failed to update action."
                 return nil
             }
         } else {
-            let payload = UserActionCreate(
+            let payload = ActionCreate(
                 name: name,
                 description: description.isEmpty ? nil : description,
                 category: category,
-                parameters: parameters,
+                modality: modality,
+                defaultParameters: defaultParameters,
                 iconKey: iconKey,
                 color: colorHex
             )
             do {
-                return try await api.createUserAction(token: token, payload: payload)
+                return try await api.createAction(token: token, payload: payload)
             } catch {
                 errorMessage = (error as? LocalizedError)?.errorDescription ?? "Failed to create action."
                 return nil
             }
         }
     }
+}
+
+extension SubstanceUnit {
+    /// Units that make sense for a user-configured default amount.
+    static let amountUnits: [SubstanceUnit] = [.ml, .mg, .g, .drop, .capsule, .tablet, .spray]
 }

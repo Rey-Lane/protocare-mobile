@@ -1,5 +1,9 @@
 import SwiftUI
 
+/// Journal check-in card (Step 25e, unified action model).
+/// Adaptive mini form keyed off the same `merge_params(default, user)`
+/// resolution the daily dashboard uses: amount slider for substance actions,
+/// duration slider for timed activities, plain complete button for binary.
 struct ActionCheckinCard: View {
     let checkin: JournalCheckinSummary
     let isExpanded: Bool
@@ -14,7 +18,7 @@ struct ActionCheckinCard: View {
         self.isExpanded = isExpanded
         self.onToggleExpand = onToggleExpand
         self.onComplete = onComplete
-        _volumeAmount = State(initialValue: checkin.defaultVolume?.amount ?? 0)
+        _volumeAmount = State(initialValue: checkin.defaultQuantity?.amount ?? 0)
         _durationSeconds = State(initialValue: Double(checkin.defaultDurationSeconds ?? 60))
     }
 
@@ -87,7 +91,7 @@ struct ActionCheckinCard: View {
 
             Button {
                 let vol: QuantityOutput? = checkin.hasVolume
-                    ? QuantityOutput(amount: volumeAmount, unit: checkin.defaultVolume?.unit ?? .ml)
+                    ? QuantityOutput(amount: volumeAmount, unit: checkin.defaultQuantity?.unit ?? .ml)
                     : nil
                 let dur: Int? = checkin.hasDuration ? Int(durationSeconds) : nil
                 onComplete(vol, dur)
@@ -146,7 +150,7 @@ struct ActionCheckinCard: View {
     }
 
     private var volumeDisplay: String {
-        let unit = checkin.defaultVolume?.unit.displayName ?? "ml"
+        let unit = checkin.defaultQuantity?.unit.displayName ?? "ml"
         let value = volumeAmount.roundedString(maxFractionDigits: 1)
         return "\(value) \(unit)"
     }

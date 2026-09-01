@@ -5,86 +5,14 @@ import Foundation
 // deleted; the types below survive ONLY so existing call sites keep compiling
 // until their steps land:
 //
-//  - ActionField / ActionFieldType / ActionParameters are used by
-//    ActionCreatorView until it is rewritten to POST /actions.
-//    TODO(Step 25d): delete together with the ActionCreatorView rewrite.
 //  - UserAction and its API payload types are used only by APIClient's
 //    /user-actions methods (plus their mocks and preview stubs).
 //    TODO(Step 31): delete together with the APIClient user-action methods.
 //
+//  ActionField / ActionFieldType / ActionParameters were deleted at Step 25d
+//  together with the ActionCreatorView rewrite to POST /actions.
+//
 // Do not use these types in new code — everything is a unified `Action` now.
-
-// MARK: - Action Field Type
-
-public enum ActionFieldType: String, Codable, Hashable, Sendable, CaseIterable {
-    case text
-    case number
-    case boolean
-    case select
-    case time
-    case duration
-}
-
-// MARK: - Action Field
-
-public struct ActionField: Codable, Hashable, Sendable, Identifiable {
-    public var id: String { key }
-    public let key: String
-    public let label: String
-    public let type: ActionFieldType
-    public let isRequired: Bool
-    public let defaultValue: AnyCodable?
-    public let options: [String]?
-    public let unit: String?
-    public let minValue: AnyCodable?
-    public let maxValue: AnyCodable?
-
-    public init(
-        key: String,
-        label: String,
-        type: ActionFieldType,
-        isRequired: Bool = false,
-        defaultValue: AnyCodable? = nil,
-        options: [String]? = nil,
-        unit: String? = nil,
-        minValue: AnyCodable? = nil,
-        maxValue: AnyCodable? = nil
-    ) {
-        self.key = key
-        self.label = label
-        self.type = type
-        self.isRequired = isRequired
-        self.defaultValue = defaultValue
-        self.options = options
-        self.unit = unit
-        self.minValue = minValue
-        self.maxValue = maxValue
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case key, label, type
-        case isRequired = "required"
-        case defaultValue = "default_value"
-        case options, unit
-        case minValue = "min_value"
-        case maxValue = "max_value"
-    }
-}
-
-// MARK: - Action Parameters
-
-public struct ActionParameters: Codable, Hashable, Sendable {
-    public let fields: [ActionField]
-
-    public init(fields: [ActionField] = []) {
-        self.fields = fields
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        fields = (try? container.decodeIfPresent([ActionField].self, forKey: .fields)) ?? []
-    }
-}
 
 // MARK: - User Action (legacy API shape)
 
@@ -94,7 +22,7 @@ public struct UserAction: Codable, Hashable, Sendable, Identifiable {
     public let name: String
     public let description: String?
     public let category: ActionCategory
-    public let parameters: ActionParameters?
+    public let parameters: [String: AnyCodable]?
     public let iconKey: String?
     public let color: String?
     public let isTemplate: Bool
@@ -111,7 +39,7 @@ public struct UserAction: Codable, Hashable, Sendable, Identifiable {
         name: String,
         description: String? = nil,
         category: ActionCategory,
-        parameters: ActionParameters? = nil,
+        parameters: [String: AnyCodable]? = nil,
         iconKey: String? = nil,
         color: String? = nil,
         isTemplate: Bool = false,
@@ -160,7 +88,7 @@ public struct UserActionCreate: Codable, Hashable, Sendable {
     public var name: String
     public var description: String?
     public var category: ActionCategory
-    public var parameters: ActionParameters?
+    public var parameters: [String: AnyCodable]?
     public var iconKey: String?
     public var color: String?
     public var sortOrder: Int?
@@ -169,7 +97,7 @@ public struct UserActionCreate: Codable, Hashable, Sendable {
         name: String,
         description: String? = nil,
         category: ActionCategory,
-        parameters: ActionParameters? = nil,
+        parameters: [String: AnyCodable]? = nil,
         iconKey: String? = nil,
         color: String? = nil,
         sortOrder: Int? = nil
@@ -197,7 +125,7 @@ public struct UserActionUpdate: Codable, Hashable, Sendable {
     public var name: String?
     public var description: String?
     public var category: ActionCategory?
-    public var parameters: ActionParameters?
+    public var parameters: [String: AnyCodable]?
     public var iconKey: String?
     public var color: String?
     public var sortOrder: Int?
@@ -207,7 +135,7 @@ public struct UserActionUpdate: Codable, Hashable, Sendable {
         name: String? = nil,
         description: String? = nil,
         category: ActionCategory? = nil,
-        parameters: ActionParameters? = nil,
+        parameters: [String: AnyCodable]? = nil,
         iconKey: String? = nil,
         color: String? = nil,
         sortOrder: Int? = nil,
@@ -289,7 +217,7 @@ extension UserAction {
     }
 
     public var fieldCountLabel: String {
-        guard let fields = parameters?.fields, !fields.isEmpty else { return "No parameters" }
-        return fields.count == 1 ? "1 parameter" : "\(fields.count) parameters"
+        let count = parameters?.count ?? 0
+        return count == 0 ? "No parameters" : (count == 1 ? "1 parameter" : "\(count) parameters")
     }
 }

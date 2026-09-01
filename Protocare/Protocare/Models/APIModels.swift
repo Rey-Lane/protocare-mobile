@@ -358,6 +358,92 @@ extension Action {
     }
 }
 
+// MARK: - Action Create / Update payloads (Step 25d)
+
+/// `POST /actions` payload (backend `ActionCreate`).
+/// User-created actions: `is_library` stays false server-side; the client
+/// only sends the fields it can configure.
+public struct ActionCreate: Encodable, Hashable, Sendable {
+    public var name: String
+    public var description: String?
+    public var category: ActionCategory
+    public var modality: ActionModality?
+    public var defaultParameters: [String: AnyCodable]?
+    public var iconKey: String?
+    public var color: String?
+    public var sortOrder: Int?
+
+    public init(
+        name: String,
+        description: String? = nil,
+        category: ActionCategory,
+        modality: ActionModality? = nil,
+        defaultParameters: [String: AnyCodable]? = nil,
+        iconKey: String? = nil,
+        color: String? = nil,
+        sortOrder: Int? = nil
+    ) {
+        self.name = name
+        self.description = description
+        self.category = category
+        self.modality = modality
+        self.defaultParameters = defaultParameters
+        self.iconKey = iconKey
+        self.color = color
+        self.sortOrder = sortOrder
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case name, description, category, modality, color
+        case defaultParameters = "default_parameters"
+        case iconKey = "icon_key"
+        case sortOrder = "sort_order"
+    }
+}
+
+/// `PATCH /actions/{id}` payload (backend `ActionUpdate`).
+public struct ActionUpdate: Encodable, Hashable, Sendable {
+    public var name: String?
+    public var description: String?
+    public var category: ActionCategory?
+    public var modality: ActionModality?
+    public var defaultParameters: [String: AnyCodable]?
+    public var iconKey: String?
+    public var color: String?
+    public var sortOrder: Int?
+    public var isActive: Bool?
+
+    public init(
+        name: String? = nil,
+        description: String? = nil,
+        category: ActionCategory? = nil,
+        modality: ActionModality? = nil,
+        defaultParameters: [String: AnyCodable]? = nil,
+        iconKey: String? = nil,
+        color: String? = nil,
+        sortOrder: Int? = nil,
+        isActive: Bool? = nil
+    ) {
+        self.name = name
+        self.description = description
+        self.category = category
+        self.modality = modality
+        self.defaultParameters = defaultParameters
+        self.iconKey = iconKey
+        self.color = color
+        self.sortOrder = sortOrder
+        self.isActive = isActive
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case name, description, category, modality, color
+        case defaultParameters = "default_parameters"
+        case iconKey = "icon_key"
+        case sortOrder = "sort_order"
+        case isActive = "is_active"
+    }
+}
+
 // MARK: - AnyCodable
 
 /// Type-erased Codable value used for dynamic JSONB payloads

@@ -159,10 +159,7 @@ enum TestFixtures {
         name: "Cold Plunge",
         description: "Cold water immersion therapy",
         category: .mindfulness,
-        parameters: ActionParameters(fields: [
-            ActionField(key: "duration_min", label: "Duration", type: .number, isRequired: true, unit: "min", minValue: AnyCodable(1), maxValue: AnyCodable(30)),
-            ActionField(key: "temperature_c", label: "Temperature", type: .number, isRequired: false, unit: "°C")
-        ]),
+        parameters: nil,
         iconKey: "snowflake",
         color: "#007AFF",
         isTemplate: false,
@@ -179,10 +176,7 @@ enum TestFixtures {
         name: "Meditation Session",
         description: "Guided or unguided meditation",
         category: .mindfulness,
-        parameters: ActionParameters(fields: [
-            ActionField(key: "type", label: "Type", type: .select, isRequired: true, options: ["guided", "unguided", "body_scan"]),
-            ActionField(key: "duration_min", label: "Duration", type: .number, isRequired: true, unit: "min")
-        ]),
+        parameters: nil,
         iconKey: "brain.head.profile.fill",
         color: "#AF52DE",
         isTemplate: true,
@@ -204,9 +198,7 @@ enum TestFixtures {
         name: "Red Light Therapy",
         description: "20 min session",
         category: .mindfulness,
-        parameters: ActionParameters(fields: [
-            ActionField(key: "duration_min", label: "Duration", type: .number, isRequired: true, unit: "min")
-        ]),
+        parameters: nil,
         iconKey: "sunrise.fill",
         color: "#FF9500"
     )
@@ -214,6 +206,39 @@ enum TestFixtures {
     static let testUserActionUpdate = UserActionUpdate(
         name: "Updated Cold Plunge",
         description: "Updated description"
+    )
+
+    // MARK: - Unified Actions (Step 25d)
+
+    static let testAction = Action(
+        id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+        name: "Cold Plunge",
+        description: "Cold water immersion therapy",
+        category: .mindfulness,
+        modality: .activity,
+        defaultParameters: [
+            "duration_seconds": AnyCodable(180)
+        ],
+        isLibrary: false,
+        iconKey: "snowflake",
+        color: "#007AFF"
+    )
+
+    static let testActionCreate = ActionCreate(
+        name: "Red Light Therapy",
+        description: "20 min session",
+        category: .mindfulness,
+        modality: .device,
+        defaultParameters: ["duration_seconds": AnyCodable(1200)],
+        iconKey: "sunrise.fill",
+        color: "#FF9500"
+    )
+
+    static let testActionUpdate = ActionUpdate(
+        name: "Updated Cold Plunge",
+        description: "Updated description",
+        category: .exercise,
+        modality: .activity
     )
 
     static let testUserActionUsage = UserActionUsage([

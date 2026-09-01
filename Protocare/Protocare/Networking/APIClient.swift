@@ -41,6 +41,8 @@ protocol AuthAPI {
     func logout(refreshToken: String) async throws
     func fetchProtocols(token: String, category: ProtocolCategory?) async throws -> [ProtocolItem]
     func fetchActions(token: String, query: String?) async throws -> [Action]
+    func createAction(token: String, payload: ActionCreate) async throws -> Action
+    func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action
     func fetchSubstances(token: String, query: String?) async throws -> [Substance]
     func createProtocol(token: String, payload: ProtocolCreateRequest) async throws -> ProtocolItem
     func deleteProtocol(token: String, protocolId: String) async throws
@@ -249,6 +251,17 @@ final class APIClient: AuthAPI, @unchecked Sendable {
             path += "?q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)"
         }
         return try await get(path: path, token: token)
+    }
+
+    // MARK: - Unified Actions (Step 25d)
+
+    func createAction(token: String, payload: ActionCreate) async throws -> Action {
+        try await post(path: "/actions", body: payload, token: token)
+    }
+
+    func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action {
+        let request = try makeRequest(path: "/actions/\(actionId)", method: "PATCH", body: payload, token: token)
+        return try await perform(request: request)
     }
 
     // MARK: - Data Creation

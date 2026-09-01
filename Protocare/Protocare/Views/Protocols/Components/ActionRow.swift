@@ -33,6 +33,8 @@ struct ActionRow: View {
                         .foregroundStyle(.secondary)
                 } else {
                     HStack(spacing: 8) {
+                        // Unified model (Step 25b): category + modality badges
+                        // replace the library/custom split.
                         CapsuleTag(text: action.tagLabel, style: scheduleStyle)
                         if !action.detailLabel.isEmpty {
                             Text(action.detailLabel)
@@ -40,8 +42,9 @@ struct ActionRow: View {
                                 .foregroundStyle(.secondary)
                         }
 
-                        if !action.isLibrary {
-                            CapsuleTag(text: action.category.displayName, style: .accent)
+                        CapsuleTag(text: action.category.displayName, style: .accent)
+                        if let modality = action.modality {
+                            CapsuleTag(text: modality.displayName, style: .primary)
                         }
                     }
                 }

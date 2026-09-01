@@ -63,6 +63,28 @@ public enum MetricKey: String, Codable, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// Default metrics per protocol category — mirrors the backend
+    /// `CATEGORY_DEFAULT_METRICS` map (journal_service.get_available_metrics).
+    /// `ProtocolCategory` is gone (unified action model); protocols now carry
+    /// an `ActionCategory`.
+    public static func defaults(for category: ActionCategory) -> [MetricKey] {
+        switch category {
+        case .skincare: return [.skinQuality, .redness]
+        case .exercise: return [.energy, .muscleSoreness]
+        case .supplement: return [.energy, .focus]
+        case .hair: return [.skinQuality, .stress]
+        case .nutrition: return [.energy, .digestion]
+        case .mindfulness: return [.stress, .sleepQuality]
+        case .sleep: return [.stress, .sleepQuality]
+        case .medical: return [.painLevel, .symptomSeverity]
+        case .measurement: return [.energy]
+        case .custom: return [.energy]
+        }
+    }
+
+    /// LEGACY — dies with the `ProtocolCategory` removal (Step 28).
+    /// Kept so ProtocolBuilder/Settings category pickers keep compiling until
+    /// `ProtocolDraft.category` / `editCategory` switch to `ActionCategory`.
     public static func defaults(for category: ProtocolCategory) -> [MetricKey] {
         switch category {
         case .skincare: return [.skinQuality, .redness]
@@ -92,73 +114,88 @@ public struct MetricDefinition: Codable, Hashable, Sendable, Identifiable {
     }
 }
 
-public struct JournalCheckinSummary: Codable, Hashable, Sendable, Identifiable {
+/// Summary of one protocol action's check-in state for a journal entry
+/// (unified action model, Step 25e — mirrors backend `JournalCheckinSummary`).
+public struct JournalCheckinSummary: Decodable, Hashable, Sendable, Identifiable {
     public var id: String { protocolActionId }
     public var protocolActionId: String
     public var actionName: String
     public var isCompleted: Bool
-    public var appliedVolume: QuantityOutput?
-    public var appliedDurationSeconds: Int?
-    public var defaultVolume: QuantityOutput?
-    public var defaultDurationSeconds: Int?
-    public var maxVolume: QuantityOutput?
-    public var maxDurationSeconds: Int?
+    /// Actual values from the day's check-in, if any.
+    /// Backend `Decimal` quantity arrives as a JSON string — decoded tolerantly.
+    public var quantity: Double?
+    public var unit: SubstanceUnit?
+    public var durationSeconds: Int?
+    public var completed: Bool
+    /// `default_parameters` from the unified Action (JSONB).
+    public var defaultParameters: [String: AnyCodable]?
+    /// Per-protocol override (`user_parameters` on the ProtocolAction).
+    public var userParameters: [String: AnyCodable]?
 
-    public var hasVolume: Bool { defaultVolume != nil }
+    public var effectiveParameters: [String: AnyCodable] {
+        mergeParams(defaultParameters, overriding: userParameters)
+    }
+
+    /// Which check-in form this action renders (substance / timed activity / binary).
+    public var checkInFormKind: CheckInFormKind {
+        CheckInFormResolver.formKind(for: effectiveParameters)
+    }
+
+    /// Pre-fill amount + unit for the substance form, from effective parameters.
+    public var defaultQuantity: (amount: Double, unit: SubstanceUnit)? {
+        CheckInFormResolver.defaultQuantity(in: effectiveParameters)
+    }
+
+    /// Pre-fill duration for the timed-activity form.
+    public var defaultDurationSeconds: Int? {
+        CheckInFormResolver.defaultDurationSeconds(in: effectiveParameters)
+    }
+
+    public var hasVolume: Bool { defaultQuantity != nil }
     public var hasDuration: Bool { defaultDurationSeconds != nil }
 
-    public var volumeUpperBound: Double { maxVolume?.amount ?? max((defaultVolume?.amount ?? 1) * 3, 1) }
-    public var durationUpperBound: Double { Double(maxDurationSeconds ?? min((defaultDurationSeconds ?? 60) * 3, 3600)) }
+    public var volumeUpperBound: Double { max((defaultQuantity?.amount ?? 1) * 3, 1) }
+    public var durationUpperBound: Double { Double(min((defaultDurationSeconds ?? 60) * 3, 3600)) }
 
     public var completedSummary: String? {
         guard isCompleted else { return nil }
         var parts: [String] = []
-        if let vol = appliedVolume {
-            parts.append(vol.displayString)
+        if let quantity {
+            parts.append("\(quantity.roundedString(maxFractionDigits: 1))\(unit.map { " \($0.displayName)" } ?? "")")
         }
-        if let dur = appliedDurationSeconds {
-            if dur >= 60 {
-                let mins = Double(dur) / 60.0
+        if let durationSeconds {
+            if durationSeconds >= 60 {
+                let mins = Double(durationSeconds) / 60.0
                 parts.append("\(mins.roundedString(maxFractionDigits: 1)) min")
             } else {
-                parts.append("\(dur)s")
+                parts.append("\(durationSeconds)s")
             }
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
-    }
-
-    public init(
-        protocolActionId: String,
-        actionName: String,
-        isCompleted: Bool,
-        appliedVolume: QuantityOutput? = nil,
-        appliedDurationSeconds: Int? = nil,
-        defaultVolume: QuantityOutput? = nil,
-        defaultDurationSeconds: Int? = nil,
-        maxVolume: QuantityOutput? = nil,
-        maxDurationSeconds: Int? = nil
-    ) {
-        self.protocolActionId = protocolActionId
-        self.actionName = actionName
-        self.isCompleted = isCompleted
-        self.appliedVolume = appliedVolume
-        self.appliedDurationSeconds = appliedDurationSeconds
-        self.defaultVolume = defaultVolume
-        self.defaultDurationSeconds = defaultDurationSeconds
-        self.maxVolume = maxVolume
-        self.maxDurationSeconds = maxDurationSeconds
     }
 
     enum CodingKeys: String, CodingKey {
         case protocolActionId = "protocol_action_id"
         case actionName = "action_name"
         case isCompleted = "is_completed"
-        case appliedVolume = "applied_volume"
-        case appliedDurationSeconds = "applied_duration_seconds"
-        case defaultVolume = "default_volume"
-        case defaultDurationSeconds = "default_duration_seconds"
-        case maxVolume = "max_volume"
-        case maxDurationSeconds = "max_duration_seconds"
+        case quantity, unit
+        case durationSeconds = "duration_seconds"
+        case completed
+        case defaultParameters = "default_parameters"
+        case userParameters = "user_parameters"
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        protocolActionId = try container.decode(String.self, forKey: .protocolActionId)
+        actionName = try container.decode(String.self, forKey: .actionName)
+        isCompleted = try container.decode(Bool.self, forKey: .isCompleted)
+        quantity = container.decodeFlexibleDouble(forKey: .quantity)
+        unit = try container.decodeIfPresent(SubstanceUnit.self, forKey: .unit)
+        durationSeconds = try container.decodeIfPresent(Int.self, forKey: .durationSeconds)
+        completed = try container.decodeIfPresent(Bool.self, forKey: .completed) ?? true
+        defaultParameters = try container.decodeIfPresent([String: AnyCodable].self, forKey: .defaultParameters)
+        userParameters = try container.decodeIfPresent([String: AnyCodable].self, forKey: .userParameters)
     }
 }
 
@@ -205,7 +242,7 @@ public struct JournalEntry: Codable, Hashable, Sendable, Identifiable {
     }
 }
 
-public struct JournalEntryDetail: Codable, Hashable, Sendable, Identifiable {
+public struct JournalEntryDetail: Decodable, Hashable, Sendable, Identifiable {
     public var id: String
     public var protocolId: String
     public var date: String

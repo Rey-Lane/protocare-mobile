@@ -63,10 +63,20 @@ struct ActionPickerView: View {
                     api: api,
                     authStore: authStore,
                     onCreated: { action in
+                        // Custom actions come back with no schedule/UI state —
+                        // the caller adds it to a protocol with the default
+                        // parameters attached.
                         let item = ActionItem(
-                            id: action.id.uuidString,
+                            id: action.id,
                             name: action.name,
-                            category: action.category
+                            substanceId: nil,
+                            substance: nil,
+                            volume: nil,
+                            durationSeconds: nil,
+                            category: action.category,
+                            modality: action.modality,
+                            defaultParameters: action.defaultParameters,
+                            isLibrary: false
                         )
                         onSelect(item)
                         dismiss()
@@ -219,7 +229,7 @@ struct ActionPickerView: View {
             // Unified actions (library + user-created) in one request.
             // No substances lookup: Action carries name/category/modality itself.
             let fetched = try await api.fetchActions(token: token, query: nil)
-            actions = fetched.toActionItems(using: [])
+            actions = fetched.toActionItems()
         } catch {
             // Keep whatever was loaded before; flag failure only when the
             // list would otherwise be empty.

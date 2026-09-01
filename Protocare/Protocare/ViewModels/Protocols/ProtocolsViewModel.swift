@@ -52,14 +52,14 @@ final class ProtocolsViewModel: ObservableObject {
         do {
             async let fetchedProtocols = api.fetchProtocols(token: token, category: nil)
             async let fetchedActions = api.fetchActions(token: token, query: nil)
-            async let fetchedSubstances = api.fetchSubstances(token: token, query: nil)
 
-            let (protocolsResponse, actionsResponse, substances) = try await (fetchedProtocols, fetchedActions, fetchedSubstances)
+            let (protocolsResponse, actionsResponse) = try await (fetchedProtocols, fetchedActions)
             protocols = protocolsResponse
             protocolImageURLs = await fetchProtocolImageURLs(for: protocolsResponse, token: authStore.accessToken ?? token)
-            // Unified action model: GET /actions already returns library AND
-            // user-created actions, so one lookup covers every protocol action.
-            let enriched = actionsResponse.toActionItems(using: substances)
+            // Unified action model (Step 25a): GET /actions returns library AND
+            // user-created actions with category/modality inline — no substance
+            // lookup needed; one lookup covers every protocol action.
+            let enriched = actionsResponse.toActionItems()
             actionsLookup = Dictionary(uniqueKeysWithValues: enriched.map { ($0.id, $0) }) as [String: ActionItem]
         } catch {
             errorMessage = (error as? LocalizedError)?.errorDescription ?? "Failed to load protocols."

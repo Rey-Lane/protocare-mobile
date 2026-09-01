@@ -18,6 +18,14 @@ class MockAuthAPI: AuthAPI {
     )
     var fetchProtocolsResult: Result<[ProtocolItem], Error> = .success([])
     var fetchActionsResult: Result<[Action], Error> = .success([])
+    var createActionResult: Result<Action, Error> = .success(
+        Action(id: "test-action-id", name: "Cold Plunge", category: .mindfulness)
+    )
+    var updateActionResult: Result<Action, Error> = .success(
+        Action(id: "test-action-id", name: "Updated Action", category: .custom)
+    )
+    var lastCreateActionPayload: ActionCreate?
+    var lastUpdateActionPayload: ActionUpdate?
     var fetchSubstancesResult: Result<[Substance], Error> = .success([])
     var createProtocolResult: Result<ProtocolItem, Error> = .success(
         ProtocolItem(
@@ -229,6 +237,26 @@ class MockAuthAPI: AuthAPI {
         switch fetchActionsResult {
         case .success(let actions):
             return actions
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    func createAction(token: String, payload: ActionCreate) async throws -> Action {
+        lastCreateActionPayload = payload
+        switch createActionResult {
+        case .success(let action):
+            return action
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action {
+        lastUpdateActionPayload = payload
+        switch updateActionResult {
+        case .success(let action):
+            return action
         case .failure(let error):
             throw error
         }

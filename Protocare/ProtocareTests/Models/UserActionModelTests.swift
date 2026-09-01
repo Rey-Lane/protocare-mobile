@@ -1,9 +1,9 @@
 import XCTest
 @testable import Protocare
 
-/// Tests for the models that survived the UserAction stack removal (Step 20):
-/// ActionCategory, ActionFieldType/ActionField/ActionParameters (kept in
-/// UserActionLegacy.swift until Steps 25d/31), and AnyCodable.
+/// Tests for the models that survived the UserAction stack removal (Step 20)
+/// and the ActionField/ActionParameters deletion (Step 25d):
+/// ActionCategory and AnyCodable.
 final class UserActionModelTests: XCTestCase {
 
     // MARK: - ActionCategory
@@ -29,52 +29,6 @@ final class UserActionModelTests: XCTestCase {
         XCTAssertEqual(ActionCategory.custom.tagIcon, "star.fill")
     }
 
-    // MARK: - ActionFieldType
-
-    func testActionFieldTypeAllCases() {
-        XCTAssertEqual(ActionFieldType.allCases.count, 6)
-        XCTAssertEqual(ActionFieldType.text.rawValue, "text")
-        XCTAssertEqual(ActionFieldType.number.rawValue, "number")
-        XCTAssertEqual(ActionFieldType.boolean.rawValue, "boolean")
-        XCTAssertEqual(ActionFieldType.select.rawValue, "select")
-        XCTAssertEqual(ActionFieldType.time.rawValue, "time")
-        XCTAssertEqual(ActionFieldType.duration.rawValue, "duration")
-    }
-
-    // MARK: - ActionField
-
-    func testActionFieldID() {
-        let field = ActionField(key: "dosage", label: "Dosage", type: .number)
-        XCTAssertEqual(field.id, "dosage")
-    }
-
-    func testActionFieldWithAllProperties() {
-        let field = ActionField(
-            key: "temperature",
-            label: "Temperature",
-            type: .number,
-            isRequired: true,
-            defaultValue: AnyCodable(20),
-            options: nil,
-            unit: "°C",
-            minValue: AnyCodable(0),
-            maxValue: AnyCodable(50)
-        )
-        XCTAssertEqual(field.key, "temperature")
-        XCTAssertTrue(field.isRequired)
-        XCTAssertEqual(field.unit, "°C")
-    }
-
-    // MARK: - ActionParameters
-
-    func testActionParametersCreation() {
-        let params = ActionParameters(fields: [
-            ActionField(key: "amount", label: "Amount", type: .number),
-            ActionField(key: "unit", label: "Unit", type: .select, options: ["ml", "mg"])
-        ])
-        XCTAssertEqual(params.fields.count, 2)
-    }
-
     // MARK: - AnyCodable
 
     func testAnyCodableBool() {
@@ -98,30 +52,5 @@ final class UserActionModelTests: XCTestCase {
         let codable = AnyCodable("hello")
         XCTAssertEqual(codable, AnyCodable("hello"))
         XCTAssertNotEqual(codable, AnyCodable("world"))
-    }
-
-    // MARK: - Coding Keys
-
-    func testActionFieldCodingKeys() {
-        let field = ActionField(
-            key: "test",
-            label: "Test",
-            type: .number,
-            isRequired: true,
-            defaultValue: AnyCodable(5),
-            unit: "mg",
-            minValue: AnyCodable(0),
-            maxValue: AnyCodable(100)
-        )
-
-        let encoder = JSONEncoder()
-        let data = try! encoder.encode(field)
-        let json = try! JSONSerialization.jsonObject(with: data) as! [String: Any]
-
-        XCTAssertEqual(json["required"] as? Bool, true)
-        XCTAssertEqual(json["unit"] as? String, "mg")
-        XCTAssertEqual(json["default_value"] as? Int, 5)
-        XCTAssertEqual(json["min_value"] as? Int, 0)
-        XCTAssertEqual(json["max_value"] as? Int, 100)
     }
 }

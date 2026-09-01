@@ -151,63 +151,6 @@ enum TestFixtures {
         createdAt: "2024-01-01T12:00:00Z"
     )
 
-    // MARK: - User Actions
-
-    static let testUserAction = UserAction(
-        id: UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!,
-        userId: UUID(uuidString: "550e8400-e29b-41d4-a716-446655440000")!,
-        name: "Cold Plunge",
-        description: "Cold water immersion therapy",
-        category: .mindfulness,
-        parameters: nil,
-        iconKey: "snowflake",
-        color: "#007AFF",
-        isTemplate: false,
-        protocolCount: 3,
-        sortOrder: 0,
-        isActive: true,
-        createdAt: Date(timeIntervalSince1970: 1700000000),
-        updatedAt: Date(timeIntervalSince1970: 1700000000)
-    )
-
-    static let testUserActionTemplate = UserAction(
-        id: UUID(uuidString: "f1e2d3c4-b5a6-4978-8a7b-6c5d4e3f2a1b")!,
-        userId: UUID(uuidString: "00000000-0000-0000-0000-000000000000")!,
-        name: "Meditation Session",
-        description: "Guided or unguided meditation",
-        category: .mindfulness,
-        parameters: nil,
-        iconKey: "brain.head.profile.fill",
-        color: "#AF52DE",
-        isTemplate: true,
-        protocolCount: 0,
-        sortOrder: 0,
-        isActive: true,
-        createdAt: Date(timeIntervalSince1970: 1700000000),
-        updatedAt: Date(timeIntervalSince1970: 1700000000)
-    )
-
-    static let testPaginatedUserActions = PaginatedUserActions(
-        items: [testUserAction],
-        total: 1,
-        page: 1,
-        pageSize: 20
-    )
-
-    static let testUserActionCreate = UserActionCreate(
-        name: "Red Light Therapy",
-        description: "20 min session",
-        category: .mindfulness,
-        parameters: nil,
-        iconKey: "sunrise.fill",
-        color: "#FF9500"
-    )
-
-    static let testUserActionUpdate = UserActionUpdate(
-        name: "Updated Cold Plunge",
-        description: "Updated description"
-    )
-
     // MARK: - Unified Actions (Step 25d)
 
     static let testAction = Action(
@@ -240,19 +183,6 @@ enum TestFixtures {
         category: .exercise,
         modality: .activity
     )
-
-    static let testUserActionUsage = UserActionUsage([
-        UserActionUsageEntry(
-            protocolId: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
-            protocolName: "Morning Routine",
-            protocolActionId: UUID(uuidString: "00000000-0000-0000-0000-000000000010")!
-        ),
-        UserActionUsageEntry(
-            protocolId: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
-            protocolName: "Evening Wind Down",
-            protocolActionId: UUID(uuidString: "00000000-0000-0000-0000-000000000020")!
-        )
-    ])
 
     static func makeNotificationScheduleCreate(
         protocolActionId: String = "test-action-id",

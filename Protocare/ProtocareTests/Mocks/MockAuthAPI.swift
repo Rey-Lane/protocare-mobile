@@ -18,6 +18,7 @@ class MockAuthAPI: AuthAPI {
     )
     var fetchProtocolsResult: Result<[ProtocolItem], Error> = .success([])
     var fetchActionsResult: Result<[Action], Error> = .success([])
+    var lastFetchActionsFilters: (category: ActionCategory?, modality: ActionModality?, query: String?)?
     var createActionResult: Result<Action, Error> = .success(
         Action(id: "test-action-id", name: "Cold Plunge", category: .mindfulness)
     )
@@ -26,7 +27,6 @@ class MockAuthAPI: AuthAPI {
     )
     var lastCreateActionPayload: ActionCreate?
     var lastUpdateActionPayload: ActionUpdate?
-    var fetchSubstancesResult: Result<[Substance], Error> = .success([])
     var createProtocolResult: Result<ProtocolItem, Error> = .success(
         ProtocolItem(
             id: "test-protocol-id",
@@ -163,18 +163,6 @@ class MockAuthAPI: AuthAPI {
     var fetchProtocolCheckinsResult: Result<[CheckIn], Error> = .success([])
 
 
-    // MARK: - User Actions
-    var fetchUserActionsResult: Result<PaginatedUserActions, Error> = .success(
-        PaginatedUserActions(items: [], total: 0, page: 1, pageSize: 20)
-    )
-    var createUserActionResult: Result<UserAction, Error> = .success(TestFixtures.testUserAction)
-    var fetchUserActionResult: Result<UserAction, Error> = .success(TestFixtures.testUserAction)
-    var updateUserActionResult: Result<UserAction, Error> = .success(TestFixtures.testUserAction)
-    var deleteUserActionResult: Result<Void, Error> = .success(())
-    var fetchUserActionTemplatesResult: Result<[UserAction], Error> = .success([])
-    var duplicateUserActionResult: Result<UserAction, Error> = .success(TestFixtures.testUserAction)
-    var fetchUserActionUsageResult: Result<UserActionUsage, Error> = .success(TestFixtures.testUserActionUsage)
-
     var addActionToProtocolResult: Result<ProtocolItem, Error> = .success(
         ProtocolItem(
             id: "test-protocol-id",
@@ -233,7 +221,8 @@ class MockAuthAPI: AuthAPI {
         }
     }
 
-    func fetchActions(token: String, query: String? = nil) async throws -> [Action] {
+    func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil) async throws -> [Action] {
+        lastFetchActionsFilters = (category, modality, query)
         switch fetchActionsResult {
         case .success(let actions):
             return actions
@@ -257,15 +246,6 @@ class MockAuthAPI: AuthAPI {
         switch updateActionResult {
         case .success(let action):
             return action
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func fetchSubstances(token: String, query: String? = nil) async throws -> [Substance] {
-        switch fetchSubstancesResult {
-        case .success(let substances):
-            return substances
         case .failure(let error):
             throw error
         }
@@ -438,79 +418,6 @@ class MockAuthAPI: AuthAPI {
         switch upsertNotificationScheduleResult {
         case .success(let schedule):
             return schedule
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    // MARK: - User Actions
-    func fetchUserActions(token: String, category: ActionCategory?, isActive: Bool?, page: Int?, pageSize: Int?) async throws -> PaginatedUserActions {
-        switch fetchUserActionsResult {
-        case .success(let result):
-            return result
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func createUserAction(token: String, payload: UserActionCreate) async throws -> UserAction {
-        switch createUserActionResult {
-        case .success(let action):
-            return action
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func fetchUserAction(token: String, actionId: UUID) async throws -> UserAction {
-        switch fetchUserActionResult {
-        case .success(let action):
-            return action
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func updateUserAction(token: String, actionId: UUID, payload: UserActionUpdate) async throws -> UserAction {
-        switch updateUserActionResult {
-        case .success(let action):
-            return action
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func deleteUserAction(token: String, actionId: UUID) async throws {
-        switch deleteUserActionResult {
-        case .success:
-            return
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func fetchUserActionTemplates(token: String) async throws -> [UserAction] {
-        switch fetchUserActionTemplatesResult {
-        case .success(let templates):
-            return templates
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func duplicateUserAction(token: String, actionId: UUID) async throws -> UserAction {
-        switch duplicateUserActionResult {
-        case .success(let action):
-            return action
-        case .failure(let error):
-            throw error
-        }
-    }
-
-    func fetchUserActionUsage(token: String, actionId: UUID) async throws -> UserActionUsage {
-        switch fetchUserActionUsageResult {
-        case .success(let usage):
-            return usage
         case .failure(let error):
             throw error
         }

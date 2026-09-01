@@ -43,7 +43,7 @@ final class ProtocolBuilderViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            let fetchedActions = try await api.fetchActions(token: token, query: nil)
+            let fetchedActions = try await api.fetchActions(token: token, category: nil, modality: nil, query: nil)
             availableActions = fetchedActions.toActionItems()
             allActions = availableActions
         } catch {

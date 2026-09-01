@@ -389,8 +389,6 @@ public struct ActionUpdate: Encodable, Hashable, Sendable {
 
 /// Type-erased Codable value used for dynamic JSONB payloads
 /// (`default_parameters` / `user_parameters`).
-/// Lives here (APIModels) because the unified `Action`/`ProtocolAction` models depend on it;
-/// moved from UserActionModels.swift so it survives the UserAction removal (Step 20).
 public struct AnyCodable: Codable, Hashable, Sendable {
     public let value: Any
 

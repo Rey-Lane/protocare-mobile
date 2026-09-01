@@ -114,137 +114,31 @@ final class APIClientContractTests: XCTestCase {
         _ = try await client.upsertNotificationSchedule(token: "test-token", actionId: "action-123", payload: payload)
     }
 
-    // MARK: - User Actions
+    // MARK: - Unified Actions
 
-    func test_fetchUserActions_sendsGETToUserActionsEndpoint() async throws {
+    func test_fetchActions_sendsGETToActionsEndpoint() async throws {
         MockURLProtocol.handler = { request in
             XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    {"items":[],"total":0,"page":1,"page_size":50}
-                    """.utf8))
-        }
-
-        _ = try await client.fetchUserActions(token: "test-token", category: nil, isActive: nil, page: nil, pageSize: nil)
-    }
-
-    func test_fetchUserActions_withFilters_sendsGETWithQueryParams() async throws {
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions")
-            XCTAssertTrue(request.url?.query?.contains("category=supplement") ?? false)
-            XCTAssertTrue(request.url?.query?.contains("is_active=true") ?? false)
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    {"items":[],"total":0,"page":1,"page_size":50}
-                    """.utf8))
-        }
-
-        _ = try await client.fetchUserActions(token: "test-token", category: .supplement, isActive: true, page: nil, pageSize: nil)
-    }
-
-    func test_createUserAction_sendsPOSTToUserActionsEndpoint() async throws {
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "POST")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json")
-            return (HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    {"id":"00000000-0000-0000-0000-000000000001","user_id":"00000000-0000-0000-0000-000000000099","name":"Cold Plunge","description":null,"category":"custom","parameters":null,"icon_key":null,"color":null,"is_template":false,"template_source_id":null,"protocol_count":0,"sort_order":0,"is_active":true,"created_at":"2024-01-01T12:00:00Z","updated_at":"2024-01-01T12:00:00Z"}
-                    """.utf8))
-        }
-
-        let payload = UserActionCreate(name: "Cold Plunge", category: .custom)
-        _ = try await client.createUserAction(token: "test-token", payload: payload)
-    }
-
-    func test_fetchUserAction_sendsGETToUserActionByIdEndpoint() async throws {
-        let actionId = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions/\(actionId.uuidString)")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    {"id":"00000000-0000-0000-0000-000000000001","user_id":"00000000-0000-0000-0000-000000000099","name":"Cold Plunge","description":null,"category":"custom","parameters":null,"icon_key":null,"color":null,"is_template":false,"template_source_id":null,"protocol_count":0,"sort_order":0,"is_active":true,"created_at":"2024-01-01T12:00:00Z","updated_at":"2024-01-01T12:00:00Z"}
-                    """.utf8))
-        }
-
-        _ = try await client.fetchUserAction(token: "test-token", actionId: actionId)
-    }
-
-    func test_updateUserAction_sendsPATCHToUserActionByIdEndpoint() async throws {
-        let actionId = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "PATCH")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions/\(actionId.uuidString)")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json")
-            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    {"id":"00000000-0000-0000-0000-000000000001","user_id":"00000000-0000-0000-0000-000000000099","name":"Updated Action","description":null,"category":"custom","parameters":null,"icon_key":null,"color":null,"is_template":false,"template_source_id":null,"protocol_count":0,"sort_order":0,"is_active":true,"created_at":"2024-01-01T12:00:00Z","updated_at":"2024-01-01T12:00:00Z"}
-                    """.utf8))
-        }
-
-        let payload = UserActionUpdate(name: "Updated Action")
-        _ = try await client.updateUserAction(token: "test-token", actionId: actionId, payload: payload)
-    }
-
-    func test_deleteUserAction_sendsDELETEToUserActionByIdEndpoint() async throws {
-        let actionId = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "DELETE")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions/\(actionId.uuidString)")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: nil, headerFields: nil)!, Data())
-        }
-
-        try await client.deleteUserAction(token: "test-token", actionId: actionId)
-    }
-
-    func test_fetchUserActionTemplates_sendsGETToTemplatesEndpoint() async throws {
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions/templates")
+            XCTAssertEqual(request.url?.path, "/v1/actions")
             XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
             return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, Data("[]".utf8))
         }
 
-        _ = try await client.fetchUserActionTemplates(token: "test-token")
+        _ = try await client.fetchActions(token: "test-token", category: nil, modality: nil, query: nil)
     }
 
-    func test_duplicateUserAction_sendsPOSTToDuplicateEndpoint() async throws {
-        let actionId = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
-        MockURLProtocol.handler = { request in
-            XCTAssertEqual(request.httpMethod, "POST")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions/\(actionId.uuidString)/duplicate")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    {"id":"00000000-0000-0000-0000-000000000002","user_id":"00000000-0000-0000-0000-000000000099","name":"Cold Plunge (1)","description":null,"category":"custom","parameters":null,"icon_key":null,"color":null,"is_template":false,"template_source_id":"00000000-0000-0000-0000-000000000001","protocol_count":0,"sort_order":0,"is_active":true,"created_at":"2024-01-01T12:00:00Z","updated_at":"2024-01-01T12:00:00Z"}
-                    """.utf8))
-        }
-
-        _ = try await client.duplicateUserAction(token: "test-token", actionId: actionId)
-    }
-
-    func test_fetchUserActionUsage_sendsGETToUsageEndpoint() async throws {
-        let actionId = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+    func test_fetchActions_withFilters_sendsGETWithQueryParams() async throws {
         MockURLProtocol.handler = { request in
             XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url?.path, "/v1/user-actions/\(actionId.uuidString)/usage")
+            XCTAssertEqual(request.url?.path, "/v1/actions")
+            XCTAssertTrue(request.url?.query?.contains("category=skincare") ?? false)
+            XCTAssertTrue(request.url?.query?.contains("modality=topical") ?? false)
+            XCTAssertTrue(request.url?.query?.contains("q=retinol") ?? false)
             XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
-            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!,
-                    Data("""
-                    [{"protocol_id":"00000000-0000-0000-0000-000000000100","protocol_name":"Morning Routine","protocol_action_id":"00000000-0000-0000-0000-000000000200"}]
-                    """.utf8))
+            return (HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!, Data("[]".utf8))
         }
 
-        _ = try await client.fetchUserActionUsage(token: "test-token", actionId: actionId)
+        _ = try await client.fetchActions(token: "test-token", category: .skincare, modality: .topical, query: "retinol")
     }
 
     // MARK: - Existing Endpoint Contracts

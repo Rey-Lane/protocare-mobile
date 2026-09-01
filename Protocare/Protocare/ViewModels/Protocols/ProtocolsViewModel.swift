@@ -51,7 +51,7 @@ final class ProtocolsViewModel: ObservableObject {
 
         do {
             async let fetchedProtocols = api.fetchProtocols(token: token, category: nil)
-            async let fetchedActions = api.fetchActions(token: token, query: nil)
+            async let fetchedActions = api.fetchActions(token: token, category: nil, modality: nil, query: nil)
 
             let (protocolsResponse, actionsResponse) = try await (fetchedProtocols, fetchedActions)
             protocols = protocolsResponse

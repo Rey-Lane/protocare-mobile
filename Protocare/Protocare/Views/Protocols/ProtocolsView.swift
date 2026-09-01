@@ -472,14 +472,13 @@ struct ProtocolsView_Previews: PreviewProvider {
                 )
             ]
         }
-        func fetchActions(token: String, query: String? = nil) async throws -> [Action] { [] }
+        func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil) async throws -> [Action] { [] }
         func createAction(token: String, payload: ActionCreate) async throws -> Action {
             Action(id: UUID().uuidString, name: payload.name, description: payload.description, category: payload.category, modality: payload.modality)
         }
         func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action {
             Action(id: actionId, name: payload.name ?? "", category: payload.category ?? .custom)
         }
-        func fetchSubstances(token: String, query: String? = nil) async throws -> [Substance] { [] }
         func createProtocol(token: String, payload: ProtocolCreateRequest) async throws -> ProtocolItem {
             ProtocolItem(
                 id: UUID().uuidString,
@@ -624,26 +623,6 @@ struct ProtocolsView_Previews: PreviewProvider {
             NotificationScheduleResponse(id: UUID().uuidString, protocolActionId: actionId, userId: UUID().uuidString, preferredTime: payload.preferredTime, timezone: payload.timezone, isEnabled: payload.isEnabled ?? true, createdAt: "2024-01-01T12:00:00Z")
         }
 
-        func fetchUserActions(token: String, category: ActionCategory?, isActive: Bool?, page: Int?, pageSize: Int?) async throws -> PaginatedUserActions {
-            PaginatedUserActions(items: [], total: 0, page: 1, pageSize: 20)
-        }
-        func createUserAction(token: String, payload: UserActionCreate) async throws -> UserAction {
-            UserAction(id: UUID(), userId: UUID(), name: payload.name, category: payload.category)
-        }
-        func fetchUserAction(token: String, actionId: UUID) async throws -> UserAction {
-            UserAction(id: actionId, userId: UUID(), name: "", category: .custom)
-        }
-        func updateUserAction(token: String, actionId: UUID, payload: UserActionUpdate) async throws -> UserAction {
-            UserAction(id: actionId, userId: UUID(), name: payload.name ?? "", category: .custom)
-        }
-        func deleteUserAction(token: String, actionId: UUID) async throws {}
-        func fetchUserActionTemplates(token: String) async throws -> [UserAction] { [] }
-        func duplicateUserAction(token: String, actionId: UUID) async throws -> UserAction {
-            UserAction(id: UUID(), userId: UUID(), name: "", category: .custom)
-        }
-        func fetchUserActionUsage(token: String, actionId: UUID) async throws -> UserActionUsage {
-            []
-        }
         func fetchCurrentUser(token: String) async throws -> UserMeResponse {
             UserMeResponse(id: UUID().uuidString, email: "preview@protocare.app", name: "Preview", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 3, streak: StreakInfo(currentStreak: 7, longestStreak: 14), totalCheckins: 42)
         }

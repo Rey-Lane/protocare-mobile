@@ -82,8 +82,7 @@ struct ActionPickerView: View {
                         let item = ActionItem(
                             id: action.id.uuidString,
                             name: action.name,
-                            userActionId: action.id,
-                            userActionCategory: action.category
+                            category: action.category
                         )
                         onSelect(item)
                         dismiss()
@@ -167,16 +166,14 @@ struct ActionPickerView: View {
                         action: ActionItem(
                             id: action.id.uuidString,
                             name: action.name,
-                            userActionId: action.id,
-                            userActionCategory: action.category
+                            category: action.category
                         ),
                         userAction: action,
                         onAdd: {
                             let item = ActionItem(
                                 id: action.id.uuidString,
                                 name: action.name,
-                                userActionId: action.id,
-                                userActionCategory: action.category
+                                category: action.category
                             )
                             onSelect(item)
                             dismiss()
@@ -213,16 +210,14 @@ struct ActionPickerView: View {
                         action: ActionItem(
                             id: action.id.uuidString,
                             name: action.name,
-                            userActionId: action.id,
-                            userActionCategory: action.category
+                            category: action.category
                         ),
                         userAction: action,
                         onAdd: {
                             let item = ActionItem(
                                 id: action.id.uuidString,
                                 name: action.name,
-                                userActionId: action.id,
-                                userActionCategory: action.category
+                                category: action.category
                             )
                             onSelect(item)
                             dismiss()

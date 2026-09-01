@@ -25,7 +25,11 @@ extension ActionItem {
             substanceId: self.substanceId,
             substance: self.resolvingSubstance(from: substances),
             volume: self.volume,
-            durationSeconds: self.durationSeconds
+            durationSeconds: self.durationSeconds,
+            category: self.category,
+            modality: self.modality,
+            defaultParameters: self.defaultParameters,
+            isLibrary: self.isLibrary
         )
     }
 }

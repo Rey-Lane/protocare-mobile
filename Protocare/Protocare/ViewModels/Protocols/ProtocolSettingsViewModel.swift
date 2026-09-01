@@ -101,10 +101,7 @@ final class ProtocolSettingsViewModel: ObservableObject {
             if let actionId = pa.actionId, let action = actionsLookup[actionId] {
                 var item = action
                 item.schedule = schedule
-                resolvedItem = item
-            } else if let userActionId = pa.userActionId, let action = userActionsLookup[userActionId.uuidString] {
-                var item = action
-                item.schedule = schedule
+                item.userParameters = pa.userParameters
                 resolvedItem = item
             }
             if var resolvedItem {
@@ -165,8 +162,7 @@ final class ProtocolSettingsViewModel: ObservableObject {
         let item = ActionItem(
             id: actionItemId,
             name: userAction.name,
-            userActionId: userAction.id,
-            userActionCategory: userAction.category
+            category: userAction.category
         )
         editActions.append(item)
     }

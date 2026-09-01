@@ -117,10 +117,10 @@ final class ProtocolDetailViewModel: ObservableObject {
         defer { isAddingAction = false }
 
         let nextPosition = (currentProtocol.actions.map { $0.position ?? 0 }.max() ?? -1) + 1
-        // Use actionId for predefined (library) actions, userActionId for custom
+        // Unified model: single action_id references the unified actions table.
         let payload = ProtocolActionCreate(
-            actionId: actionItem.userActionId == nil ? actionItem.id : nil,
-            userActionId: actionItem.userActionId,
+            actionId: actionItem.id,
+            userParameters: actionItem.userParameters,
             rrule: "FREQ=DAILY",
             position: nextPosition
         )

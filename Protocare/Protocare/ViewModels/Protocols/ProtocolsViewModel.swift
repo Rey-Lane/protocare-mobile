@@ -61,12 +61,13 @@ final class ProtocolsViewModel: ObservableObject {
             protocolImageURLs = await fetchProtocolImageURLs(for: protocolsResponse, token: authStore.accessToken ?? token)
             let enriched = actionsResponse.toActionItems(using: substances)
             actionsLookup = Dictionary(uniqueKeysWithValues: enriched.map { ($0.id, $0) }) as [String: ActionItem]
+            // Legacy dual-ID source: user actions map onto the unified ActionItem
+            // (category preserved; ID stays the user-action UUID until Step 20 removes this path).
             userActionsLookup = Dictionary(uniqueKeysWithValues: userActionsResponse.items.compactMap { ua -> (String, ActionItem)? in
                 let item = ActionItem(
                     id: ua.id.uuidString,
                     name: ua.name,
-                    userActionId: ua.id,
-                    userActionCategory: ua.category
+                    category: ua.category
                 )
                 return (ua.id.uuidString, item)
             })

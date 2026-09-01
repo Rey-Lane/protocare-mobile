@@ -15,11 +15,15 @@ extension Action {
         let substance = substances.first { $0.id == self.substanceId }
         return ActionItem(
             id: self.id,
-            name: substance?.name ?? "Unknown",
+            name: substance?.name ?? self.name,
             substanceId: self.substanceId,
             substance: substance,
-            volume: self.volume,
-            durationSeconds: self.durationSeconds
+            volume: self.defaultVolume,
+            durationSeconds: self.defaultDurationSeconds,
+            category: self.category,
+            modality: self.modality,
+            defaultParameters: self.defaultParameters,
+            isLibrary: self.isLibrary
         )
     }
 }

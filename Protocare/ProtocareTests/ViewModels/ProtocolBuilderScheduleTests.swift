@@ -124,12 +124,11 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
         XCTAssertEqual(payload?.actions.first?.rrule, "RRULE:FREQ=DAILY;BYHOUR=8;BYMINUTE=0")
     }
 
-    func testSave_WithUserActionId_PassesCorrectIds() async {
-        let userActionId = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
+    func testSave_PassesUnifiedActionId() async {
         let action = ActionItem(
-            id: userActionId.uuidString,
+            id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
             name: "Custom Action",
-            userActionId: userActionId
+            category: .mindfulness
         )
         sut.draft.name = "Test"
         sut.addPredefinedAction(action)
@@ -145,8 +144,9 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
 
         let payloadAction = mockAPI.lastCreateProtocolPayload?.actions.first
         XCTAssertNotNil(payloadAction)
-        XCTAssertNil(payloadAction?.actionId)
-        XCTAssertEqual(payloadAction?.userActionId, userActionId)
+        // Unified model: single action_id, no dual ID, no user_parameters unless overridden.
+        XCTAssertEqual(payloadAction?.actionId, "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")
+        XCTAssertNil(payloadAction?.userParameters)
         XCTAssertEqual(payloadAction?.rrule, "RRULE:FREQ=DAILY;BYHOUR=7;BYMINUTE=30")
     }
 

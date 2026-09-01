@@ -104,7 +104,7 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
 
     func testLoadActions_LoadsSuccessfully() async {
         mockAPI.fetchActionsResult = .success([
-            Action(id: "action-1", substanceId: "substance-1")
+            Action(id: "action-1", name: "Minoxidil Spray", category: .hair, modality: .topical)
         ])
         mockAPI.fetchSubstancesResult = .success([])
 
@@ -140,7 +140,7 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(items.first?.id, userAction.id.uuidString)
         XCTAssertFalse(items.first!.id.hasPrefix("ua-"))
-        XCTAssertEqual(items.first?.userActionId, userAction.id)
+        XCTAssertEqual(items.first?.category, userAction.category)
     }
 
     func testCustomActionItems_ExcludesInactiveUserActions() {
@@ -190,26 +190,10 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
         XCTAssertNil(json["user_action_id"])
     }
 
-    func testEncode_WithUserActionId_OmitsActionIdFromJSON() throws {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
-        let payload = ProtocolActionCreate(
-            userActionId: uuid,
-            rrule: "FREQ=DAILY",
-            position: 0
-        )
-
-        let data = try JSONEncoder().encode(payload)
-        let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-
-        XCTAssertFalse(json.keys.contains("action_id"), "action_id should be omitted when nil")
-        XCTAssertEqual(json["user_action_id"] as? String, uuid.uuidString)
-    }
-
-    func testEncode_WithBothIds_IncludesBothInJSON() throws {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
+    func testEncode_WithUserParameters_IncludesUserParametersInJSON() throws {
         let payload = ProtocolActionCreate(
             actionId: "action-123",
-            userActionId: uuid,
+            userParameters: ["volume_amount": AnyCodable(7.0), "volume_unit": AnyCodable("spray")],
             rrule: "FREQ=DAILY",
             position: 0
         )
@@ -218,7 +202,9 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
         let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
 
         XCTAssertEqual(json["action_id"] as? String, "action-123")
-        XCTAssertEqual(json["user_action_id"] as? String, uuid.uuidString)
+        let params = try XCTUnwrap(json["user_parameters"] as? [String: Any])
+        XCTAssertEqual(params["volume_amount"] as? Double, 7.0)
+        XCTAssertEqual(params["volume_unit"] as? String, "spray")
     }
 
     func testEncode_WithNotificationFields_IncludesWhenPresent() throws {
@@ -249,7 +235,7 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
         let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
 
         XCTAssertFalse(json.keys.contains("action_id"))
-        XCTAssertFalse(json.keys.contains("user_action_id"))
+        XCTAssertFalse(json.keys.contains("user_parameters"))
         XCTAssertFalse(json.keys.contains("position"))
         XCTAssertFalse(json.keys.contains("notification_time"))
         XCTAssertFalse(json.keys.contains("notification_timezone"))
@@ -264,20 +250,20 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
         let decoded = try JSONDecoder().decode(ProtocolActionCreate.self, from: data)
 
         XCTAssertEqual(decoded.actionId, "action-123")
-        XCTAssertNil(decoded.userActionId)
         XCTAssertEqual(decoded.rrule, "FREQ=DAILY")
     }
 
-    func testDecode_WithUserActionId_NoActionId() throws {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
+    func testDecode_WithUserParameters() throws {
         let jsonString = """
-        {"user_action_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d", "rrule": "FREQ=DAILY", "position": 1}
+        {"action_id": "action-123", "user_parameters": {"volume_amount": 7.5, "volume_unit": "spray"}, "rrule": "FREQ=DAILY", "position": 1}
         """
         let data = Data(jsonString.utf8)
         let decoded = try JSONDecoder().decode(ProtocolActionCreate.self, from: data)
 
-        XCTAssertNil(decoded.actionId)
-        XCTAssertEqual(decoded.userActionId, uuid)
+        XCTAssertEqual(decoded.actionId, "action-123")
+        let amount = try XCTUnwrap(decoded.userParameters?["volume_amount"]?.value as? Double)
+        XCTAssertEqual(amount, 7.5)
+        XCTAssertEqual(decoded.userParameters?["volume_unit"]?.value as? String, "spray")
     }
 }
 
@@ -293,31 +279,6 @@ final class ProtocolActionModelTests: XCTestCase {
             position: 0
         )
         XCTAssertEqual(action.actionId, "action-123")
-        XCTAssertNil(action.userActionId)
-    }
-
-    func testProtocolAction_WithUserActionId() {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
-        let action = ProtocolAction(
-            id: "pa-1",
-            userActionId: uuid,
-            rrule: "FREQ=DAILY",
-            position: 0
-        )
-        XCTAssertNil(action.actionId)
-        XCTAssertEqual(action.userActionId, uuid)
-    }
-
-    func testProtocolAction_DecodeWithUserActionId() throws {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
-        let jsonString = """
-        {"id": "pa-1", "user_action_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d", "rrule": "FREQ=DAILY", "position": 0}
-        """
-        let data = Data(jsonString.utf8)
-        let decoded = try JSONDecoder().decode(ProtocolAction.self, from: data)
-
-        XCTAssertNil(decoded.actionId)
-        XCTAssertEqual(decoded.userActionId, uuid)
     }
 
     func testProtocolAction_DecodeWithActionId() throws {
@@ -328,6 +289,18 @@ final class ProtocolActionModelTests: XCTestCase {
         let decoded = try JSONDecoder().decode(ProtocolAction.self, from: data)
 
         XCTAssertEqual(decoded.actionId, "action-123")
-        XCTAssertNil(decoded.userActionId)
+    }
+
+    func testProtocolAction_DecodeWithUserParameters() throws {
+        let jsonString = """
+        {"id": "pa-1", "action_id": "action-123", "user_parameters": {"serving": 2, "serving_unit": "capsule"}, "rrule": "FREQ=DAILY", "position": 0}
+        """
+        let data = Data(jsonString.utf8)
+        let decoded = try JSONDecoder().decode(ProtocolAction.self, from: data)
+
+        XCTAssertEqual(decoded.actionId, "action-123")
+        let serving = try XCTUnwrap(decoded.userParameters?["serving"]?.value as? Int)
+        XCTAssertEqual(serving, 2)
+        XCTAssertEqual(decoded.userParameters?["serving_unit"]?.value as? String, "capsule")
     }
 }

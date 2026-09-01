@@ -134,7 +134,7 @@ struct ProtocolDetailView: View {
                 ActionCheckinView(
                     protocolId: viewModel.item.id,
                     protocolAction: action,
-                    action: action.actionId.flatMap { viewModel.actionsLookup[$0] } ?? action.userActionId.flatMap { viewModel.userActionsLookup[$0.uuidString] },
+                    action: action.actionId.flatMap { viewModel.actionsLookup[$0] },
                     vm: ActionCheckinViewModel(api: viewModel.api, authStore: viewModel.authStore, protocolId: viewModel.item.id, protocolActionId: action.id),
                     onSubmit: {
                         Task {
@@ -146,7 +146,6 @@ struct ProtocolDetailView: View {
         }
         .sheet(item: $viewModel.selectedActionForSchedule) { action in
             let actionItem = action.actionId.flatMap { viewModel.actionsLookup[$0] }
-                ?? action.userActionId.flatMap { viewModel.userActionsLookup[$0.uuidString] }
             if let actionItem {
                 ScheduleActionSheet(action: actionItem) { schedule, slots in
                     Task {
@@ -273,10 +272,9 @@ struct ProtocolDetailView: View {
                     ForEach(sorted) { actionStatus in
                         let protocolAction = viewModel.currentProtocol.actions.first { $0.id == actionStatus.protocolActionId }
                         let categoryIcon: String = {
-                            if let userActionId = actionStatus.userActionId,
-                               let actionItem = viewModel.userActionsLookup[userActionId.uuidString],
-                               let category = actionItem.userActionCategory {
-                                return category.tagIcon
+                            if let actionId = actionStatus.actionId,
+                               let actionItem = viewModel.actionsLookup[actionId] {
+                                return actionItem.category.tagIcon
                             }
                             return "star.fill"
                         }()
@@ -545,7 +543,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
                     ProtocolAction(
                         id: UUID().uuidString,
                         actionId: action.actionId,
-                        userActionId: action.userActionId,
                         rrule: action.rrule,
                         position: action.position,
                         checkins: nil
@@ -566,7 +563,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
                     ProtocolAction(
                         id: UUID().uuidString,
                         actionId: action.actionId,
-                        userActionId: action.userActionId,
                         rrule: action.rrule,
                         position: action.position,
                         checkins: nil
@@ -682,7 +678,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
             let newAction = ProtocolAction(
                 id: UUID().uuidString,
                 actionId: payload.actionId,
-                userActionId: payload.userActionId,
                 rrule: payload.rrule,
                 position: payload.position ?? 0,
                 checkins: nil

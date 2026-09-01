@@ -223,24 +223,234 @@ public struct QuantityInput: Codable, Hashable, Sendable {
 
 // MARK: - Action Types
 
+/// Unified action (library or user-created). Mirrors backend `ActionResponse` (17 fields).
+/// Replaces the old substance-bound `Action` as part of the unified action model migration.
 public struct Action: Codable, Hashable, Sendable, Identifiable {
     public var id: String
-    public var substanceId: String
-    public var volume: QuantityOutput?
-    public var durationSeconds: Int?
+    public var name: String
+    public var description: String?
+    public var category: ActionCategory
+    public var modality: ActionModality?
+    /// Dynamic JSONB from the backend. Known keys (see backend `ActionParameterSchema`):
+    /// `volume_amount` + `volume_unit`, `serving` + `serving_unit`, `dosage_iu`/`dosage_mg`/`dosage_g`,
+    /// `duration_seconds`. Empty/absent dict means a binary toggle action.
+    /// Stored as `[String: AnyCodable]` because `[String: Any]` is not Codable.
+    public var defaultParameters: [String: AnyCodable]?
+    public var substanceId: String?
+    public var isLibrary: Bool
+    public var iconKey: String?
+    public var color: String?
+    public var isTemplate: Bool
+    public var templateSourceId: String?
+    public var createdByUserId: String?
+    public var sortOrder: Int
+    public var isActive: Bool
+    public var createdAt: String?
+    public var updatedAt: String?
 
-    public init(id: String, substanceId: String, volume: QuantityOutput? = nil, durationSeconds: Int? = nil) {
+    public init(
+        id: String,
+        name: String,
+        description: String? = nil,
+        category: ActionCategory,
+        modality: ActionModality? = nil,
+        defaultParameters: [String: AnyCodable]? = nil,
+        substanceId: String? = nil,
+        isLibrary: Bool = true,
+        iconKey: String? = nil,
+        color: String? = nil,
+        isTemplate: Bool = false,
+        templateSourceId: String? = nil,
+        createdByUserId: String? = nil,
+        sortOrder: Int = 0,
+        isActive: Bool = true,
+        createdAt: String? = nil,
+        updatedAt: String? = nil
+    ) {
         self.id = id
+        self.name = name
+        self.description = description
+        self.category = category
+        self.modality = modality
+        self.defaultParameters = defaultParameters
         self.substanceId = substanceId
-        self.volume = volume
-        self.durationSeconds = durationSeconds
+        self.isLibrary = isLibrary
+        self.iconKey = iconKey
+        self.color = color
+        self.isTemplate = isTemplate
+        self.templateSourceId = templateSourceId
+        self.createdByUserId = createdByUserId
+        self.sortOrder = sortOrder
+        self.isActive = isActive
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 
     enum CodingKeys: String, CodingKey {
-        case id
+        case id, name, description, category, modality
+        case defaultParameters = "default_parameters"
         case substanceId = "substance_id"
-        case volume
-        case durationSeconds = "duration_seconds"
+        case isLibrary = "is_library"
+        case iconKey = "icon_key"
+        case color
+        case isTemplate = "is_template"
+        case templateSourceId = "template_source_id"
+        case createdByUserId = "created_by_user_id"
+        case sortOrder = "sort_order"
+        case isActive = "is_active"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        category = try container.decode(ActionCategory.self, forKey: .category)
+        modality = try container.decodeIfPresent(ActionModality.self, forKey: .modality)
+        defaultParameters = try container.decodeIfPresent([String: AnyCodable].self, forKey: .defaultParameters)
+        substanceId = try container.decodeIfPresent(String.self, forKey: .substanceId)
+        isLibrary = try container.decodeIfPresent(Bool.self, forKey: .isLibrary) ?? true
+        iconKey = try container.decodeIfPresent(String.self, forKey: .iconKey)
+        color = try container.decodeIfPresent(String.self, forKey: .color)
+        isTemplate = try container.decodeIfPresent(Bool.self, forKey: .isTemplate) ?? false
+        templateSourceId = try container.decodeIfPresent(String.self, forKey: .templateSourceId)
+        createdByUserId = try container.decodeIfPresent(String.self, forKey: .createdByUserId)
+        sortOrder = try container.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
+        isActive = try container.decodeIfPresent(Bool.self, forKey: .isActive) ?? true
+        createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
+        updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
+    }
+}
+
+extension Action {
+    /// `volume_amount` + `volume_unit` (or `serving` + `serving_unit`) from `default_parameters`,
+    /// presented in the legacy `QuantityOutput` shape the check-in UI already consumes.
+    public var defaultVolume: QuantityOutput? {
+        guard let params = defaultParameters else { return nil }
+        if let amount = params.doubleValue(forKey: "volume_amount"),
+           let unit = params.unitValue(forKey: "volume_unit") {
+            return QuantityOutput(amount: amount, unit: unit)
+        }
+        if let serving = params.doubleValue(forKey: "serving"),
+           let unit = params.unitValue(forKey: "serving_unit") {
+            return QuantityOutput(amount: serving, unit: unit)
+        }
+        return nil
+    }
+
+    /// `duration_seconds` from `default_parameters` (timed-activity actions).
+    public var defaultDurationSeconds: Int? {
+        defaultParameters?.intValue(forKey: "duration_seconds")
+    }
+}
+
+// MARK: - AnyCodable
+
+/// Type-erased Codable value used for dynamic JSONB payloads
+/// (`default_parameters` / `user_parameters`).
+/// Lives here (APIModels) because the unified `Action`/`ProtocolAction` models depend on it;
+/// moved from UserActionModels.swift so it survives the UserAction removal (Step 20).
+public struct AnyCodable: Codable, Hashable, Sendable {
+    public let value: Any
+
+    public init(_ value: Any) {
+        self.value = value
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        if container.decodeNil() {
+            value = NSNull()
+        } else if let bool = try? container.decode(Bool.self) {
+            value = bool
+        } else if let int = try? container.decode(Int.self) {
+            value = int
+        } else if let double = try? container.decode(Double.self) {
+            value = double
+        } else if let string = try? container.decode(String.self) {
+            value = string
+        } else if let array = try? container.decode([AnyCodable].self) {
+            value = array.map { $0.value }
+        } else if let dict = try? container.decode([String: AnyCodable].self) {
+            value = dict.mapValues { $0.value }
+        } else {
+            value = NSNull()
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+
+        switch value {
+        case is NSNull:
+            try container.encodeNil()
+        case let bool as Bool:
+            try container.encode(bool)
+        case let int as Int:
+            try container.encode(int)
+        case let double as Double:
+            try container.encode(double)
+        case let string as String:
+            try container.encode(string)
+        case let array as [Any]:
+            try container.encode(array.map { AnyCodable($0) })
+        case let dict as [String: Any]:
+            try container.encode(dict.mapValues { AnyCodable($0) })
+        default:
+            try container.encodeNil()
+        }
+    }
+
+    public static func == (lhs: AnyCodable, rhs: AnyCodable) -> Bool {
+        switch (lhs.value, rhs.value) {
+        case is (NSNull, NSNull): return true
+        case let (l as Bool, r as Bool): return l == r
+        case let (l as Int, r as Int): return l == r
+        case let (l as Double, r as Double): return l == r
+        case let (l as String, r as String): return l == r
+        default: return false
+        }
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        switch value {
+        case is NSNull: hasher.combine(0)
+        case let bool as Bool: hasher.combine(bool)
+        case let int as Int: hasher.combine(int)
+        case let double as Double: hasher.combine(double)
+        case let string as String: hasher.combine(string)
+        default: hasher.combine(String(describing: value))
+        }
+    }
+}
+
+extension [String: AnyCodable] {
+    func doubleValue(forKey key: String) -> Double? {
+        switch self[key]?.value {
+        case let d as Double: return d
+        case let i as Int: return Double(i)
+        default: return nil
+        }
+    }
+
+    func intValue(forKey key: String) -> Int? {
+        switch self[key]?.value {
+        case let i as Int: return i
+        case let d as Double: return Int(exactly: d)
+        default: return nil
+        }
+    }
+
+    func stringValue(forKey key: String) -> String? {
+        self[key]?.value as? String
+    }
+
+    func unitValue(forKey key: String) -> SubstanceUnit? {
+        guard let raw = stringValue(forKey: key) else { return nil }
+        return SubstanceUnit(rawValue: raw)
     }
 }
 
@@ -309,16 +519,18 @@ public struct ProtocolItem: Codable, Hashable, Sendable, Identifiable {
 public struct ProtocolAction: Codable, Hashable, Sendable, Identifiable {
     public var id: String
     public var actionId: String?
-    public var userActionId: UUID?
+    /// Per-protocol dosage override. Merges over `Action.defaultParameters`:
+    /// `effective = {**action.default_parameters, **user_parameters}`.
+    public var userParameters: [String: AnyCodable]?
     public var rrule: String
     public var position: Int?
     public var checkins: [CheckIn]?
     public var notificationSchedule: NotificationScheduleResponse?
 
-    public init(id: String, actionId: String? = nil, userActionId: UUID? = nil, rrule: String, position: Int? = nil, checkins: [CheckIn]? = nil, notificationSchedule: NotificationScheduleResponse? = nil) {
+    public init(id: String, actionId: String? = nil, userParameters: [String: AnyCodable]? = nil, rrule: String, position: Int? = nil, checkins: [CheckIn]? = nil, notificationSchedule: NotificationScheduleResponse? = nil) {
         self.id = id
         self.actionId = actionId
-        self.userActionId = userActionId
+        self.userParameters = userParameters
         self.rrule = rrule
         self.position = position
         self.checkins = checkins
@@ -328,7 +540,7 @@ public struct ProtocolAction: Codable, Hashable, Sendable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case id
         case actionId = "action_id"
-        case userActionId = "user_action_id"
+        case userParameters = "user_parameters"
         case rrule, position, checkins
         case notificationSchedule = "notification_schedule"
     }
@@ -337,7 +549,7 @@ public struct ProtocolAction: Codable, Hashable, Sendable, Identifiable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
         actionId = try container.decodeIfPresent(String.self, forKey: .actionId)
-        userActionId = try container.decodeIfPresent(UUID.self, forKey: .userActionId)
+        userParameters = try container.decodeIfPresent([String: AnyCodable].self, forKey: .userParameters)
         rrule = try container.decode(String.self, forKey: .rrule)
         position = try container.decodeIfPresent(Int.self, forKey: .position)
         checkins = try container.decodeIfPresent([CheckIn].self, forKey: .checkins)
@@ -347,15 +559,15 @@ public struct ProtocolAction: Codable, Hashable, Sendable, Identifiable {
 
 public struct ProtocolActionCreate: Codable, Hashable, Sendable {
     public var actionId: String?
-    public var userActionId: UUID?
+    public var userParameters: [String: AnyCodable]?
     public var rrule: String
     public var position: Int?
     public var notificationTime: String?
     public var notificationTimezone: String?
 
-    public init(actionId: String? = nil, userActionId: UUID? = nil, rrule: String, position: Int? = nil, notificationTime: String? = nil, notificationTimezone: String? = nil) {
+    public init(actionId: String? = nil, userParameters: [String: AnyCodable]? = nil, rrule: String, position: Int? = nil, notificationTime: String? = nil, notificationTimezone: String? = nil) {
         self.actionId = actionId
-        self.userActionId = userActionId
+        self.userParameters = userParameters
         self.rrule = rrule
         self.position = position
         self.notificationTime = notificationTime
@@ -364,7 +576,7 @@ public struct ProtocolActionCreate: Codable, Hashable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case actionId = "action_id"
-        case userActionId = "user_action_id"
+        case userParameters = "user_parameters"
         case rrule, position
         case notificationTime = "notification_time"
         case notificationTimezone = "notification_timezone"
@@ -373,7 +585,7 @@ public struct ProtocolActionCreate: Codable, Hashable, Sendable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         actionId = try container.decodeIfPresent(String.self, forKey: .actionId)
-        userActionId = try container.decodeIfPresent(UUID.self, forKey: .userActionId)
+        userParameters = try container.decodeIfPresent([String: AnyCodable].self, forKey: .userParameters)
         rrule = try container.decode(String.self, forKey: .rrule)
         position = try container.decodeIfPresent(Int.self, forKey: .position)
         notificationTime = try container.decodeIfPresent(String.self, forKey: .notificationTime)
@@ -383,7 +595,7 @@ public struct ProtocolActionCreate: Codable, Hashable, Sendable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(actionId, forKey: .actionId)
-        try container.encodeIfPresent(userActionId, forKey: .userActionId)
+        try container.encodeIfPresent(userParameters, forKey: .userParameters)
         try container.encode(rrule, forKey: .rrule)
         try container.encodeIfPresent(position, forKey: .position)
         try container.encodeIfPresent(notificationTime, forKey: .notificationTime)
@@ -839,14 +1051,21 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
     public let substance: Substance?
     public let volume: QuantityOutput?
     public let durationSeconds: Int?
-    public let userActionId: UUID?
-    public let userActionCategory: ActionCategory?
+    // Unified action model (Steps 17-19): single ID + category/modality axes.
+    public let category: ActionCategory
+    public let modality: ActionModality?
+    public let defaultParameters: [String: AnyCodable]?
+    public let isLibrary: Bool
 
     public var notificationTime: String?
     public var notificationTimezone: String?
     public var notificationPreferences: DraftNotificationPreferences?
     public var schedule: ActionSchedule?
     public var slots: [ScheduleSlot]
+    /// Per-protocol dosage override written at add-time (unified action model).
+    /// UI state (like `schedule`/`slots`) — not decoded; merged over `defaultParameters`
+    /// when building `ProtocolActionCreate.user_parameters`.
+    public var userParameters: [String: AnyCodable]?
 
     // schedule is iOS-only UI state, not decoded from API; omitted from CodingKeys intentionally
 
@@ -858,8 +1077,9 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
         case substanceId = "substance_id"
         case substance, volume
         case durationSeconds = "duration_seconds"
-        case userActionId = "user_action_id"
-        case userActionCategory = "user_action_category"
+        case category, modality
+        case defaultParameters = "default_parameters"
+        case isLibrary = "is_library"
         case notificationTime = "notification_time"
         case notificationTimezone = "notification_timezone"
     }
@@ -875,13 +1095,16 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
         substance = try container.decodeIfPresent(Substance.self, forKey: .substance)
         volume = try container.decodeIfPresent(QuantityOutput.self, forKey: .volume)
         durationSeconds = try container.decodeIfPresent(Int.self, forKey: .durationSeconds)
-        userActionId = try container.decodeIfPresent(UUID.self, forKey: .userActionId)
-        userActionCategory = try container.decodeIfPresent(ActionCategory.self, forKey: .userActionCategory)
+        category = try container.decodeIfPresent(ActionCategory.self, forKey: .category) ?? .custom
+        modality = try container.decodeIfPresent(ActionModality.self, forKey: .modality)
+        defaultParameters = try container.decodeIfPresent([String: AnyCodable].self, forKey: .defaultParameters)
+        isLibrary = try container.decodeIfPresent(Bool.self, forKey: .isLibrary) ?? true
         notificationTime = try container.decodeIfPresent(String.self, forKey: .notificationTime)
         notificationTimezone = try container.decodeIfPresent(String.self, forKey: .notificationTimezone)
         notificationPreferences = nil
         schedule = nil
         slots = []
+        userParameters = nil
     }
 
     public var volumeLabel: String? {
@@ -947,19 +1170,7 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
     }
 
     public var categoryIcon: String {
-        if let category = userActionCategory {
-            return category.tagIcon
-        }
-        if let type = substance?.type {
-            switch type {
-            case .topical: return "drop.fill"
-            case .oral: return "pill.fill"
-            case .device: return "light.max"
-            case .hygiene: return "hands.sparkles.fill"
-            @unknown default: return "circle.fill"
-            }
-        }
-        return "circle.fill"
+        category.tagIcon
     }
 
     public var descriptionLabel: String {
@@ -975,6 +1186,8 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
         scheduleLabel: String? = nil,
         timeLabel: String? = nil,
         modeLabel: String? = nil,
+        category: ActionCategory = .custom,
+        modality: ActionModality? = nil,
         notificationTime: String? = nil,
         notificationTimezone: String? = nil,
         notificationPreferences: DraftNotificationPreferences? = nil,
@@ -990,13 +1203,16 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
         self.substance = nil
         self.volume = nil
         self.durationSeconds = nil
-        self.userActionId = nil
-        self.userActionCategory = nil
+        self.category = category
+        self.modality = modality
+        self.defaultParameters = nil
+        self.isLibrary = false
         self.notificationTime = notificationTime
         self.notificationTimezone = notificationTimezone
         self.notificationPreferences = notificationPreferences
         self.schedule = schedule
         self.slots = slots ?? []
+        self.userParameters = nil
     }
 
     public init(
@@ -1006,8 +1222,10 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
         substance: Substance? = nil,
         volume: QuantityOutput? = nil,
         durationSeconds: Int? = nil,
-        userActionId: UUID? = nil,
-        userActionCategory: ActionCategory? = nil,
+        category: ActionCategory = .custom,
+        modality: ActionModality? = nil,
+        defaultParameters: [String: AnyCodable]? = nil,
+        isLibrary: Bool = false,
         notificationTime: String? = nil,
         notificationTimezone: String? = nil,
         notificationPreferences: DraftNotificationPreferences? = nil,
@@ -1023,13 +1241,16 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
         self.substance = substance
         self.volume = volume
         self.durationSeconds = durationSeconds
-        self.userActionId = userActionId
-        self.userActionCategory = userActionCategory
+        self.category = category
+        self.modality = modality
+        self.defaultParameters = defaultParameters
+        self.isLibrary = isLibrary
         self.notificationTime = notificationTime
         self.notificationTimezone = notificationTimezone
         self.notificationPreferences = notificationPreferences
         self.schedule = schedule
         self.slots = slots ?? []
+        self.userParameters = nil
     }
 }
 

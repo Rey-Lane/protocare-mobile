@@ -40,8 +40,8 @@ struct ActionRow: View {
                                 .foregroundStyle(.secondary)
                         }
 
-                        if let category = action.userActionCategory {
-                            CapsuleTag(text: category.displayName, style: .accent)
+                        if !action.isLibrary {
+                            CapsuleTag(text: action.category.displayName, style: .accent)
                         }
                     }
                 }

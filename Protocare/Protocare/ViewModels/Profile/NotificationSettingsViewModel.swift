@@ -49,7 +49,7 @@ final class NotificationSettingsViewModel: ObservableObject {
             let actionsLookup = Dictionary(uniqueKeysWithValues: enrichedActions.map { ($0.id, $0) })
             let userActionsLookup: [String: ActionItem] = Dictionary(
                 uniqueKeysWithValues: userActionsResponse.items.compactMap { ua in
-                    (ua.id.uuidString, ActionItem(id: ua.id.uuidString, name: ua.name, userActionId: ua.id, userActionCategory: ua.category))
+                    (ua.id.uuidString, ActionItem(id: ua.id.uuidString, name: ua.name, category: ua.category))
                 }
             )
 
@@ -58,10 +58,8 @@ final class NotificationSettingsViewModel: ObservableObject {
             for proto in protocolsResponse {
                 for pa in proto.actions {
                     var name: String?
-                    if let actionId = pa.actionId, let action = actionsLookup[actionId] {
-                        name = action.displayName
-                    } else if let uaId = pa.userActionId, let action = userActionsLookup[uaId.uuidString] {
-                        name = action.displayName
+                    if let actionId = pa.actionId {
+                        name = (actionsLookup[actionId] ?? userActionsLookup[actionId])?.displayName
                     }
                     actionLookup[pa.id] = (actionName: name ?? "Action", protocolName: proto.name)
                 }

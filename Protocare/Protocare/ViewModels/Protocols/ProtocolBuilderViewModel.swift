@@ -64,8 +64,7 @@ final class ProtocolBuilderViewModel: ObservableObject {
             ActionItem(
                 id: action.id.uuidString,
                 name: action.name,
-                userActionId: action.id,
-                userActionCategory: action.category
+                category: action.category
             )
         }
     }
@@ -106,8 +105,7 @@ final class ProtocolBuilderViewModel: ObservableObject {
         let item = ActionItem(
             id: actionItemId,
             name: userAction.name,
-            userActionId: userAction.id,
-            userActionCategory: userAction.category
+            category: userAction.category
         )
         draft.actions.append(item)
     }
@@ -138,13 +136,12 @@ final class ProtocolBuilderViewModel: ObservableObject {
         }
 
         let actionsPayload: [ProtocolActionCreate] = draft.actions.enumerated().map { index, action in
-            let actionId: String? = action.userActionId == nil ? action.id : nil
             let defaultSchedule = ActionSchedule(frequency: .daily, days: ScheduleDay.allCases, hour: 8, minute: 0)
             let rrule = action.schedule?.toRRule() ?? defaultSchedule.toRRule()
             let firstReminderSlot = action.slots.first { $0.isReminderOn }
             return ProtocolActionCreate(
-                actionId: actionId,
-                userActionId: action.userActionId,
+                actionId: action.id,
+                userParameters: action.userParameters,
                 rrule: rrule,
                 position: index,
                 notificationTime: firstReminderSlot?.timeLabel,
@@ -271,12 +268,8 @@ final class ProtocolBuilderViewModel: ObservableObject {
         for action in draft.actions {
             let reminderSlots = action.slots.filter { $0.isReminderOn }
             guard !reminderSlots.isEmpty else { continue }
-            let protocolAction: ProtocolAction?
-            if let userActionId = action.userActionId {
-                protocolAction = protocolItem.actions.first { $0.userActionId == userActionId }
-            } else {
-                protocolAction = protocolItem.actions.first { $0.actionId == action.id }
-            }
+            // Single-ID model: match the protocol action by its unified action id.
+            let protocolAction = protocolItem.actions.first { $0.actionId == action.id }
             guard let protocolAction else { continue }
 
             for slot in reminderSlots {

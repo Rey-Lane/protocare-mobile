@@ -484,7 +484,6 @@ struct ProtocolsView_Previews: PreviewProvider {
                     ProtocolAction(
                         id: UUID().uuidString,
                         actionId: action.actionId,
-                        userActionId: action.userActionId,
                         rrule: action.rrule,
                         position: action.position,
                         checkins: nil
@@ -507,7 +506,6 @@ struct ProtocolsView_Previews: PreviewProvider {
                     ProtocolAction(
                         id: UUID().uuidString,
                         actionId: action.actionId,
-                        userActionId: action.userActionId,
                         rrule: action.rrule,
                         position: action.position,
                         checkins: nil

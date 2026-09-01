@@ -6,21 +6,24 @@ final class UserActionModelTests: XCTestCase {
     // MARK: - ActionCategory
 
     func testActionCategoryAllCases() {
-        XCTAssertEqual(ActionCategory.allCases.count, 9)
+        XCTAssertEqual(ActionCategory.allCases.count, 10)
         XCTAssertEqual(ActionCategory.supplement.displayName, "Supplement")
         XCTAssertEqual(ActionCategory.hair.displayName, "Hair")
         XCTAssertEqual(ActionCategory.measurement.displayName, "Measurement")
         XCTAssertEqual(ActionCategory.custom.displayName, "Custom")
+        XCTAssertEqual(ActionCategory.medical.displayName, "Medical")
     }
 
     func testActionCategoryIcons() {
-        XCTAssertEqual(ActionCategory.supplement.icon, "pill.fill")
-        XCTAssertEqual(ActionCategory.skincare.icon, "drop.fill")
-        XCTAssertEqual(ActionCategory.hair.icon, "scissors")
-        XCTAssertEqual(ActionCategory.exercise.icon, "figure.run")
-        XCTAssertEqual(ActionCategory.mindfulness.icon, "brain.head.profile.fill")
-        XCTAssertEqual(ActionCategory.measurement.icon, "ruler")
-        XCTAssertEqual(ActionCategory.custom.icon, "sparkles")
+        XCTAssertEqual(ActionCategory.supplement.tagIcon, "pill.fill")
+        XCTAssertEqual(ActionCategory.skincare.tagIcon, "drop.fill")
+        XCTAssertEqual(ActionCategory.hair.tagIcon, "scissors")
+        XCTAssertEqual(ActionCategory.exercise.tagIcon, "figure.run")
+        XCTAssertEqual(ActionCategory.mindfulness.tagIcon, "brain.head.profile.fill")
+        XCTAssertEqual(ActionCategory.measurement.tagIcon, "chart.bar.fill")
+        XCTAssertEqual(ActionCategory.medical.tagIcon, "stethoscope")
+        XCTAssertEqual(ActionCategory.sleep.tagIcon, "bedtime.fill")
+        XCTAssertEqual(ActionCategory.custom.tagIcon, "star.fill")
     }
 
     // MARK: - ActionFieldType

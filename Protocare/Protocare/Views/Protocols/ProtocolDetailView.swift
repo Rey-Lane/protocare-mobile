@@ -276,7 +276,7 @@ struct ProtocolDetailView: View {
                             if let userActionId = actionStatus.userActionId,
                                let actionItem = viewModel.userActionsLookup[userActionId.uuidString],
                                let category = actionItem.userActionCategory {
-                                return category.icon
+                                return category.tagIcon
                             }
                             return "star.fill"
                         }()

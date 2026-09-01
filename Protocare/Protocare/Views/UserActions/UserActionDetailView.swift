@@ -33,7 +33,7 @@ struct UserActionDetailView: View {
                         Text(action.name)
                             .font(.title3.weight(.bold))
                         HStack(spacing: 6) {
-                            Label(action.category.displayName, systemImage: action.category.icon)
+                            Label(action.category.displayName, systemImage: action.category.tagIcon)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }

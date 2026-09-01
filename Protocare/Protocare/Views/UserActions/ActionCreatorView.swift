@@ -31,7 +31,7 @@ struct ActionCreatorView: View {
                 Section {
                     Picker("Category", selection: $viewModel.category) {
                         ForEach(ActionCategory.allCases, id: \.self) { cat in
-                            Label(cat.displayName, systemImage: cat.icon).tag(cat)
+                            Label(cat.displayName, systemImage: cat.tagIcon).tag(cat)
                         }
                     }
 

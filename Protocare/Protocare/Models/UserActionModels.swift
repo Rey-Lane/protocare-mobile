@@ -1,46 +1,7 @@
 import Foundation
 
-// MARK: - Action Category
-
-public enum ActionCategory: String, Codable, Hashable, Sendable, CaseIterable {
-    case supplement = "supplement"
-    case skincare = "skincare"
-    case hair = "hair"
-    case exercise = "exercise"
-    case nutrition = "nutrition"
-    case mindfulness = "mindfulness"
-    case sleep = "sleep"
-    case measurement = "measurement"
-    case custom = "custom"
-
-    public var displayName: String {
-        switch self {
-        case .supplement: return "Supplement"
-        case .skincare: return "Skincare"
-        case .hair: return "Hair"
-        case .exercise: return "Exercise"
-        case .nutrition: return "Nutrition"
-        case .mindfulness: return "Mindfulness"
-        case .sleep: return "Sleep"
-        case .measurement: return "Measurement"
-        case .custom: return "Custom"
-        }
-    }
-
-    public var icon: String {
-        switch self {
-        case .supplement: return "pill.fill"
-        case .skincare: return "drop.fill"
-        case .hair: return "scissors"
-        case .exercise: return "figure.run"
-        case .nutrition: return "fork.knife"
-        case .mindfulness: return "brain.head.profile.fill"
-        case .sleep: return "moon.fill"
-        case .measurement: return "ruler"
-        case .custom: return "sparkles"
-        }
-    }
-}
+// ActionCategory now lives in APIModels.swift (moved as part of the unified action model refactor).
+// It was extended with the `medical` case, `tagColor`, and `tagIcon` (spec Section 2.1b).
 
 // MARK: - Action Field Type
 
@@ -386,7 +347,7 @@ public struct AnyCodable: Codable, Hashable, Sendable {
 
 extension UserAction {
     public var displayIcon: String {
-        iconKey ?? category.icon
+        iconKey ?? category.tagIcon
     }
 
     public var displayColor: String {

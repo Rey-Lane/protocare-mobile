@@ -73,6 +73,74 @@ public enum ProtocolCategory: String, CaseIterable, Codable, Hashable, Sendable,
     }
 }
 
+public enum ActionCategory: String, CaseIterable, Codable, Hashable, Sendable, Identifiable {
+    case skincare = "skincare"
+    case supplement = "supplement"
+    case hair = "hair"
+    case exercise = "exercise"
+    case nutrition = "nutrition"
+    case mindfulness = "mindfulness"
+    case sleep = "sleep"
+    case measurement = "measurement"
+    case medical = "medical"
+    case custom = "custom"
+
+    public var id: String { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .skincare: return "Skincare"
+        case .supplement: return "Supplement"
+        case .hair: return "Hair"
+        case .exercise: return "Exercise"
+        case .nutrition: return "Nutrition"
+        case .mindfulness: return "Mindfulness"
+        case .sleep: return "Sleep"
+        case .measurement: return "Measurement"
+        case .medical: return "Medical"
+        case .custom: return "Custom"
+        }
+    }
+
+    public var tagColor: Color {
+        switch self {
+        case .skincare: return Color(red: 1.0, green: 0.561, blue: 0.639)
+        case .supplement: return Color(red: 0.490, green: 0.745, blue: 0.808)
+        case .hair: return Color(red: 0.722, green: 0.580, blue: 0.839)
+        case .exercise: return Color(red: 0.961, green: 0.678, blue: 0.329)
+        case .nutrition: return Color(red: 0.341, green: 0.784, blue: 0.455)
+        case .mindfulness: return Color(red: 0.447, green: 0.447, blue: 0.820)
+        case .sleep: return Color(red: 0.357, green: 0.498, blue: 0.749)
+        case .measurement: return Color(red: 0.557, green: 0.557, blue: 0.576)
+        case .medical: return Color(red: 0.941, green: 0.329, blue: 0.310)
+        case .custom: return Color(red: 0.557, green: 0.557, blue: 0.576)
+        }
+    }
+
+    public var tagIcon: String {
+        switch self {
+        case .skincare: return "drop.fill"
+        case .supplement: return "pill.fill"
+        case .hair: return "scissors"
+        case .exercise: return "figure.run"
+        case .nutrition: return "fork.knife"
+        case .mindfulness: return "brain.head.profile.fill"
+        case .sleep: return "bedtime.fill"
+        case .measurement: return "chart.bar.fill"
+        case .medical: return "stethoscope"
+        case .custom: return "star.fill"
+        }
+    }
+}
+
+public enum ActionModality: String, CaseIterable, Codable, Hashable, Sendable {
+    case topical = "topical"
+    case oral = "oral"
+    case device = "device"
+    case hygiene = "hygiene"
+    case activity = "activity"
+}
+
 // MARK: - Auth Types
 
 public struct TokenPair: Codable, Hashable, Sendable, Identifiable {
@@ -880,7 +948,7 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
 
     public var categoryIcon: String {
         if let category = userActionCategory {
-            return category.icon
+            return category.tagIcon
         }
         if let type = substance?.type {
             switch type {

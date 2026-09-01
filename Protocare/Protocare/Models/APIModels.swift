@@ -460,9 +460,68 @@ extension [String: AnyCodable] {
         self[key]?.value as? String
     }
 
+    /// Case-insensitive: backend seeds store UPPERCASE units (`'SPRAY'`) inside
+    /// `default_parameters` JSONB, while enum fields on the wire are lowercase.
     func unitValue(forKey key: String) -> SubstanceUnit? {
         guard let raw = stringValue(forKey: key) else { return nil }
-        return SubstanceUnit(rawValue: raw)
+        if let unit = SubstanceUnit(rawValue: raw) { return unit }
+        return SubstanceUnit.allCases.first { $0.rawValue.caseInsensitiveCompare(raw) == .orderedSame }
+    }
+}
+
+// MARK: - Adaptive Check-In Form (Step 24)
+
+/// Which check-in form to show, derived from `effective = merge_params(default, user)`:
+/// - `volume_amount` or `serving` present → substance form (quantity + unit)
+/// - `duration_seconds` present → timed activity form
+/// - empty / unrecognized → binary toggle ("Did you do it?")
+public enum CheckInFormKind: String, Hashable, Sendable {
+    case substance
+    case timedActivity
+    case binary
+}
+
+public enum CheckInFormResolver {
+    /// Resolves the adaptive form for a set of effective parameters.
+    public static func formKind(for parameters: [String: AnyCodable]?) -> CheckInFormKind {
+        let params = parameters ?? [:]
+        let hasQuantity = params.doubleValue(forKey: "volume_amount") != nil
+            || params.doubleValue(forKey: "serving") != nil
+            || params.doubleValue(forKey: "dosage_iu") != nil
+            || params.doubleValue(forKey: "dosage_mg") != nil
+            || params.doubleValue(forKey: "dosage_g") != nil
+        if hasQuantity { return .substance }
+        if params.intValue(forKey: "duration_seconds") != nil { return .timedActivity }
+        return .binary
+    }
+
+    /// Default quantity pre-fill (amount + unit) for the substance form.
+    /// Mirrors the backend `ActionParameterSchema` key priority.
+    public static func defaultQuantity(in parameters: [String: AnyCodable]?) -> (amount: Double, unit: SubstanceUnit)? {
+        let params = parameters ?? [:]
+        if let amount = params.doubleValue(forKey: "volume_amount"),
+           let unit = params.unitValue(forKey: "volume_unit") {
+            return (amount, unit)
+        }
+        if let serving = params.doubleValue(forKey: "serving"),
+           let unit = params.unitValue(forKey: "serving_unit") {
+            return (serving, unit)
+        }
+        return nil
+    }
+
+    /// Default duration pre-fill (seconds) for the timed-activity form.
+    public static func defaultDurationSeconds(in parameters: [String: AnyCodable]?) -> Int? {
+        parameters?.intValue(forKey: "duration_seconds")
+    }
+
+    /// Effective parameters for a protocol action:
+    /// `merge_params(action.default_parameters, protocol_action.user_parameters)`.
+    public static func effectiveParameters(
+        actionDefault: [String: AnyCodable]?,
+        userOverride: [String: AnyCodable]?
+    ) -> [String: AnyCodable] {
+        mergeParams(actionDefault, overriding: userOverride)
     }
 }
 
@@ -653,75 +712,159 @@ public struct ProtocolCreate: Codable, Hashable, Sendable {
 
 // MARK: - CheckIn Types
 
+/// Backend serializes `Decimal` quantity as a JSON *string* ("2.5") but accepts
+/// both numbers and strings as input. Tolerant helper shared by check-in models.
+extension KeyedDecodingContainer {
+    func decodeFlexibleDouble(forKey key: Key) -> Double? {
+        // Number on the wire (backend accepts numbers on input) —
+        // `try?` flattens with the decodeIfPresent optional, one binding unwraps both.
+        if let d = try? decodeIfPresent(Double.self, forKey: key) { return d }
+        // Backend serializes Decimal as a JSON *string* ("2.5").
+        if let s = try? decodeIfPresent(String.self, forKey: key), let value = Double(s) { return value }
+        return nil
+    }
+}
+
+/// Mirrors backend `merge_params(default, override)` (protocare/shared/param_utils.py):
+/// user parameters win over defaults, and an explicit JSON `null` override REMOVES the key.
+public func mergeParams(
+    _ defaultParameters: [String: AnyCodable]?,
+    overriding userParameters: [String: AnyCodable]?
+) -> [String: AnyCodable] {
+    var result = defaultParameters ?? [:]
+    for (key, value) in userParameters ?? [:] {
+        if value.value is NSNull {
+            result.removeValue(forKey: key)
+        } else {
+            result[key] = value
+        }
+    }
+    return result
+}
+
 public struct CheckIn: Codable, Hashable, Sendable, Identifiable {
     public var protocolActionId: String
     public var ts: String
-    public var appliedVolume: QuantityOutput?
-    public var appliedDurationSeconds: Int?
+    /// Actual amount applied. Backend `Decimal` arrives as a JSON string — decoded tolerantly.
+    public var quantity: Double?
+    public var unit: SubstanceUnit?
+    public var durationSeconds: Int?
+    /// Binary check-in marker (unified action model, Step 24).
+    public var completed: Bool
     public var id: String
     public var userId: String?
 
-    public init(protocolActionId: String, ts: String, appliedVolume: QuantityOutput? = nil, appliedDurationSeconds: Int? = nil, id: String, userId: String? = nil) {
+    public init(
+        protocolActionId: String,
+        ts: String,
+        quantity: Double? = nil,
+        unit: SubstanceUnit? = nil,
+        durationSeconds: Int? = nil,
+        completed: Bool = true,
+        id: String,
+        userId: String? = nil
+    ) {
         self.protocolActionId = protocolActionId
         self.ts = ts
-        self.appliedVolume = appliedVolume
-        self.appliedDurationSeconds = appliedDurationSeconds
+        self.quantity = quantity
+        self.unit = unit
+        self.durationSeconds = durationSeconds
+        self.completed = completed
         self.id = id
         self.userId = userId
     }
 
     enum CodingKeys: String, CodingKey {
         case protocolActionId = "protocol_action_id"
-        case ts
-        case appliedVolume = "applied_volume"
-        case appliedDurationSeconds = "applied_duration_seconds"
-        case id
+        case ts, quantity, unit
+        case durationSeconds = "duration_seconds"
+        case completed, id
         case userId = "user_id"
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        protocolActionId = try container.decode(String.self, forKey: .protocolActionId)
+        ts = try container.decode(String.self, forKey: .ts)
+        quantity = container.decodeFlexibleDouble(forKey: .quantity)
+        unit = try container.decodeIfPresent(SubstanceUnit.self, forKey: .unit)
+        durationSeconds = try container.decodeIfPresent(Int.self, forKey: .durationSeconds)
+        completed = try container.decodeIfPresent(Bool.self, forKey: .completed) ?? true
+        id = try container.decode(String.self, forKey: .id)
+        userId = try container.decodeIfPresent(String.self, forKey: .userId)
     }
 }
 
+/// Mirrors backend `CheckInCreate`: `quantity` / `unit` / `duration_seconds` / `completed`.
+/// `quantity` is encoded as a JSON number — pydantic `Decimal` accepts numbers on input
+/// (backend tests post `'quantity': 2.5`).
 public struct CheckInCreate: Encodable {
     public let protocolActionId: String
     public let ts: String
-    public let appliedVolume: QuantityOutput?
-    public let appliedDurationSeconds: Int?
+    public let quantity: Double?
+    public let unit: SubstanceUnit?
+    public let durationSeconds: Int?
+    public let completed: Bool
 
-    public init(protocolActionId: String, ts: String, appliedVolume: QuantityOutput? = nil, appliedDurationSeconds: Int? = nil) {
+    public init(
+        protocolActionId: String,
+        ts: String,
+        quantity: Double? = nil,
+        unit: SubstanceUnit? = nil,
+        durationSeconds: Int? = nil,
+        completed: Bool = true
+    ) {
         self.protocolActionId = protocolActionId
         self.ts = ts
-        self.appliedVolume = appliedVolume
-        self.appliedDurationSeconds = appliedDurationSeconds
+        self.quantity = quantity
+        self.unit = unit
+        self.durationSeconds = durationSeconds
+        self.completed = completed
     }
 
     enum CodingKeys: String, CodingKey {
         case protocolActionId = "protocol_action_id"
-        case ts
-        case appliedVolume = "applied_volume"
-        case appliedDurationSeconds = "applied_duration_seconds"
+        case ts, quantity, unit
+        case durationSeconds = "duration_seconds"
+        case completed
     }
 }
 
+/// Wire payload for `POST /protocols/{id}/checkins` (multipart `checkin_data` part).
+/// `protocolId` rides the URL path only — it is intentionally NOT encoded into the JSON
+/// (the backend `CheckInCreate` schema has no `protocol_id` field).
 public struct ProtocolCheckinCreate: Encodable {
     public let protocolId: String
     public let protocolActionId: String
     public let ts: String
-    public let appliedVolume: QuantityOutput?
-    public let appliedDurationSeconds: Int?
+    public let quantity: Double?
+    public let unit: SubstanceUnit?
+    public let durationSeconds: Int?
+    public let completed: Bool
 
-    public init(protocolId: String, protocolActionId: String, ts: String, appliedVolume: QuantityOutput? = nil, appliedDurationSeconds: Int? = nil) {
+    public init(
+        protocolId: String,
+        protocolActionId: String,
+        ts: String,
+        quantity: Double? = nil,
+        unit: SubstanceUnit? = nil,
+        durationSeconds: Int? = nil,
+        completed: Bool = true
+    ) {
         self.protocolId = protocolId
         self.protocolActionId = protocolActionId
         self.ts = ts
-        self.appliedVolume = appliedVolume
-        self.appliedDurationSeconds = appliedDurationSeconds
+        self.quantity = quantity
+        self.unit = unit
+        self.durationSeconds = durationSeconds
+        self.completed = completed
     }
 
     enum CodingKeys: String, CodingKey {
-        case protocolId = "protocol_id"
         case protocolActionId = "protocol_action_id"
-        case ts
-        case appliedVolume = "applied_volume"
-        case appliedDurationSeconds = "applied_duration_seconds"
+        case ts, quantity, unit
+        case durationSeconds = "duration_seconds"
+        case completed
     }
 }
 
@@ -738,10 +881,26 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
     public var isCompleted: Bool
     public var completedAt: String?
     public var checkinId: String?
-    public var appliedVolume: QuantityOutput?
-    public var appliedDurationSeconds: Int?
+    /// Actual values from today's check-in, if any (unified model, Step 24).
+    public var quantity: Double?
+    public var unit: SubstanceUnit?
+    public var durationSeconds: Int?
+    public var completed: Bool
 
-    public init(protocolActionId: String, actionId: String? = nil, actionName: String, position: Int, scheduledTime: String? = nil, isCompleted: Bool, completedAt: String? = nil, checkinId: String? = nil, appliedVolume: QuantityOutput? = nil, appliedDurationSeconds: Int? = nil) {
+    public init(
+        protocolActionId: String,
+        actionId: String? = nil,
+        actionName: String,
+        position: Int,
+        scheduledTime: String? = nil,
+        isCompleted: Bool,
+        completedAt: String? = nil,
+        checkinId: String? = nil,
+        quantity: Double? = nil,
+        unit: SubstanceUnit? = nil,
+        durationSeconds: Int? = nil,
+        completed: Bool = true
+    ) {
         self.protocolActionId = protocolActionId
         self.actionId = actionId
         self.actionName = actionName
@@ -750,8 +909,10 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
         self.isCompleted = isCompleted
         self.completedAt = completedAt
         self.checkinId = checkinId
-        self.appliedVolume = appliedVolume
-        self.appliedDurationSeconds = appliedDurationSeconds
+        self.quantity = quantity
+        self.unit = unit
+        self.durationSeconds = durationSeconds
+        self.completed = completed
     }
 
     enum CodingKeys: String, CodingKey {
@@ -763,8 +924,9 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
         case isCompleted = "is_completed"
         case completedAt = "completed_at"
         case checkinId = "checkin_id"
-        case appliedVolume = "applied_volume"
-        case appliedDurationSeconds = "applied_duration_seconds"
+        case quantity, unit
+        case durationSeconds = "duration_seconds"
+        case completed
     }
 
     public init(from decoder: Decoder) throws {
@@ -777,8 +939,10 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
         isCompleted = try container.decode(Bool.self, forKey: .isCompleted)
         completedAt = try container.decodeIfPresent(String.self, forKey: .completedAt)
         checkinId = try container.decodeIfPresent(String.self, forKey: .checkinId)
-        appliedVolume = try container.decodeIfPresent(QuantityOutput.self, forKey: .appliedVolume)
-        appliedDurationSeconds = try container.decodeIfPresent(Int.self, forKey: .appliedDurationSeconds)
+        quantity = container.decodeFlexibleDouble(forKey: .quantity)
+        unit = try container.decodeIfPresent(SubstanceUnit.self, forKey: .unit)
+        durationSeconds = try container.decodeIfPresent(Int.self, forKey: .durationSeconds)
+        completed = try container.decodeIfPresent(Bool.self, forKey: .completed) ?? true
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -791,8 +955,10 @@ public struct ActionCheckinStatus: Codable, Hashable, Sendable, Identifiable {
         try container.encode(isCompleted, forKey: .isCompleted)
         try container.encodeIfPresent(completedAt, forKey: .completedAt)
         try container.encodeIfPresent(checkinId, forKey: .checkinId)
-        try container.encodeIfPresent(appliedVolume, forKey: .appliedVolume)
-        try container.encodeIfPresent(appliedDurationSeconds, forKey: .appliedDurationSeconds)
+        try container.encodeIfPresent(quantity, forKey: .quantity)
+        try container.encodeIfPresent(unit, forKey: .unit)
+        try container.encodeIfPresent(durationSeconds, forKey: .durationSeconds)
+        try container.encode(completed, forKey: .completed)
     }
 }
 
@@ -1391,9 +1557,10 @@ extension ActionCheckinStatus {
     public var subtitle: String {
         if isCompleted == true {
             var parts: [String] = [displayTime]
-            if let volume = appliedVolume {
-                parts.append("\(volume.amount.roundedString()) \(volume.unit.displayName) applied")
-            } else if let duration = appliedDurationSeconds {
+            if let quantity = quantity {
+                let unitLabel = unit?.displayName ?? ""
+                parts.append("\(quantity.roundedString()) \(unitLabel) applied".trimmingCharacters(in: .whitespaces))
+            } else if let duration = durationSeconds {
                 if duration >= 60 {
                     let minutes = Double(duration) / 60.0
                     parts.append("\(minutes.roundedString(maxFractionDigits: 1)) min session")

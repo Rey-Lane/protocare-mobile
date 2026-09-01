@@ -112,8 +112,9 @@ final class OutcomeJournalViewModel: ObservableObject {
 
     func completeCheckin(
         protocolActionId: String,
-        appliedVolume: QuantityOutput?,
-        appliedDurationSeconds: Int?
+        quantity: Double?,
+        unit: SubstanceUnit?,
+        durationSeconds: Int?
     ) async {
         guard let token = authStore.accessToken else { return }
         guard var checkins = entry?.checkins else { return }
@@ -127,8 +128,9 @@ final class OutcomeJournalViewModel: ObservableObject {
             protocolId: `protocol`.id,
             protocolActionId: protocolActionId,
             ts: now,
-            appliedVolume: appliedVolume,
-            appliedDurationSeconds: appliedDurationSeconds
+            quantity: quantity,
+            unit: unit,
+            durationSeconds: durationSeconds
         )
 
         do {

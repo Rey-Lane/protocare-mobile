@@ -123,15 +123,19 @@ enum TestFixtures {
         protocolId: String = "test-protocol-id",
         protocolActionId: String = "test-action-id",
         ts: String = "2024-01-01T12:00:00Z",
-        appliedVolume: Quantity? = nil,
-        appliedDurationSeconds: Int? = nil
+        quantity: Double? = nil,
+        unit: SubstanceUnit? = nil,
+        durationSeconds: Int? = nil,
+        completed: Bool = true
     ) -> ProtocolCheckinCreate {
         ProtocolCheckinCreate(
             protocolId: protocolId,
             protocolActionId: protocolActionId,
             ts: ts,
-            appliedVolume: appliedVolume,
-            appliedDurationSeconds: appliedDurationSeconds
+            quantity: quantity,
+            unit: unit,
+            durationSeconds: durationSeconds,
+            completed: completed
         )
     }
 

@@ -351,8 +351,9 @@ private struct TodayActionsSection: View {
                             Task {
                                 await vm.completeCheckin(
                                     protocolActionId: checkin.protocolActionId,
-                                    appliedVolume: volume,
-                                    appliedDurationSeconds: duration
+                                    quantity: volume?.amount,
+                                    unit: volume?.unit,
+                                    durationSeconds: duration
                                 )
                             }
                         }

@@ -1,5 +1,12 @@
 import SwiftUI
 
+/// Adaptive check-in screen (unified action model, Step 24).
+///
+/// The form is chosen from `effective = merge_params(action.default_parameters,
+/// protocol_action.user_parameters)`:
+/// - substance form (quantity stepper + unit) — `volume_amount`/`serving` present
+/// - timed activity form (duration picker) — `duration_seconds` present
+/// - binary toggle ("Did you do it?") — empty parameters
 struct ActionCheckinView: View {
     let protocolId: String
     let protocolAction: ProtocolAction
@@ -10,9 +17,21 @@ struct ActionCheckinView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var executionDate: Date = Date()
-    @State private var appliedVolume: Double?
-    @State private var appliedDuration: Double = 60
+    @State private var quantity: Double = 0
+    @State private var durationSeconds: Double = 60
+    @State private var didDoIt: Bool = true
 
+    /// Effective parameters driving the form kind and pre-fill.
+    private var effectiveParameters: [String: AnyCodable] {
+        CheckInFormResolver.effectiveParameters(
+            actionDefault: action?.defaultParameters,
+            userOverride: protocolAction.userParameters
+        )
+    }
+
+    private var formKind: CheckInFormKind {
+        CheckInFormResolver.formKind(for: effectiveParameters)
+    }
 
     private let accent = Color.appPrimary
 
@@ -23,12 +42,14 @@ struct ActionCheckinView: View {
 
                 timeSection
 
-                HStack(spacing: 12) {
-                    metricTile(title: "Amount", value: volumeDisplay, caption: unitDisplay)
-                    metricTile(title: "Duration", value: durationDisplay.value, caption: durationDisplay.unit)
+                switch formKind {
+                case .substance:
+                    quantitySection
+                case .timedActivity:
+                    durationSection
+                case .binary:
+                    binarySection
                 }
-
-                durationSlider
             }
             .padding(.horizontal, 18)
             .padding(.top, 12)
@@ -43,17 +64,21 @@ struct ActionCheckinView: View {
         } message: {
             Text(vm.errorMessage ?? "")
         }
-        .onAppear {
-            if let vol = action?.volume?.amount {
-                appliedVolume = vol
-            }
-            if let seconds = parseSeconds(from: protocolAction.rrule) {
-                appliedDuration = Double(seconds)
-            } else if let dur = action?.durationSeconds {
-                appliedDuration = Double(dur)
-            }
+        .onAppear(perform: prefill)
+    }
+
+    /// Pre-fill from `merge_params(default_parameters, user_parameters)`.
+    private func prefill() {
+        let params = effectiveParameters
+        if let quantity = CheckInFormResolver.defaultQuantity(in: params) {
+            self.quantity = quantity.amount
+        }
+        if let duration = CheckInFormResolver.defaultDurationSeconds(in: params) {
+            durationSeconds = Double(duration)
         }
     }
+
+    // MARK: - Header
 
     private var header: some View {
         HStack {
@@ -70,6 +95,8 @@ struct ActionCheckinView: View {
             Spacer(minLength: 44)
         }
     }
+
+    // MARK: - Execution time (all forms)
 
     private var timeSection: some View {
         HStack {
@@ -93,37 +120,49 @@ struct ActionCheckinView: View {
         )
     }
 
-    private func metricTile(title: String, value: String, caption: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title.uppercased())
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.system(size: 22, weight: .bold))
-            Text(caption)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color(.separator).opacity(0.08))
-        )
-    }
+    // MARK: - Substance form (quantity + unit)
 
-    private var durationSlider: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Adjust Duration")
+    private var quantitySection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Amount")
                 .font(.subheadline.weight(.semibold))
-            Slider(value: $appliedDuration, in: 0...3600, step: 5)
-                .tint(accent)
+
             HStack {
-                Text("0s").font(.caption).foregroundStyle(.secondary)
+                Button {
+                    quantity = max(0, quantity - stepIncrement)
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+
                 Spacer()
-                Text("60 min").font(.caption).foregroundStyle(.secondary)
+
+                Text(quantity.roundedString(maxFractionDigits: 2))
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundStyle(accent)
+
+                Text(unitLabel)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button {
+                    quantity += stepIncrement
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(accent)
+                }
+                .buttonStyle(.plain)
+            }
+
+            if let hint = quantityHint {
+                Text(hint)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(16)
@@ -135,14 +174,111 @@ struct ActionCheckinView: View {
         )
     }
 
+    private var unitLabel: String {
+        CheckInFormResolver.defaultQuantity(in: effectiveParameters)?.unit.displayName ?? ""
+    }
+
+    /// Stepping granularity: whole units for sprays/capsules/tablets, halves for ml/mg/g.
+    private var stepIncrement: Double {
+        CheckInFormResolver.defaultQuantity(in: effectiveParameters)?.unit == .ml ? 0.5 : 1
+    }
+
+    private var quantityHint: String? {
+        guard let prefill = CheckInFormResolver.defaultQuantity(in: effectiveParameters) else { return nil }
+        return "Default: \(prefill.amount.roundedString(maxFractionDigits: 2)) \(prefill.unit.displayName)"
+    }
+
+    // MARK: - Timed activity form
+
+    private var durationSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Adjust Duration")
+                .font(.subheadline.weight(.semibold))
+            Slider(value: $durationSeconds, in: 0...7200, step: 5)
+                .tint(accent)
+            HStack {
+                Text("0s").font(.caption).foregroundStyle(.secondary)
+                Spacer()
+                Text(durationDisplay)
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                Spacer()
+                Text("120 min").font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color(.separator).opacity(0.08))
+        )
+    }
+
+    private var durationDisplay: String {
+        let seconds = Int(durationSeconds)
+        if seconds >= 60 {
+            let minutes = Double(seconds) / 60.0
+            return "\(minutes.roundedString(maxFractionDigits: 1)) min"
+        }
+        return "\(seconds)s"
+    }
+
+    // MARK: - Binary form ("Did you do it?")
+
+    private var binarySection: some View {
+        VStack(spacing: 14) {
+            Toggle(isOn: $didDoIt) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Did you do it?")
+                        .font(.system(size: 17, weight: .semibold))
+                    Text("Just mark this action as done for today.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .tint(accent)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color(.separator).opacity(0.08))
+        )
+    }
+
+    // MARK: - Submit
+
     private var completeButton: some View {
         Button {
+            let params = effectiveParameters
+            let quantityValue: Double?
+            let unitValue: SubstanceUnit?
+            let durationValue: Int?
+            switch formKind {
+            case .substance:
+                quantityValue = quantity
+                unitValue = CheckInFormResolver.defaultQuantity(in: params)?.unit
+                durationValue = nil
+            case .timedActivity:
+                quantityValue = nil
+                unitValue = nil
+                durationValue = Int(durationSeconds) > 0 ? Int(durationSeconds) : nil
+            case .binary:
+                quantityValue = nil
+                unitValue = nil
+                durationValue = nil
+            }
+
             let payload = ProtocolCheckinCreate(
                 protocolId: protocolId,
                 protocolActionId: protocolAction.id,
                 ts: ISO8601DateFormatter().string(from: executionDate),
-                appliedVolume: appliedVolume.map { Quantity(amount: $0, unit: action?.volume?.unit ?? .ml) },
-                appliedDurationSeconds: Int(appliedDuration)
+                quantity: quantityValue,
+                unit: unitValue,
+                durationSeconds: durationValue,
+                completed: formKind == .binary ? didDoIt : true
             )
             Task {
                 let success = await vm.submit(payload: payload)
@@ -155,7 +291,7 @@ struct ActionCheckinView: View {
             HStack(spacing: 10) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 17, weight: .bold))
-                Text("Complete Step")
+                Text(completeButtonTitle)
                     .font(.system(size: 17, weight: .bold))
             }
             .frame(maxWidth: .infinity)
@@ -170,50 +306,10 @@ struct ActionCheckinView: View {
         .background(.ultraThinMaterial)
     }
 
-    private var volumeDisplay: String {
-        if let vol = appliedVolume {
-            return vol.roundedString(maxFractionDigits: 2)
+    private var completeButtonTitle: String {
+        switch formKind {
+        case .substance, .timedActivity: return "Complete Step"
+        case .binary: return didDoIt ? "Mark as Done" : "Skip"
         }
-        if let amount = action?.volume?.amount {
-            return amount.roundedString(maxFractionDigits: 2)
-        }
-        return "—"
-    }
-
-    private var unitDisplay: String {
-        if let unit = action?.volume?.unit {
-            return unit.displayName
-        }
-        return ""
-    }
-
-    private var durationDisplay: (value: String, unit: String) {
-        let seconds = Int(appliedDuration)
-        if seconds >= 60 {
-            let minutes = Double(seconds) / 60.0
-            return (minutes.roundedString(maxFractionDigits: 1), "min")
-        } else {
-            return ("\(seconds)", "sec")
-        }
-    }
-
-    private func parseSeconds(from rrule: String) -> Int? {
-        // Basic parser for "duration_seconds=NNN" style inside rrule if present
-        if let range = rrule.range(of: #"duration[_ ]?seconds=([0-9]+)"#, options: .regularExpression) {
-            let valuePart = String(rrule[range]).components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
-            return Int(valuePart)
-        }
-        return nil
     }
 }
-
-
-
-//struct ActionCheckinView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ActionCheckinView(
-//            protocolAction: ProtocolAction(id: UUID(), actionId: UUID(), rrule: "Daily at 08:04", position: 0, name: "Gentle Cleanser", description: nil, isCompleted: false),
-//            action: ActionItem(name: "Gentle Cleanser", scheduleLabel: "Daily", timeLabel: "08:04", modeLabel: nil, volume: Quantity(amount: 2, unit: .ml), durationSeconds: 60)
-//        )
-//    }
-//}

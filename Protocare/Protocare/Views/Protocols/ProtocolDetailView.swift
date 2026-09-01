@@ -602,7 +602,7 @@ struct ProtocolDetailView_Previews: PreviewProvider {
             ProtocolItem(id: protocolId, userId: UUID().uuidString, name: payload.name ?? "Updated", actions: [], isActive: payload.isActive, startedAt: payload.startedAt, endedAt: payload.endedAt)
         }
         func createCheckin(token: String, payload: ProtocolCheckinCreate) async throws -> CheckIn {
-            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, appliedVolume: payload.appliedVolume, appliedDurationSeconds: payload.appliedDurationSeconds, id: UUID().uuidString, userId: nil)
+            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, quantity: payload.quantity, unit: payload.unit, durationSeconds: payload.durationSeconds, completed: payload.completed, id: UUID().uuidString, userId: nil)
         }
         func deleteCheckin(token: String, protocolId: String, checkinId: String) async throws {}
         func uploadProtocolImage(token: String, protocolId: String, imageData: Data) async throws -> ImageAttachmentCreate {
@@ -629,11 +629,11 @@ struct ProtocolDetailView_Previews: PreviewProvider {
                 completedActions: 2,
                 completionPercentage: 40,
                 actions: [
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Gentle Cleanser", position: 0, scheduledTime: "08:00", isCompleted: true, completedAt: "2024-01-01T10:00:00Z", checkinId: UUID().uuidString, appliedVolume: Quantity(amount: 2, unit: .ml), appliedDurationSeconds: nil),
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Hydrating Toner", position: 1, scheduledTime: "08:05", isCompleted: true, completedAt: "2024-01-01T10:05:00Z", checkinId: UUID().uuidString, appliedVolume: Quantity(amount: 3, unit: .ml), appliedDurationSeconds: nil),
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Vitamin C Serum", position: 2, scheduledTime: "08:10", isCompleted: false, completedAt: nil, checkinId: nil, appliedVolume: nil, appliedDurationSeconds: nil),
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Moisturizer", position: 3, scheduledTime: "08:15", isCompleted: false, completedAt: nil, checkinId: nil, appliedVolume: nil, appliedDurationSeconds: nil),
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Sunscreen SPF 50", position: 4, scheduledTime: "08:20", isCompleted: false, completedAt: nil, checkinId: nil, appliedVolume: nil, appliedDurationSeconds: nil)
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Gentle Cleanser", position: 0, scheduledTime: "08:00", isCompleted: true, completedAt: "2024-01-01T10:00:00Z", checkinId: UUID().uuidString, quantity: 2, unit: .ml, durationSeconds: nil, completed: true),
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Hydrating Toner", position: 1, scheduledTime: "08:05", isCompleted: true, completedAt: "2024-01-01T10:05:00Z", checkinId: UUID().uuidString, quantity: 3, unit: .ml, durationSeconds: nil, completed: true),
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Vitamin C Serum", position: 2, scheduledTime: "08:10", isCompleted: false, completedAt: nil, checkinId: nil, quantity: nil, unit: nil, durationSeconds: nil, completed: true),
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Moisturizer", position: 3, scheduledTime: "08:15", isCompleted: false, completedAt: nil, checkinId: nil, quantity: nil, unit: nil, durationSeconds: nil, completed: true),
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Sunscreen SPF 50", position: 4, scheduledTime: "08:20", isCompleted: false, completedAt: nil, checkinId: nil, quantity: nil, unit: nil, durationSeconds: nil, completed: true)
                 ]
             )
         }

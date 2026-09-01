@@ -67,7 +67,13 @@ final class DailyDashboardViewModel: ObservableObject {
         }
     }
 
-    func performCheckin(protocolId: String, action: DailyActionStatus, volume: QuantityOutput? = nil, durationSeconds: Int? = nil) async {
+    func performCheckin(
+        protocolId: String,
+        action: DailyActionStatus,
+        quantity: Double? = nil,
+        unit: SubstanceUnit? = nil,
+        durationSeconds: Int? = nil
+    ) async {
         guard let token = authStore.accessToken else { return }
 
         guard let status = dailyStatus,
@@ -76,14 +82,21 @@ final class DailyDashboardViewModel: ObservableObject {
         else { return }
 
         let originalStatus = dailyStatus
-        applyOptimisticUpdate(protoIndex: protoIndex, actionIndex: actionIndex, volume: volume, durationSeconds: durationSeconds)
+        applyOptimisticUpdate(
+            protoIndex: protoIndex,
+            actionIndex: actionIndex,
+            quantity: quantity,
+            unit: unit,
+            durationSeconds: durationSeconds
+        )
 
         let payload = ProtocolCheckinCreate(
             protocolId: protocolId,
             protocolActionId: action.protocolActionId,
             ts: ISO8601DateFormatter().string(from: Date()),
-            appliedVolume: volume ?? action.defaultVolume ?? action.appliedVolume,
-            appliedDurationSeconds: durationSeconds ?? action.defaultDurationSeconds ?? action.appliedDurationSeconds
+            quantity: quantity ?? action.defaultQuantity?.amount,
+            unit: unit ?? action.defaultQuantity?.unit,
+            durationSeconds: durationSeconds ?? action.defaultDurationSeconds
         )
 
         do {
@@ -119,7 +132,13 @@ final class DailyDashboardViewModel: ObservableObject {
         }
     }
 
-    private func applyOptimisticUpdate(protoIndex: Int, actionIndex: Int, volume: QuantityOutput? = nil, durationSeconds: Int? = nil) {
+    private func applyOptimisticUpdate(
+        protoIndex: Int,
+        actionIndex: Int,
+        quantity: Double? = nil,
+        unit: SubstanceUnit? = nil,
+        durationSeconds: Int? = nil
+    ) {
         guard let status = dailyStatus else { return }
         var protocols = status.protocols
         var proto = protocols[protoIndex]
@@ -129,17 +148,18 @@ final class DailyDashboardViewModel: ObservableObject {
         actions[actionIndex] = DailyActionStatus(
             protocolActionId: old.protocolActionId,
             actionId: old.actionId,
-            userActionId: old.userActionId,
             actionName: old.actionName,
             description: old.description,
             scheduledTime: old.scheduledTime,
             isCompleted: true,
             completedAt: ISO8601DateFormatter().string(from: Date()),
             checkinId: nil,
-            appliedVolume: volume ?? old.defaultVolume ?? old.appliedVolume,
-            appliedDurationSeconds: durationSeconds ?? old.defaultDurationSeconds ?? old.appliedDurationSeconds,
-            defaultVolume: old.defaultVolume,
-            defaultDurationSeconds: old.defaultDurationSeconds
+            quantity: quantity ?? old.defaultQuantity?.amount,
+            unit: unit ?? old.defaultQuantity?.unit,
+            durationSeconds: durationSeconds ?? old.defaultDurationSeconds,
+            completed: true,
+            defaultParameters: old.defaultParameters,
+            userParameters: old.userParameters
         )
 
         let newCompleted = actions.filter(\.isCompleted).count
@@ -176,17 +196,18 @@ final class DailyDashboardViewModel: ObservableObject {
         actions[actionIndex] = DailyActionStatus(
             protocolActionId: old.protocolActionId,
             actionId: old.actionId,
-            userActionId: old.userActionId,
             actionName: old.actionName,
             description: old.description,
             scheduledTime: old.scheduledTime,
             isCompleted: old.isCompleted,
             completedAt: old.completedAt,
             checkinId: checkinId,
-            appliedVolume: old.appliedVolume,
-            appliedDurationSeconds: old.appliedDurationSeconds,
-            defaultVolume: old.defaultVolume,
-            defaultDurationSeconds: old.defaultDurationSeconds
+            quantity: old.quantity,
+            unit: old.unit,
+            durationSeconds: old.durationSeconds,
+            completed: old.completed,
+            defaultParameters: old.defaultParameters,
+            userParameters: old.userParameters
         )
 
         proto = DailyProtocolStatus(
@@ -218,17 +239,18 @@ final class DailyDashboardViewModel: ObservableObject {
         actions[actionIndex] = DailyActionStatus(
             protocolActionId: old.protocolActionId,
             actionId: old.actionId,
-            userActionId: old.userActionId,
             actionName: old.actionName,
             description: old.description,
             scheduledTime: old.scheduledTime,
             isCompleted: false,
             completedAt: nil,
             checkinId: nil,
-            appliedVolume: nil,
-            appliedDurationSeconds: nil,
-            defaultVolume: old.defaultVolume,
-            defaultDurationSeconds: old.defaultDurationSeconds
+            quantity: nil,
+            unit: nil,
+            durationSeconds: nil,
+            completed: true,
+            defaultParameters: old.defaultParameters,
+            userParameters: old.userParameters
         )
 
         let newCompleted = actions.filter(\.isCompleted).count

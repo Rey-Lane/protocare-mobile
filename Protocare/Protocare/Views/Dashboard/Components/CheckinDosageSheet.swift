@@ -1,33 +1,41 @@
 import SwiftUI
 
+/// Quick check-in sheet on the Daily dashboard (Step 25c).
+/// Adaptive form based on `merge_params(default_parameters, user_parameters)`:
+/// substance → quantity stepper, timed activity → duration slider, binary → done button.
 struct CheckinDosageSheet: View {
     let action: DailyActionStatus
-    let onConfirm: (QuantityOutput?, Int?) -> Void
+    let onConfirm: (Double?, SubstanceUnit?, Int?) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var volumeAmount: Double
+    @State private var quantity: Double
     @State private var durationSeconds: Double
 
     private let accent = Color.appPrimary
 
-    init(action: DailyActionStatus, onConfirm: @escaping (QuantityOutput?, Int?) -> Void) {
+    init(action: DailyActionStatus, onConfirm: @escaping (Double?, SubstanceUnit?, Int?) -> Void) {
         self.action = action
         self.onConfirm = onConfirm
-        _volumeAmount = State(initialValue: action.defaultVolume?.amount ?? action.appliedVolume?.amount ?? 0)
-        _durationSeconds = State(initialValue: Double(action.defaultDurationSeconds ?? action.appliedDurationSeconds ?? 60))
+        _quantity = State(initialValue: action.defaultQuantity?.amount ?? 0)
+        _durationSeconds = State(initialValue: Double(action.defaultDurationSeconds ?? 60))
     }
 
     var body: some View {
         VStack(spacing: 20) {
             header
 
-            if action.defaultVolume != nil || action.appliedVolume != nil {
-                volumeSection
-            }
-
-            if action.defaultDurationSeconds != nil || action.appliedDurationSeconds != nil {
+            switch action.checkInFormKind {
+            case .substance:
+                quantitySection
+            case .timedActivity:
                 durationSection
+            case .binary:
+                Text("Mark this action as done for today.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
             }
 
             confirmButton
@@ -48,13 +56,13 @@ struct CheckinDosageSheet: View {
         }
     }
 
-    private var volumeSection: some View {
+    private var quantitySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Amount")
                 .font(.subheadline.weight(.semibold))
 
             HStack {
-                Button { volumeAmount = max(0, volumeAmount - 0.5) } label: {
+                Button { quantity = max(0, quantity - stepIncrement) } label: {
                     Image(systemName: "minus.circle.fill")
                         .font(.title2)
                         .foregroundStyle(.secondary)
@@ -63,7 +71,7 @@ struct CheckinDosageSheet: View {
 
                 Spacer()
 
-                Text(String(format: "%.1f", volumeAmount))
+                Text(quantity.roundedString(maxFractionDigits: 2))
                     .font(.system(size: 22, weight: .bold, design: .rounded))
                     .foregroundStyle(accent)
 
@@ -73,12 +81,18 @@ struct CheckinDosageSheet: View {
 
                 Spacer()
 
-                Button { volumeAmount += 0.5 } label: {
+                Button { quantity += stepIncrement } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.title2)
                         .foregroundStyle(accent)
                 }
                 .buttonStyle(.plain)
+            }
+
+            if let prefill = action.defaultQuantity {
+                Text("Default: \(prefill.amount.roundedString(maxFractionDigits: 2)) \(prefill.unit.displayName)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(16)
@@ -86,12 +100,21 @@ struct CheckinDosageSheet: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
+    private var unitLabel: String {
+        action.defaultQuantity?.unit.displayName ?? ""
+    }
+
+    /// Whole units for sprays/capsules/tablets, halves for ml.
+    private var stepIncrement: Double {
+        action.defaultQuantity?.unit == .ml ? 0.5 : 1
+    }
+
     private var durationSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Duration")
                 .font(.subheadline.weight(.semibold))
 
-            Slider(value: $durationSeconds, in: 0...3600, step: 5)
+            Slider(value: $durationSeconds, in: 0...7200, step: 5)
                 .tint(accent)
 
             HStack {
@@ -99,7 +122,7 @@ struct CheckinDosageSheet: View {
                 Spacer()
                 Text(durationLabel).font(.system(size: 17, weight: .semibold, design: .rounded))
                 Spacer()
-                Text("60 min").font(.caption).foregroundStyle(.secondary)
+                Text("120 min").font(.caption).foregroundStyle(.secondary)
             }
         }
         .padding(16)
@@ -109,11 +132,24 @@ struct CheckinDosageSheet: View {
 
     private var confirmButton: some View {
         Button {
-            let volume = (action.defaultVolume ?? action.appliedVolume).map {
-                QuantityOutput(amount: volumeAmount, unit: $0.unit)
+            let quantityValue: Double?
+            let unitValue: SubstanceUnit?
+            let durationValue: Int?
+            switch action.checkInFormKind {
+            case .substance:
+                quantityValue = quantity
+                unitValue = action.defaultQuantity?.unit
+                durationValue = nil
+            case .timedActivity:
+                quantityValue = nil
+                unitValue = nil
+                durationValue = Int(durationSeconds) > 0 ? Int(durationSeconds) : nil
+            case .binary:
+                quantityValue = nil
+                unitValue = nil
+                durationValue = nil
             }
-            let duration = (action.defaultDurationSeconds ?? action.appliedDurationSeconds).map { _ in Int(durationSeconds) }
-            onConfirm(volume, duration)
+            onConfirm(quantityValue, unitValue, durationValue)
             dismiss()
         } label: {
             HStack(spacing: 8) {
@@ -127,10 +163,6 @@ struct CheckinDosageSheet: View {
             .foregroundStyle(.white)
             .clipShape(Capsule())
         }
-    }
-
-    private var unitLabel: String {
-        (action.defaultVolume ?? action.appliedVolume)?.unit.rawValue ?? ""
     }
 
     private var durationLabel: String {

@@ -168,8 +168,16 @@ struct DailyDashboardView: View {
             ForEach(proto.actions) { action in
                 ActionRowView(action: action, isReadOnly: !vm.isViewingToday, onToggle: {
                     Task { await vm.toggleAction(protocolId: proto.protocolId, action: action) }
-                }, onCheckinWithDosage: { volume, duration in
-                    Task { await vm.performCheckin(protocolId: proto.protocolId, action: action, volume: volume, durationSeconds: duration) }
+                }, onCheckinWithDosage: { quantity, unit, duration in
+                    Task {
+                        await vm.performCheckin(
+                            protocolId: proto.protocolId,
+                            action: action,
+                            quantity: quantity,
+                            unit: unit,
+                            durationSeconds: duration
+                        )
+                    }
                 })
             }
         }

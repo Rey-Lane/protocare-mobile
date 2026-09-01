@@ -521,7 +521,7 @@ struct ProtocolsView_Previews: PreviewProvider {
             ProtocolItem(id: protocolId, userId: UUID().uuidString, name: payload.name ?? "Updated", actions: [], isActive: payload.isActive, startedAt: payload.startedAt, endedAt: payload.endedAt, category: payload.category, streak: 0)
         }
         func createCheckin(token: String, payload: ProtocolCheckinCreate) async throws -> CheckIn {
-            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, appliedVolume: payload.appliedVolume, appliedDurationSeconds: payload.appliedDurationSeconds, id: UUID().uuidString, userId: nil)
+            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, quantity: payload.quantity, unit: payload.unit, durationSeconds: payload.durationSeconds, completed: payload.completed, id: UUID().uuidString, userId: nil)
         }
         func deleteCheckin(token: String, protocolId: String, checkinId: String) async throws {}
         func uploadProtocolImage(token: String, protocolId: String, imageData: Data) async throws -> ImageAttachmentCreate {
@@ -556,8 +556,7 @@ struct ProtocolsView_Previews: PreviewProvider {
                         isCompleted: true,
                         completedAt: "2024-01-01T10:00:00Z",
                         checkinId: UUID().uuidString,
-                        appliedVolume: Quantity(amount: 2, unit: .ml),
-                        appliedDurationSeconds: nil
+                        quantity: 2, unit: .ml, completed: true
                     ),
                     ActionCheckinStatus(
                         protocolActionId: UUID().uuidString,
@@ -568,8 +567,10 @@ struct ProtocolsView_Previews: PreviewProvider {
                         isCompleted: false,
                         completedAt: nil,
                         checkinId: nil,
-                        appliedVolume: nil,
-                        appliedDurationSeconds: nil
+                        quantity: nil,
+                        unit: nil,
+                        durationSeconds: nil,
+                        completed: true
                     ),
                     ActionCheckinStatus(
                         protocolActionId: UUID().uuidString,
@@ -580,8 +581,10 @@ struct ProtocolsView_Previews: PreviewProvider {
                         isCompleted: false,
                         completedAt: nil,
                         checkinId: nil,
-                        appliedVolume: nil,
-                        appliedDurationSeconds: nil
+                        quantity: nil,
+                        unit: nil,
+                        durationSeconds: nil,
+                        completed: true
                     )
                 ]
             )

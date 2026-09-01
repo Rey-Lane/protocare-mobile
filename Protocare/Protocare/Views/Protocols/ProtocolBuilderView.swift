@@ -74,7 +74,7 @@ struct ProtocolBuilderView: View {
 
                 Section {
                     Menu {
-                        ForEach(ProtocolCategory.allCases) { cat in
+                        ForEach(ActionCategory.allCases) { cat in
                             Button {
                                 vm.draft.category = vm.draft.category == cat ? nil : cat
                             } label: {

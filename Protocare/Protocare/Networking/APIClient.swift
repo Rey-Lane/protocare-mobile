@@ -39,7 +39,7 @@ protocol AuthAPI {
     func login(email: String, password: String) async throws -> AccessToken
     func refresh(request: RefreshTokenRequest) async throws -> TokenPair
     func logout(refreshToken: String) async throws
-    func fetchProtocols(token: String, category: ProtocolCategory?) async throws -> [ProtocolItem]
+    func fetchProtocols(token: String, category: ActionCategory?) async throws -> [ProtocolItem]
     func fetchActions(token: String, query: String?) async throws -> [Action]
     func createAction(token: String, payload: ActionCreate) async throws -> Action
     func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action
@@ -229,7 +229,7 @@ final class APIClient: AuthAPI, @unchecked Sendable {
 
     // MARK: - Data Fetching
 
-    func fetchProtocols(token: String, category: ProtocolCategory? = nil) async throws -> [ProtocolItem] {
+    func fetchProtocols(token: String, category: ActionCategory? = nil) async throws -> [ProtocolItem] {
         var path = "/protocols"
         if let category {
             path += "?category=\(category.rawValue)"

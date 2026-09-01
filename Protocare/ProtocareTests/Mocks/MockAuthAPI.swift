@@ -224,7 +224,7 @@ class MockAuthAPI: AuthAPI {
     func logout(refreshToken: String) async throws {}
 
     // MARK: - Data Fetching
-    func fetchProtocols(token: String, category: ProtocolCategory? = nil) async throws -> [ProtocolItem] {
+    func fetchProtocols(token: String, category: ActionCategory? = nil) async throws -> [ProtocolItem] {
         switch fetchProtocolsResult {
         case .success(let protocols):
             return protocols

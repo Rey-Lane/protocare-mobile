@@ -12,7 +12,7 @@ final class ProtocolsViewModel: ObservableObject {
     @Published var deletionErrorMessage: String? = nil
     @Published var protocolPendingDeletion: ProtocolItem? = nil
     @Published var searchQuery: String = ""
-    @Published var selectedCategory: ProtocolCategory?
+    @Published var selectedCategory: ActionCategory?
 
     private let api: AuthAPI
     private let authStore: AuthStore
@@ -33,9 +33,9 @@ final class ProtocolsViewModel: ObservableObject {
         return result
     }
 
-    var availableCategories: [ProtocolCategory] {
+    var availableCategories: [ActionCategory] {
         let categories = Set(protocols.compactMap { $0.category })
-        return ProtocolCategory.allCases.filter { categories.contains($0) }
+        return ActionCategory.allCases.filter { categories.contains($0) }
     }
 
     func load() async {

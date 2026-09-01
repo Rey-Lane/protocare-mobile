@@ -289,7 +289,7 @@ struct ProtocolSettingsView: View {
                 // Show category menu inline — handled by the Menu below
             }
             .contextMenu {
-                ForEach(ProtocolCategory.allCases) { cat in
+                ForEach(ActionCategory.allCases) { cat in
                     Button {
                         vm.editCategory = vm.editCategory == cat ? nil : cat
                     } label: {

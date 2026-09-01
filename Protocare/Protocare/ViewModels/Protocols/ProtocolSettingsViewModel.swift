@@ -13,7 +13,7 @@ final class ProtocolSettingsViewModel: ObservableObject {
 
     @Published var editName = ""
     @Published var editIcon: String?
-    @Published var editCategory: ProtocolCategory?
+    @Published var editCategory: ActionCategory?
     @Published var editMetricKeys: [MetricKey]?
     @Published var editIsActive = true
     @Published var editStartedAt = Date()

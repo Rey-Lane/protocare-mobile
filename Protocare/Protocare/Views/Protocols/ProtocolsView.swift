@@ -446,7 +446,7 @@ struct ProtocolsView_Previews: PreviewProvider {
         func login(email: String, password: String) async throws -> AccessToken { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r", tokenType: "Bearer") }
         func refresh(request: RefreshTokenRequest) async throws -> TokenPair { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r") }
         func logout(refreshToken: String) async throws {}
-        func fetchProtocols(token: String, category: ProtocolCategory? = nil) async throws -> [ProtocolItem] {
+        func fetchProtocols(token: String, category: ActionCategory? = nil) async throws -> [ProtocolItem] {
             [
                 ProtocolItem(
                     id: UUID().uuidString,
@@ -467,7 +467,7 @@ struct ProtocolsView_Previews: PreviewProvider {
                     isActive: true,
                     startedAt: "2025-12-20",
                     endedAt: nil,
-                    category: .biohacking,
+                    category: .supplement,
                     streak: 0
                 )
             ]

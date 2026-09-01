@@ -3,13 +3,6 @@ import SwiftUI
 
 // MARK: - Enums
 
-public enum SubstanceType: String, Codable, Hashable, Sendable, CaseIterable {
-    case topical = "topical"
-    case oral = "oral"
-    case device = "device"
-    case hygiene = "hygiene"
-}
-
 public enum SubstanceUnit: String, Codable, Hashable, Sendable, CaseIterable {
     case ml = "ml"
     case mg = "mg"
@@ -19,58 +12,6 @@ public enum SubstanceUnit: String, Codable, Hashable, Sendable, CaseIterable {
     case capsule = "capsule"
     case tablet = "tablet"
     case spray = "spray"
-}
-
-public enum ProtocolCategory: String, CaseIterable, Codable, Hashable, Sendable, Identifiable {
-    case skincare = "skincare"
-    case biohacking = "biohacking"
-    case yoga = "yoga"
-    case fitness = "fitness"
-    case nutrition = "nutrition"
-    case mindfulness = "mindfulness"
-    case medical = "medical"
-    case other = "other"
-
-    public var id: String { rawValue }
-
-    public var displayName: String {
-        switch self {
-        case .skincare: return "Skincare"
-        case .biohacking: return "Biohacking"
-        case .yoga: return "Yoga"
-        case .fitness: return "Fitness"
-        case .nutrition: return "Nutrition"
-        case .mindfulness: return "Mindfulness"
-        case .medical: return "Medical"
-        case .other: return "Other"
-        }
-    }
-
-    public var tagColor: Color {
-        switch self {
-        case .skincare: return Color(red: 1.0, green: 0.56, blue: 0.64)
-        case .biohacking: return Color(red: 0.49, green: 0.74, blue: 0.81)
-        case .yoga: return Color(red: 0.72, green: 0.58, blue: 0.96)
-        case .fitness: return Color(red: 0.96, green: 0.68, blue: 0.33)
-        case .nutrition: return Color(red: 0.34, green: 0.78, blue: 0.46)
-        case .mindfulness: return Color(red: 0.45, green: 0.45, blue: 0.82)
-        case .medical: return Color(red: 0.94, green: 0.33, blue: 0.31)
-        case .other: return Color(.systemGray)
-        }
-    }
-
-    public var tagIcon: String {
-        switch self {
-        case .skincare: return "drop.fill"
-        case .biohacking: return "brain.head.profile.fill"
-        case .yoga: return "figure.yoga"
-        case .fitness: return "figure.run"
-        case .nutrition: return "fork.knife"
-        case .mindfulness: return "moon.fill"
-        case .medical: return "stethoscope"
-        case .other: return "circle.fill"
-        }
-    }
 }
 
 public enum ActionCategory: String, CaseIterable, Codable, Hashable, Sendable, Identifiable {
@@ -616,11 +557,11 @@ public enum CheckInFormResolver {
 public struct Substance: Codable, Hashable, Sendable, Identifiable {
     public var id: String
     public var name: String
-    public var type: SubstanceType
+    public var type: ActionModality
     public var unit: SubstanceUnit
     public var notes: String?
 
-    public init(id: String, name: String, type: SubstanceType, unit: SubstanceUnit, notes: String? = nil) {
+    public init(id: String, name: String, type: ActionModality, unit: SubstanceUnit, notes: String? = nil) {
         self.id = id
         self.name = name
         self.type = type
@@ -643,11 +584,11 @@ public struct ProtocolItem: Codable, Hashable, Sendable, Identifiable {
     public var isActive: Bool?
     public var startedAt: String?
     public var endedAt: String?
-    public var category: ProtocolCategory?
+    public var category: ActionCategory?
     public var streak: Int
     public var metricKeys: [String]?
 
-    public init(id: String, userId: String, name: String, actions: [ProtocolAction], isActive: Bool? = nil, startedAt: String? = nil, endedAt: String? = nil, category: ProtocolCategory? = nil, streak: Int = 0, metricKeys: [String]? = nil) {
+    public init(id: String, userId: String, name: String, actions: [ProtocolAction], isActive: Bool? = nil, startedAt: String? = nil, endedAt: String? = nil, category: ActionCategory? = nil, streak: Int = 0, metricKeys: [String]? = nil) {
         self.id = id
         self.userId = userId
         self.name = name
@@ -771,10 +712,10 @@ public struct ProtocolCreate: Codable, Hashable, Sendable {
     public var isActive: Bool?
     public var startedAt: String?
     public var endedAt: String?
-    public var category: ProtocolCategory?
+    public var category: ActionCategory?
     public var metricKeys: [String]?
 
-    public init(userId: String, name: String, actions: [ProtocolActionCreate], isActive: Bool? = nil, startedAt: String? = nil, endedAt: String? = nil, category: ProtocolCategory? = nil, metricKeys: [String]? = nil) {
+    public init(userId: String, name: String, actions: [ProtocolActionCreate], isActive: Bool? = nil, startedAt: String? = nil, endedAt: String? = nil, category: ActionCategory? = nil, metricKeys: [String]? = nil) {
         self.userId = userId
         self.name = name
         self.actions = actions
@@ -1210,10 +1151,10 @@ public struct ProtocolUpdate: Codable, Hashable, Sendable {
     public var isActive: Bool?
     public var startedAt: String?
     public var endedAt: String?
-    public var category: ProtocolCategory?
+    public var category: ActionCategory?
     public var metricKeys: [String]?
 
-    public init(name: String? = nil, isActive: Bool? = nil, startedAt: String? = nil, endedAt: String? = nil, category: ProtocolCategory? = nil, metricKeys: [String]? = nil) {
+    public init(name: String? = nil, isActive: Bool? = nil, startedAt: String? = nil, endedAt: String? = nil, category: ActionCategory? = nil, metricKeys: [String]? = nil) {
         self.name = name
         self.isActive = isActive
         self.startedAt = startedAt
@@ -1521,7 +1462,7 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
 public struct ProtocolDraft {
     public var name: String = ""
     public var actions: [ActionItem] = []
-    public var category: ProtocolCategory?
+    public var category: ActionCategory?
     public var icon: String?
     public var coverImageData: Data?
     public var metricKeys: [MetricKey]?
@@ -1529,7 +1470,7 @@ public struct ProtocolDraft {
     public init(
         name: String = "",
         actions: [ActionItem] = [],
-        category: ProtocolCategory? = nil,
+        category: ActionCategory? = nil,
         icon: String? = nil,
         coverImageData: Data? = nil,
         metricKeys: [MetricKey]? = nil

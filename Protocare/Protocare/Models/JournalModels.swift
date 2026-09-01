@@ -81,22 +81,6 @@ public enum MetricKey: String, Codable, CaseIterable, Identifiable, Sendable {
         case .custom: return [.energy]
         }
     }
-
-    /// LEGACY — dies with the `ProtocolCategory` removal (Step 28).
-    /// Kept so ProtocolBuilder/Settings category pickers keep compiling until
-    /// `ProtocolDraft.category` / `editCategory` switch to `ActionCategory`.
-    public static func defaults(for category: ProtocolCategory) -> [MetricKey] {
-        switch category {
-        case .skincare: return [.skinQuality, .redness]
-        case .fitness: return [.energy, .muscleSoreness, .flexibility]
-        case .nutrition: return [.digestion, .energy]
-        case .mindfulness: return [.stress, .sleepQuality, .focus]
-        case .biohacking: return [.energy, .focus, .sleepQuality]
-        case .yoga: return [.flexibility, .stress, .energy]
-        case .medical: return [.painLevel, .symptomSeverity]
-        case .other: return [.energy, .stress]
-        }
-    }
 }
 
 public struct MetricDefinition: Codable, Hashable, Sendable, Identifiable {

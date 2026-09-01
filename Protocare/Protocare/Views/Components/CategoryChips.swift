@@ -6,7 +6,7 @@ import SwiftUI
 ///  - primary: "All" + 10 `ActionCategory` cases (with tagColor + tagIcon)
 ///  - secondary: "All" + 5 `ActionModality` cases
 ///
-/// Replaces the old SubstanceType-based chips ("All/Topical/Oral/Device/Hygiene").
+/// Replaces the old modality-only chips ("All/Topical/Oral/Device/Hygiene").
 struct CategoryChips: View {
     @Binding var selectedCategory: ActionCategory?
     @Binding var selectedModality: ActionModality?

@@ -44,7 +44,7 @@ final class OutcomeJournalViewModel: ObservableObject {
     }
 
     var availableMetrics: [MetricDefinition] {
-        entry?.availableMetrics ?? MetricKey.defaults(for: `protocol`.category ?? .other).map { key in
+        entry?.availableMetrics ?? MetricKey.defaults(for: `protocol`.category ?? .custom).map { key in
             MetricDefinition(key: key)
         }
     }

@@ -94,27 +94,9 @@ final class ProtocolSettingsViewModel: ObservableObject {
         // Unified model (Step 23): every ProtocolAction carries a single
         // non-optional `action_id`; resolve names straight from actionsLookup.
         editActions = item.actions.sorted(by: { ($0.position ?? 0) < ($1.position ?? 0) }).compactMap { pa in
-            guard var item = actionsLookup[pa.actionId] else { return nil }
-            item.schedule = ActionSchedule.fromRRule(pa.rrule)
-            item.userParameters = pa.userParameters
+            guard let item = actionsLookup[pa.actionId] else { return nil }
             actionItemToProtocolActionId[item.id] = pa.id
-            // Restore slots from notification schedule so ScheduleActionSheet
-            // shows the previously saved time instead of defaulting to 8:00
-            if item.slots.isEmpty, let notifSchedule = pa.notificationSchedule {
-                let parts = notifSchedule.preferredTime.split(separator: ":")
-                let hour = parts.count >= 1 ? Int(parts[0]) ?? 8 : 8
-                let minute = parts.count >= 2 ? Int(parts[1]) ?? 0 : 0
-                let snappedMinute = (minute / 5) * 5
-                item.slots = [
-                    ScheduleSlot(
-                        hour: hour,
-                        minute: snappedMinute,
-                        isReminderOn: notifSchedule.isEnabled,
-                        reminderOffsetMinutes: 0
-                    )
-                ]
-            }
-            return item
+            return item.hydrated(from: pa)
         }
     }
 

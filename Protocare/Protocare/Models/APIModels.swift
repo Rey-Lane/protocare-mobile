@@ -1376,6 +1376,36 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
         category.tagIcon
     }
 
+    /// Hydrates UI state (`schedule` / `slots` / `userParameters`) from a
+    /// `ProtocolAction` so schedule sheets show the persisted values instead
+    /// of defaults. Shared by every call site that presents
+    /// `ScheduleActionSheet` from a stored protocol (ProtocolDetailView,
+    /// ProtocolSettingsViewModel) — bug #4 fix.
+    public func hydrated(from protocolAction: ProtocolAction) -> ActionItem {
+        var item = self
+        item.schedule = ActionSchedule.fromRRule(protocolAction.rrule)
+        item.userParameters = protocolAction.userParameters
+        // Restore slots from the notification schedule so the sheet shows the
+        // previously saved time instead of defaulting to 8:00. Without this,
+        // saving from the sheet overwrites the stored schedule with the
+        // default (data-corruption path).
+        if item.slots.isEmpty, let notifSchedule = protocolAction.notificationSchedule {
+            let parts = notifSchedule.preferredTime.split(separator: ":")
+            let hour = parts.count >= 1 ? Int(parts[0]) ?? 8 : 8
+            let minute = parts.count >= 2 ? Int(parts[1]) ?? 0 : 0
+            let snappedMinute = (minute / 5) * 5  // drum picker needs 5-min steps
+            item.slots = [
+                ScheduleSlot(
+                    hour: hour,
+                    minute: snappedMinute,
+                    isReminderOn: notifSchedule.isEnabled,
+                    reminderOffsetMinutes: 0
+                )
+            ]
+        }
+        return item
+    }
+
     public var descriptionLabel: String {
         if let volume = volumeLabel { return volume }
         if let duration = durationLabel { return duration }

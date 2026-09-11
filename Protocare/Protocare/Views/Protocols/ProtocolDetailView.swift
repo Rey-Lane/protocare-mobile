@@ -142,7 +142,10 @@ struct ProtocolDetailView: View {
         }
         .sheet(item: $viewModel.selectedActionForSchedule) { action in
             // Unified model (Step 23): single non-optional action_id lookup.
-            let actionItem = viewModel.actionsLookup[action.actionId]
+            // Bug #4 fix: hydrate slots/schedule from the stored ProtocolAction
+            // so the sheet shows the persisted time instead of the 8:00 default
+            // (and Save no longer overwrites the real schedule).
+            let actionItem = viewModel.actionsLookup[action.actionId]?.hydrated(from: action)
             if let actionItem {
                 ScheduleActionSheet(action: actionItem) { schedule, slots in
                     Task {

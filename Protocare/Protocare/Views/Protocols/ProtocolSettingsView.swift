@@ -404,7 +404,9 @@ struct ProtocolSettingsView: View {
                     Button {
                         if vm.editMetricKeys?.contains(metric) == true {
                             vm.editMetricKeys?.removeAll { $0 == metric }
-                            if vm.editMetricKeys?.isEmpty == true { vm.editMetricKeys = nil }
+                            // Bug #2 fix: keep [] instead of collapsing to nil —
+                            // nil drops metric_keys from the PATCH and the journal
+                            // falls back to category defaults.
                         } else {
                             if vm.editMetricKeys == nil { vm.editMetricKeys = [] }
                             vm.editMetricKeys?.append(metric)
@@ -668,7 +670,7 @@ struct ProtocolSettingsView: View {
                     Button {
                         if vm.editMetricKeys?.contains(metric) == true {
                             vm.editMetricKeys?.removeAll { $0 == metric }
-                            if vm.editMetricKeys?.isEmpty == true { vm.editMetricKeys = nil }
+                            // Bug #2 fix: keep [] instead of collapsing to nil.
                         } else {
                             if vm.editMetricKeys == nil { vm.editMetricKeys = [] }
                             vm.editMetricKeys?.append(metric)

@@ -1026,8 +1026,11 @@ public struct ProtocolWithCheckins: Codable, Hashable, Sendable, Identifiable {
     public var isActive: Bool?
     public var startedAt: String?
     public var endedAt: String?
+    /// Bug #2 fix: persisted metric selection (now present in the backend
+    /// response schema so clients can render what the protocol tracks).
+    public var metricKeys: [String]?
 
-    public init(id: String, userId: String, name: String, actions: [ProtocolAction], isActive: Bool? = nil, startedAt: String? = nil, endedAt: String? = nil) {
+    public init(id: String, userId: String, name: String, actions: [ProtocolAction], isActive: Bool? = nil, startedAt: String? = nil, endedAt: String? = nil, metricKeys: [String]? = nil) {
         self.id = id
         self.userId = userId
         self.name = name
@@ -1035,15 +1038,18 @@ public struct ProtocolWithCheckins: Codable, Hashable, Sendable, Identifiable {
         self.isActive = isActive
         self.startedAt = startedAt
         self.endedAt = endedAt
+        self.metricKeys = metricKeys
     }
 
     enum CodingKeys: String, CodingKey {
         case id
         case userId = "user_id"
-        case name, actions
+        case name
+        case actions
         case isActive = "is_active"
         case startedAt = "started_at"
         case endedAt = "ended_at"
+        case metricKeys = "metric_keys"
     }
 }
 

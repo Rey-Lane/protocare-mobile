@@ -116,7 +116,9 @@ struct ProtocolBuilderView: View {
                             Button {
                                 if vm.draft.metricKeys?.contains(metric) == true {
                                     vm.draft.metricKeys?.removeAll { $0 == metric }
-                                    if vm.draft.metricKeys?.isEmpty == true { vm.draft.metricKeys = nil }
+                                    // Bug #2 fix: keep [] instead of collapsing to nil —
+                                    // nil drops metric_keys from the JSON and the backend
+                                    // re-auto-populates category defaults.
                                 } else {
                                     if vm.draft.metricKeys == nil { vm.draft.metricKeys = [] }
                                     vm.draft.metricKeys?.append(metric)
@@ -277,7 +279,7 @@ struct ProtocolBuilderView: View {
                             Button {
                                 if vm.draft.metricKeys?.contains(metric) == true {
                                     vm.draft.metricKeys?.removeAll { $0 == metric }
-                                    if vm.draft.metricKeys?.isEmpty == true { vm.draft.metricKeys = nil }
+                                    // Bug #2 fix: keep [] instead of collapsing to nil.
                                 } else {
                                     if vm.draft.metricKeys == nil { vm.draft.metricKeys = [] }
                                     vm.draft.metricKeys?.append(metric)

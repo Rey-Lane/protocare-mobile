@@ -70,9 +70,11 @@ struct ActionCreatorView: View {
                             .foregroundStyle(.secondary)
                     case .amount:
                         HStack {
+                            // Bug #3 fix: leading alignment — the old .trailing
+                            // pushed the placeholder to the right edge of the
+                            // full-width field.
                             TextField("Amount", value: $viewModel.amount, format: .number)
                                 .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
                             Picker("Unit", selection: $viewModel.unit) {
                                 ForEach(SubstanceUnit.amountUnits, id: \.self) { unit in
                                     Text(unit.displayName).tag(unit)
@@ -83,9 +85,9 @@ struct ActionCreatorView: View {
                         }
                     case .duration:
                         HStack {
+                            // Bug #3 fix: leading alignment (same as Amount).
                             TextField("Minutes", value: $viewModel.durationMinutes, format: .number)
                                 .keyboardType(.numberPad)
-                                .multilineTextAlignment(.trailing)
                             Text("min")
                                 .foregroundStyle(.secondary)
                         }

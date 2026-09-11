@@ -96,19 +96,22 @@ struct ProtocolBuilderView: View {
                 }
 
                 Section {
-                    // Show category defaults + any user-selected metrics not in defaults (no duplicates)
-                    let categoryDefaults: [MetricKey] = {
-                        if let cat = vm.draft.category { return MetricKey.defaults(for: cat) }
-                        return []
+                    // Bug #1 fix: show only metrics the user actually selected
+                    // (selected category defaults first, then any custom picks).
+                    // The old `categoryDefaults + selectedNonDefault` formula kept
+                    // unselected defaults permanently visible in the list.
+                    let displayedMetrics: [MetricKey] = {
+                        let selected = vm.draft.metricKeys ?? []
+                        let defaults = vm.draft.category.map { MetricKey.defaults(for: $0) } ?? []
+                        let selectedDefaults = defaults.filter { selected.contains($0) }
+                        let customPicks = selected.filter { !defaults.contains($0) }
+                        return selectedDefaults + customPicks
                     }()
-                    let selectedNonDefault: [MetricKey] = {
-                        guard let selected = vm.draft.metricKeys else { return [] }
-                        return selected.filter { !categoryDefaults.contains($0) }
-                    }()
-                    let displayedMetrics = categoryDefaults + selectedNonDefault
 
                     if displayedMetrics.isEmpty {
-                        Text("Select a goal to see recommended metrics")
+                        Text(vm.draft.category == nil
+                             ? "Select a goal to see recommended metrics"
+                             : "No metrics selected — add the ones you want to track")
                             .foregroundStyle(.secondary)
                             .font(.subheadline)
                     } else {

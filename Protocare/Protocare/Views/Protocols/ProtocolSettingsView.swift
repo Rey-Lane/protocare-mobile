@@ -382,18 +382,22 @@ struct ProtocolSettingsView: View {
         VStack(spacing: 0) {
             SectionHeader(title: "Journal Metrics", count: vm.editMetricKeys?.count)
 
-            let categoryDefaults: [MetricKey] = {
-                if let cat = vm.editCategory { return MetricKey.defaults(for: cat) }
-                return []
+            // Bug #1 fix: show only metrics the user actually selected
+            // (selected category defaults first, then any custom picks).
+            // The old `categoryDefaults + selectedNonDefault` formula kept
+            // unselected defaults permanently visible in the list.
+            let displayedMetrics: [MetricKey] = {
+                let selected = vm.editMetricKeys ?? []
+                let defaults = vm.editCategory.map { MetricKey.defaults(for: $0) } ?? []
+                let selectedDefaults = defaults.filter { selected.contains($0) }
+                let customPicks = selected.filter { !defaults.contains($0) }
+                return selectedDefaults + customPicks
             }()
-            let selectedNonDefault: [MetricKey] = {
-                guard let selected = vm.editMetricKeys else { return [] }
-                return selected.filter { !categoryDefaults.contains($0) }
-            }()
-            let displayedMetrics = categoryDefaults + selectedNonDefault
 
             if displayedMetrics.isEmpty {
-                Text("Select a goal to see recommended metrics")
+                Text(vm.editCategory == nil
+                     ? "Select a goal to see recommended metrics"
+                     : "No metrics selected — add the ones you want to track")
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
                     .padding(.horizontal, 16)

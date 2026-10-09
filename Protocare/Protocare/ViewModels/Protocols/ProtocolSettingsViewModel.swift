@@ -12,7 +12,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
     // MARK: - Edit State
 
     @Published var editName = ""
-    @Published var editIcon: String?
     @Published var editCategory: ActionCategory?
     @Published var editMetricKeys: [MetricKey]?
     @Published var editIsActive = true
@@ -74,7 +73,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
         editName = item.name
         editCategory = item.category
         editIsActive = item.isActive ?? true
-        editIcon = nil // Protocol has no icon on backend — local only
 
         // Parse metric keys
         if let keys = item.metricKeys {

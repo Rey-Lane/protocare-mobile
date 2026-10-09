@@ -7,16 +7,8 @@ struct ProtocolBuilderView: View {
     @State private var isShowingImagePicker = false
     @State private var scheduleAction: ActionItem?
     @State private var isShowingActionPicker = false
-    @State private var isShowingIconPicker = false
     @State private var showingAllMetrics = false
     private let onSaved: (() -> Void)?
-
-    private let protocolIcons = [
-        "🧴", "💊", "🏃", "🧘", "🥗", "🧠",
-        "💤", "🔬", "🩺", "🧪", "🫀", "💪",
-        "🎯", "📅", "✨", "🌿", "🫧", "🧖",
-        "💆", "🦷", "👁️", "🫁", "🦴", "❤️‍🩹"
-    ]
 
     init(api: AuthAPI, authStore: AuthStore, onSaved: (() -> Void)? = nil) {
         _vm = StateObject(wrappedValue: ProtocolBuilderViewModel(api: api, authStore: authStore))
@@ -43,33 +35,6 @@ struct ProtocolBuilderView: View {
                         .textInputAutocapitalization(.words)
                 } header: {
                     Text("Protocol Name")
-                }
-
-                Section {
-                    Button {
-                        isShowingIconPicker = true
-                    } label: {
-                        HStack {
-                            if let icon = vm.draft.icon {
-                                Text(icon)
-                                    .font(.system(size: 28))
-                            } else {
-                                Image(systemName: "circle.dashed")
-                                    .font(.system(size: 28))
-                                    .foregroundStyle(.secondary)
-                            }
-                            Text(vm.draft.icon == nil ? "Choose Icon" : "Change Icon")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                } header: {
-                    Text("Icon")
                 }
 
                 Section {
@@ -263,9 +228,6 @@ struct ProtocolBuilderView: View {
                     }
                 )
             }
-            .sheet(isPresented: $isShowingIconPicker) {
-                iconPickerSheet
-            }
             .onChange(of: vm.draft.category) { _, newCategory in
                 if let newCategory {
                     let categoryDefaults = MetricKey.defaults(for: newCategory)
@@ -371,39 +333,6 @@ struct ProtocolBuilderView: View {
         }
         .padding(.horizontal, 16)
         .padding(.top, 4)
-    }
-
-    private var iconPickerSheet: some View {
-        NavigationStack {
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 6)
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(protocolIcons, id: \.self) { icon in
-                        Button {
-                            vm.draft.icon = icon
-                            isShowingIconPicker = false
-                        } label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(vm.draft.icon == icon ? Color.appPrimary.opacity(0.15) : Color(.systemGray6))
-                                    .frame(width: 48, height: 48)
-                                Text(icon)
-                                    .font(.system(size: 26))
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding()
-            }
-            .navigationTitle("Choose Icon")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { isShowingIconPicker = false }
-                }
-            }
-        }
     }
 
     private var header: some View {

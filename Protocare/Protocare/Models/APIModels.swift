@@ -1497,7 +1497,6 @@ public struct ProtocolDraft {
     public var name: String = ""
     public var actions: [ActionItem] = []
     public var category: ActionCategory?
-    public var icon: String?
     public var coverImageData: Data?
     public var metricKeys: [MetricKey]?
 
@@ -1505,14 +1504,12 @@ public struct ProtocolDraft {
         name: String = "",
         actions: [ActionItem] = [],
         category: ActionCategory? = nil,
-        icon: String? = nil,
         coverImageData: Data? = nil,
         metricKeys: [MetricKey]? = nil
     ) {
         self.name = name
         self.actions = actions
         self.category = category
-        self.icon = icon
         self.coverImageData = coverImageData
         self.metricKeys = metricKeys
     }

@@ -4,17 +4,9 @@ struct ProtocolSettingsView: View {
     @ObservedObject private var vm: ProtocolSettingsViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showingAllMetrics = false
-    @State private var isShowingIconPicker = false
     @State private var draggedActionId: String?
 
     private let accent = Color.appPrimary
-
-    private let protocolIcons = [
-        "🧴", "💊", "🏃", "🧘", "🥗", "🧠",
-        "💤", "🔬", "🩺", "🧪", "🫀", "💪",
-        "🎯", "📅", "✨", "🌿", "🫧", "🧖",
-        "💆", "🦷", "👁️", "🫁", "🦴", "❤️‍🩹",
-    ]
 
     init(vm: ProtocolSettingsViewModel) {
         _vm = ObservedObject(wrappedValue: vm)
@@ -77,9 +69,6 @@ struct ProtocolSettingsView: View {
                     vm.addAction(actionItem)
                 }
             )
-        }
-        .sheet(isPresented: $isShowingIconPicker) {
-            iconPickerSheet
         }
         .sheet(isPresented: $showingAllMetrics) {
             allMetricsSheet
@@ -248,28 +237,6 @@ struct ProtocolSettingsView: View {
                     // Show change/remove options
                     vm.isShowingEditImagePicker = true
                 }
-            }
-
-            SettingsDivider()
-
-            // Icon
-            SettingsRow(icon: "face.dashed", label: "Icon") {
-                HStack(spacing: 8) {
-                    if let icon = vm.editIcon {
-                        Text(icon)
-                            .font(.system(size: 22))
-                    } else {
-                        Text("Choose")
-                            .foregroundStyle(.secondary)
-                    }
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.tertiary)
-                }
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                isShowingIconPicker = true
             }
 
             SettingsDivider()
@@ -628,41 +595,6 @@ struct ProtocolSettingsView: View {
             )
         }
         .buttonStyle(.plain)
-    }
-
-    // MARK: - Icon Picker Sheet
-
-    private var iconPickerSheet: some View {
-        NavigationStack {
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 6)
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(protocolIcons, id: \.self) { icon in
-                        Button {
-                            vm.editIcon = icon
-                            isShowingIconPicker = false
-                        } label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(vm.editIcon == icon ? accent.opacity(0.15) : Color(.systemGray6))
-                                    .frame(width: 48, height: 48)
-                                Text(icon)
-                                    .font(.system(size: 26))
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding()
-            }
-            .navigationTitle("Choose Icon")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { isShowingIconPicker = false }
-                }
-            }
-        }
     }
 
     // MARK: - All Metrics Sheet

@@ -26,15 +26,15 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
 
     func testAddAction_DoesNotDuplicate() {
         let action = TestFixtures.morningCleanse
-        sut.addPredefinedAction(action)
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
+        sut.addAction(action)
 
         XCTAssertEqual(sut.draft.actions.count, 1)
     }
 
     func testRemoveAction_RemovesAction() {
         let action = TestFixtures.morningCleanse
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         sut.removeAction(action)
         XCTAssertTrue(sut.draft.actions.isEmpty)
@@ -46,13 +46,13 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
         sut.draft.name = "Test Protocol"
         XCTAssertFalse(sut.canSave)
 
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
         XCTAssertTrue(sut.canSave)
     }
 
     func testCanSave_FalseWhileSaving() {
         sut.draft.name = "Test Protocol"
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
         XCTAssertTrue(sut.canSave)
 
         sut.isSaving = true
@@ -62,7 +62,7 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
     func testSave_FailsWithoutAuth() async {
         mockAuthStore.mockAccessToken = nil
         sut.draft.name = "Test"
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
 
         let result = await sut.save()
         XCTAssertFalse(result)
@@ -72,7 +72,7 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
     func testSave_FailsWithoutUserId() async {
         mockAuthStore.mockUserId = nil
         sut.draft.name = "Test"
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
 
         let result = await sut.save()
         XCTAssertFalse(result)
@@ -81,7 +81,7 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
 
     func testSave_ProtocolCreationFails() async {
         sut.draft.name = "Test Protocol"
-        sut.addPredefinedAction(TestFixtures.morningCleanse)
+        sut.addAction(TestFixtures.morningCleanse)
 
         mockAPI.createProtocolWithImageResult = .failure(
             APIError.server(status: 500, message: "Internal Server Error")
@@ -104,59 +104,22 @@ final class ProtocolBuilderViewModelNotificationTests: XCTestCase {
 
     func testLoadActions_LoadsSuccessfully() async {
         mockAPI.fetchActionsResult = .success([
-            Action(id: "action-1", substanceId: "substance-1")
+            Action(id: "action-1", name: "Minoxidil Spray", category: .hair, modality: .topical)
         ])
-        mockAPI.fetchSubstancesResult = .success([])
 
         await sut.loadActions()
         XCTAssertEqual(sut.availableActions.count, 1)
         XCTAssertNil(sut.errorMessage)
     }
 
-    // MARK: - Custom Action ID (no ua- prefix)
+    // MARK: - Unified Add (single ID space)
 
-    func testAddUserAction_UsesUUIDStringWithoutUaPrefix() {
-        let userAction = TestFixtures.testUserAction
-        sut.addUserAction(userAction)
-
-        XCTAssertEqual(sut.draft.actions.count, 1)
-        XCTAssertEqual(sut.draft.actions.first?.id, userAction.id.uuidString)
-        XCTAssertFalse(sut.draft.actions.first!.id.hasPrefix("ua-"))
-    }
-
-    func testAddUserAction_DoesNotDuplicate() {
-        let userAction = TestFixtures.testUserAction
-        sut.addUserAction(userAction)
-        sut.addUserAction(userAction)
+    func testAddAction_UsesActionItemIDirectly() {
+        let action = ActionItem(id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d", name: "Meditation", category: .mindfulness)
+        sut.addAction(action)
 
         XCTAssertEqual(sut.draft.actions.count, 1)
-    }
-
-    func testCustomActionItems_UsesUUIDStringWithoutUaPrefix() {
-        let userAction = TestFixtures.testUserAction
-        sut.userActions = [userAction]
-
-        let items = sut.customActionItems
-        XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(items.first?.id, userAction.id.uuidString)
-        XCTAssertFalse(items.first!.id.hasPrefix("ua-"))
-        XCTAssertEqual(items.first?.userActionId, userAction.id)
-    }
-
-    func testCustomActionItems_ExcludesInactiveUserActions() {
-        let activeAction = TestFixtures.testUserAction
-        let inactiveAction = UserAction(
-            id: UUID(),
-            userId: UUID(),
-            name: "Inactive",
-            category: .custom,
-            isActive: false
-        )
-        sut.userActions = [activeAction, inactiveAction]
-
-        let items = sut.customActionItems
-        XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(items.first?.id, activeAction.id.uuidString)
+        XCTAssertEqual(sut.draft.actions.first?.id, action.id)
     }
 
     // MARK: - Alert Binding Pattern (SW-03)
@@ -190,26 +153,10 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
         XCTAssertNil(json["user_action_id"])
     }
 
-    func testEncode_WithUserActionId_OmitsActionIdFromJSON() throws {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
-        let payload = ProtocolActionCreate(
-            userActionId: uuid,
-            rrule: "FREQ=DAILY",
-            position: 0
-        )
-
-        let data = try JSONEncoder().encode(payload)
-        let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-
-        XCTAssertFalse(json.keys.contains("action_id"), "action_id should be omitted when nil")
-        XCTAssertEqual(json["user_action_id"] as? String, uuid.uuidString)
-    }
-
-    func testEncode_WithBothIds_IncludesBothInJSON() throws {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
+    func testEncode_WithUserParameters_IncludesUserParametersInJSON() throws {
         let payload = ProtocolActionCreate(
             actionId: "action-123",
-            userActionId: uuid,
+            userParameters: ["volume_amount": AnyCodable(7.0), "volume_unit": AnyCodable("spray")],
             rrule: "FREQ=DAILY",
             position: 0
         )
@@ -218,7 +165,9 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
         let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
 
         XCTAssertEqual(json["action_id"] as? String, "action-123")
-        XCTAssertEqual(json["user_action_id"] as? String, uuid.uuidString)
+        let params = try XCTUnwrap(json["user_parameters"] as? [String: Any])
+        XCTAssertEqual(params["volume_amount"] as? Double, 7.0)
+        XCTAssertEqual(params["volume_unit"] as? String, "spray")
     }
 
     func testEncode_WithNotificationFields_IncludesWhenPresent() throws {
@@ -241,15 +190,18 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
     }
 
     func testEncode_WithoutOptionalFields_OmitsThemFromJSON() throws {
+        // Step 23: action_id is required by the unified backend contract,
+        // so only user_parameters/position/notification fields stay omittable.
         let payload = ProtocolActionCreate(
+            actionId: "action-123",
             rrule: "FREQ=DAILY"
         )
 
         let data = try JSONEncoder().encode(payload)
         let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
 
-        XCTAssertFalse(json.keys.contains("action_id"))
-        XCTAssertFalse(json.keys.contains("user_action_id"))
+        XCTAssertEqual(json["action_id"] as? String, "action-123")
+        XCTAssertFalse(json.keys.contains("user_parameters"))
         XCTAssertFalse(json.keys.contains("position"))
         XCTAssertFalse(json.keys.contains("notification_time"))
         XCTAssertFalse(json.keys.contains("notification_timezone"))
@@ -264,20 +216,20 @@ final class ProtocolActionCreateEncodingTests: XCTestCase {
         let decoded = try JSONDecoder().decode(ProtocolActionCreate.self, from: data)
 
         XCTAssertEqual(decoded.actionId, "action-123")
-        XCTAssertNil(decoded.userActionId)
         XCTAssertEqual(decoded.rrule, "FREQ=DAILY")
     }
 
-    func testDecode_WithUserActionId_NoActionId() throws {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
+    func testDecode_WithUserParameters() throws {
         let jsonString = """
-        {"user_action_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d", "rrule": "FREQ=DAILY", "position": 1}
+        {"action_id": "action-123", "user_parameters": {"volume_amount": 7.5, "volume_unit": "spray"}, "rrule": "FREQ=DAILY", "position": 1}
         """
         let data = Data(jsonString.utf8)
         let decoded = try JSONDecoder().decode(ProtocolActionCreate.self, from: data)
 
-        XCTAssertNil(decoded.actionId)
-        XCTAssertEqual(decoded.userActionId, uuid)
+        XCTAssertEqual(decoded.actionId, "action-123")
+        let amount = try XCTUnwrap(decoded.userParameters?["volume_amount"]?.value as? Double)
+        XCTAssertEqual(amount, 7.5)
+        XCTAssertEqual(decoded.userParameters?["volume_unit"]?.value as? String, "spray")
     }
 }
 
@@ -293,31 +245,6 @@ final class ProtocolActionModelTests: XCTestCase {
             position: 0
         )
         XCTAssertEqual(action.actionId, "action-123")
-        XCTAssertNil(action.userActionId)
-    }
-
-    func testProtocolAction_WithUserActionId() {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
-        let action = ProtocolAction(
-            id: "pa-1",
-            userActionId: uuid,
-            rrule: "FREQ=DAILY",
-            position: 0
-        )
-        XCTAssertNil(action.actionId)
-        XCTAssertEqual(action.userActionId, uuid)
-    }
-
-    func testProtocolAction_DecodeWithUserActionId() throws {
-        let uuid = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
-        let jsonString = """
-        {"id": "pa-1", "user_action_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d", "rrule": "FREQ=DAILY", "position": 0}
-        """
-        let data = Data(jsonString.utf8)
-        let decoded = try JSONDecoder().decode(ProtocolAction.self, from: data)
-
-        XCTAssertNil(decoded.actionId)
-        XCTAssertEqual(decoded.userActionId, uuid)
     }
 
     func testProtocolAction_DecodeWithActionId() throws {
@@ -328,6 +255,18 @@ final class ProtocolActionModelTests: XCTestCase {
         let decoded = try JSONDecoder().decode(ProtocolAction.self, from: data)
 
         XCTAssertEqual(decoded.actionId, "action-123")
-        XCTAssertNil(decoded.userActionId)
+    }
+
+    func testProtocolAction_DecodeWithUserParameters() throws {
+        let jsonString = """
+        {"id": "pa-1", "action_id": "action-123", "user_parameters": {"serving": 2, "serving_unit": "capsule"}, "rrule": "FREQ=DAILY", "position": 0}
+        """
+        let data = Data(jsonString.utf8)
+        let decoded = try JSONDecoder().decode(ProtocolAction.self, from: data)
+
+        XCTAssertEqual(decoded.actionId, "action-123")
+        let serving = try XCTUnwrap(decoded.userParameters?["serving"]?.value as? Int)
+        XCTAssertEqual(serving, 2)
+        XCTAssertEqual(decoded.userParameters?["serving_unit"]?.value as? String, "capsule")
     }
 }

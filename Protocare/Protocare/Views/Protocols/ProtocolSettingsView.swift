@@ -4,17 +4,9 @@ struct ProtocolSettingsView: View {
     @ObservedObject private var vm: ProtocolSettingsViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showingAllMetrics = false
-    @State private var isShowingIconPicker = false
     @State private var draggedActionId: String?
 
     private let accent = Color.appPrimary
-
-    private let protocolIcons = [
-        "🧴", "💊", "🏃", "🧘", "🥗", "🧠",
-        "💤", "🔬", "🩺", "🧪", "🫀", "💪",
-        "🎯", "📅", "✨", "🌿", "🫧", "🧖",
-        "💆", "🦷", "👁️", "🫁", "🦴", "❤️‍🩹",
-    ]
 
     init(vm: ProtocolSettingsViewModel) {
         _vm = ObservedObject(wrappedValue: vm)
@@ -77,9 +69,6 @@ struct ProtocolSettingsView: View {
                     vm.addAction(actionItem)
                 }
             )
-        }
-        .sheet(isPresented: $isShowingIconPicker) {
-            iconPickerSheet
         }
         .sheet(isPresented: $showingAllMetrics) {
             allMetricsSheet
@@ -252,28 +241,6 @@ struct ProtocolSettingsView: View {
 
             SettingsDivider()
 
-            // Icon
-            SettingsRow(icon: "face.dashed", label: "Icon") {
-                HStack(spacing: 8) {
-                    if let icon = vm.editIcon {
-                        Text(icon)
-                            .font(.system(size: 22))
-                    } else {
-                        Text("Choose")
-                            .foregroundStyle(.secondary)
-                    }
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.tertiary)
-                }
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                isShowingIconPicker = true
-            }
-
-            SettingsDivider()
-
             // Goal / Category
             SettingsRow(icon: "target", label: "Goal") {
                 HStack(spacing: 8) {
@@ -289,7 +256,7 @@ struct ProtocolSettingsView: View {
                 // Show category menu inline — handled by the Menu below
             }
             .contextMenu {
-                ForEach(ProtocolCategory.allCases) { cat in
+                ForEach(ActionCategory.allCases) { cat in
                     Button {
                         vm.editCategory = vm.editCategory == cat ? nil : cat
                     } label: {
@@ -382,18 +349,22 @@ struct ProtocolSettingsView: View {
         VStack(spacing: 0) {
             SectionHeader(title: "Journal Metrics", count: vm.editMetricKeys?.count)
 
-            let categoryDefaults: [MetricKey] = {
-                if let cat = vm.editCategory { return MetricKey.defaults(for: cat) }
-                return []
+            // Bug #1 fix: show only metrics the user actually selected
+            // (selected category defaults first, then any custom picks).
+            // The old `categoryDefaults + selectedNonDefault` formula kept
+            // unselected defaults permanently visible in the list.
+            let displayedMetrics: [MetricKey] = {
+                let selected = vm.editMetricKeys ?? []
+                let defaults = vm.editCategory.map { MetricKey.defaults(for: $0) } ?? []
+                let selectedDefaults = defaults.filter { selected.contains($0) }
+                let customPicks = selected.filter { !defaults.contains($0) }
+                return selectedDefaults + customPicks
             }()
-            let selectedNonDefault: [MetricKey] = {
-                guard let selected = vm.editMetricKeys else { return [] }
-                return selected.filter { !categoryDefaults.contains($0) }
-            }()
-            let displayedMetrics = categoryDefaults + selectedNonDefault
 
             if displayedMetrics.isEmpty {
-                Text("Select a goal to see recommended metrics")
+                Text(vm.editCategory == nil
+                     ? "Select a goal to see recommended metrics"
+                     : "No metrics selected — add the ones you want to track")
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
                     .padding(.horizontal, 16)
@@ -404,7 +375,9 @@ struct ProtocolSettingsView: View {
                     Button {
                         if vm.editMetricKeys?.contains(metric) == true {
                             vm.editMetricKeys?.removeAll { $0 == metric }
-                            if vm.editMetricKeys?.isEmpty == true { vm.editMetricKeys = nil }
+                            // Bug #2 fix: keep [] instead of collapsing to nil —
+                            // nil drops metric_keys from the PATCH and the journal
+                            // falls back to category defaults.
                         } else {
                             if vm.editMetricKeys == nil { vm.editMetricKeys = [] }
                             vm.editMetricKeys?.append(metric)
@@ -482,6 +455,31 @@ struct ProtocolSettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(action.displayName)
                                 .font(.system(size: 15, weight: .semibold))
+                            // Unified model (Step 23): category + modality badges
+                            // replace provenance ("Library"/"Custom") labels.
+                            HStack(spacing: 6) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: action.category.tagIcon)
+                                        .font(.system(size: 10, weight: .semibold))
+                                    Text(action.category.displayName)
+                                        .font(.system(size: 11, weight: .semibold))
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .foregroundStyle(action.category.tagColor)
+                                .background(action.category.tagColor.opacity(0.14))
+                                .clipShape(Capsule())
+
+                                if let modality = action.modality {
+                                    Text(modality.displayName)
+                                        .font(.system(size: 11, weight: .medium))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 3)
+                                        .foregroundStyle(.secondary)
+                                        .background(Color(.systemGray5))
+                                        .clipShape(Capsule())
+                                }
+                            }
                             if !action.scheduleSummaryText.isEmpty {
                                 Text(action.scheduleSummaryText)
                                     .font(.caption)
@@ -599,41 +597,6 @@ struct ProtocolSettingsView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Icon Picker Sheet
-
-    private var iconPickerSheet: some View {
-        NavigationStack {
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 6)
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(protocolIcons, id: \.self) { icon in
-                        Button {
-                            vm.editIcon = icon
-                            isShowingIconPicker = false
-                        } label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(vm.editIcon == icon ? accent.opacity(0.15) : Color(.systemGray6))
-                                    .frame(width: 48, height: 48)
-                                Text(icon)
-                                    .font(.system(size: 26))
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding()
-            }
-            .navigationTitle("Choose Icon")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { isShowingIconPicker = false }
-                }
-            }
-        }
-    }
-
     // MARK: - All Metrics Sheet
 
     private var allMetricsSheet: some View {
@@ -643,7 +606,7 @@ struct ProtocolSettingsView: View {
                     Button {
                         if vm.editMetricKeys?.contains(metric) == true {
                             vm.editMetricKeys?.removeAll { $0 == metric }
-                            if vm.editMetricKeys?.isEmpty == true { vm.editMetricKeys = nil }
+                            // Bug #2 fix: keep [] instead of collapsing to nil.
                         } else {
                             if vm.editMetricKeys == nil { vm.editMetricKeys = [] }
                             vm.editMetricKeys?.append(metric)

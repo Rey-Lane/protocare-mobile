@@ -47,19 +47,38 @@ final class ActionCheckinViewModelTests: XCTestCase {
         XCTAssertNil(sut.errorMessage)
     }
 
-    func test_createCheckin_withAppliedVolume() async {
+    func test_createCheckin_withQuantity() async {
         mockAPI.createCheckinResult = .success(
             CheckIn(
                 protocolActionId: "test-action-id",
                 ts: "2024-01-01T12:00:00Z",
-                appliedVolume: Quantity(amount: 5.0, unit: .ml),
+                quantity: 5.0,
+                unit: .ml,
                 id: "checkin-002"
             )
         )
 
         let payload = TestFixtures.makeCheckinCreate(
-            appliedVolume: Quantity(amount: 5.0, unit: .ml)
+            quantity: 5.0,
+            unit: .ml
         )
+        let result = await sut.submit(payload: payload)
+
+        XCTAssertTrue(result)
+        XCTAssertNil(sut.errorMessage)
+    }
+
+    func test_createCheckin_binaryCompletedFalse() async {
+        mockAPI.createCheckinResult = .success(
+            CheckIn(
+                protocolActionId: "test-action-id",
+                ts: "2024-01-01T12:00:00Z",
+                completed: false,
+                id: "checkin-003"
+            )
+        )
+
+        let payload = TestFixtures.makeCheckinCreate(completed: false)
         let result = await sut.submit(payload: payload)
 
         XCTAssertTrue(result)

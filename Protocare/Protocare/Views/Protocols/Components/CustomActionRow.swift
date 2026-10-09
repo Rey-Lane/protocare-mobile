@@ -2,19 +2,18 @@ import SwiftUI
 
 struct CustomActionRow: View {
     let action: ActionItem
-    let userAction: UserAction?
     let onAdd: () -> Void
     private let accent = Color.appPrimary
 
     private var iconColor: Color {
-        Color(hex: userAction?.displayColor ?? "#34C759")
+        action.category.tagColor
     }
 
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
                 Circle().fill(iconColor.opacity(0.15))
-                Image(systemName: userAction?.displayIcon ?? action.categoryIcon)
+                Image(systemName: action.categoryIcon)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(iconColor)
             }
@@ -25,15 +24,11 @@ struct CustomActionRow: View {
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.primary)
 
-                if let desc = userAction?.description, !desc.isEmpty {
-                    Text(desc)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                } else if !action.descriptionLabel.isEmpty {
+                if !action.descriptionLabel.isEmpty {
                     Text(action.descriptionLabel)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
             }
 

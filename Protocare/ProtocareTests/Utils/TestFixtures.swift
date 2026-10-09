@@ -123,15 +123,19 @@ enum TestFixtures {
         protocolId: String = "test-protocol-id",
         protocolActionId: String = "test-action-id",
         ts: String = "2024-01-01T12:00:00Z",
-        appliedVolume: Quantity? = nil,
-        appliedDurationSeconds: Int? = nil
+        quantity: Double? = nil,
+        unit: SubstanceUnit? = nil,
+        durationSeconds: Int? = nil,
+        completed: Bool = true
     ) -> ProtocolCheckinCreate {
         ProtocolCheckinCreate(
             protocolId: protocolId,
             protocolActionId: protocolActionId,
             ts: ts,
-            appliedVolume: appliedVolume,
-            appliedDurationSeconds: appliedDurationSeconds
+            quantity: quantity,
+            unit: unit,
+            durationSeconds: durationSeconds,
+            completed: completed
         )
     }
 
@@ -147,83 +151,38 @@ enum TestFixtures {
         createdAt: "2024-01-01T12:00:00Z"
     )
 
-    // MARK: - User Actions
+    // MARK: - Unified Actions (Step 25d)
 
-    static let testUserAction = UserAction(
-        id: UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!,
-        userId: UUID(uuidString: "550e8400-e29b-41d4-a716-446655440000")!,
+    static let testAction = Action(
+        id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
         name: "Cold Plunge",
         description: "Cold water immersion therapy",
         category: .mindfulness,
-        parameters: ActionParameters(fields: [
-            ActionField(key: "duration_min", label: "Duration", type: .number, isRequired: true, unit: "min", minValue: AnyCodable(1), maxValue: AnyCodable(30)),
-            ActionField(key: "temperature_c", label: "Temperature", type: .number, isRequired: false, unit: "°C")
-        ]),
+        modality: .activity,
+        defaultParameters: [
+            "duration_seconds": AnyCodable(180)
+        ],
+        isLibrary: false,
         iconKey: "snowflake",
-        color: "#007AFF",
-        isTemplate: false,
-        protocolCount: 3,
-        sortOrder: 0,
-        isActive: true,
-        createdAt: Date(timeIntervalSince1970: 1700000000),
-        updatedAt: Date(timeIntervalSince1970: 1700000000)
+        color: "#007AFF"
     )
 
-    static let testUserActionTemplate = UserAction(
-        id: UUID(uuidString: "f1e2d3c4-b5a6-4978-8a7b-6c5d4e3f2a1b")!,
-        userId: UUID(uuidString: "00000000-0000-0000-0000-000000000000")!,
-        name: "Meditation Session",
-        description: "Guided or unguided meditation",
-        category: .mindfulness,
-        parameters: ActionParameters(fields: [
-            ActionField(key: "type", label: "Type", type: .select, isRequired: true, options: ["guided", "unguided", "body_scan"]),
-            ActionField(key: "duration_min", label: "Duration", type: .number, isRequired: true, unit: "min")
-        ]),
-        iconKey: "brain.head.profile.fill",
-        color: "#AF52DE",
-        isTemplate: true,
-        protocolCount: 0,
-        sortOrder: 0,
-        isActive: true,
-        createdAt: Date(timeIntervalSince1970: 1700000000),
-        updatedAt: Date(timeIntervalSince1970: 1700000000)
-    )
-
-    static let testPaginatedUserActions = PaginatedUserActions(
-        items: [testUserAction],
-        total: 1,
-        page: 1,
-        pageSize: 20
-    )
-
-    static let testUserActionCreate = UserActionCreate(
+    static let testActionCreate = ActionCreate(
         name: "Red Light Therapy",
         description: "20 min session",
         category: .mindfulness,
-        parameters: ActionParameters(fields: [
-            ActionField(key: "duration_min", label: "Duration", type: .number, isRequired: true, unit: "min")
-        ]),
+        modality: .device,
+        defaultParameters: ["duration_seconds": AnyCodable(1200)],
         iconKey: "sunrise.fill",
         color: "#FF9500"
     )
 
-    static let testUserActionUpdate = UserActionUpdate(
+    static let testActionUpdate = ActionUpdate(
         name: "Updated Cold Plunge",
-        description: "Updated description"
+        description: "Updated description",
+        category: .exercise,
+        modality: .activity
     )
-
-    static let testUserActionUsage = UserActionUsage([
-        UserActionUsageEntry(
-            protocolId: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
-            protocolName: "Morning Routine",
-            protocolActionId: UUID(uuidString: "00000000-0000-0000-0000-000000000010")!
-        ),
-        UserActionUsageEntry(
-            protocolId: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
-            protocolName: "Evening Wind Down",
-            protocolActionId: UUID(uuidString: "00000000-0000-0000-0000-000000000020")!
-        )
-    ])
 
     static func makeNotificationScheduleCreate(
         protocolActionId: String = "test-action-id",

@@ -5,10 +5,6 @@ import Combine
 final class ProtocolBuilderViewModel: ObservableObject {
     @Published var draft = ProtocolDraft()
     @Published var availableActions: [ActionItem] = []
-    @Published var userActions: [UserAction] = []
-    @Published var selectedTab: Tab = .library
-    @Published var searchQuery: String = ""
-    @Published var selectedCategory: ActionsCategory? = nil
     @Published var isLoading: Bool = false
     @Published var isSaving: Bool = false
     @Published var errorMessage: String? = nil
@@ -19,34 +15,7 @@ final class ProtocolBuilderViewModel: ObservableObject {
     private var selectedImageData: Data?
     private var lastCreatedProtocolId: String?
 
-    enum Tab: String, CaseIterable, Identifiable {
-        case library = "Library"
-        case custom = "Custom"
-        var id: String { rawValue }
-    }
-
-    enum ActionsCategory: String, CaseIterable, Identifiable {
-        case all = "All"
-        case topical = "Topical"
-        case oral = "Oral"
-        case device = "Device"
-        case hygiene = "Hygiene"
-        var id: String { rawValue }
-    }
-
     private var allActions: [ActionItem] = []
-
-    var filteredActions: [ActionItem] {
-        var result = allActions
-        if let category = selectedCategory, category != .all {
-            result = result.filter { $0.substance?.type.rawValue == category.rawValue }
-        }
-        if !searchQuery.isEmpty {
-            let query = searchQuery.lowercased()
-            result = result.filter { $0.name.lowercased().contains(query) }
-        }
-        return result
-    }
 
     init(api: AuthAPI, authStore: AuthStore) {
         self.api = api
@@ -59,21 +28,13 @@ final class ProtocolBuilderViewModel: ObservableObject {
         && !isSaving
     }
 
-    var customActionItems: [ActionItem] {
-        userActions.filter { $0.isActive }.map { action in
-            ActionItem(
-                id: action.id.uuidString,
-                name: action.name,
-                userActionId: action.id,
-                userActionCategory: action.category
-            )
-        }
-    }
-
+    /// Unified action source (Step 22): library + user-created actions come
+    /// from the single `GET /actions` endpoint. No more dual lists.
     func loadActions() async {
         guard let token = authStore.accessToken else {
             errorMessage = "User not authenticated."
             availableActions = []
+            allActions = []
             draft.actions = []
             return
         }
@@ -82,34 +43,20 @@ final class ProtocolBuilderViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            async let fetchedActions = api.fetchActions(token: token, query: nil)
-            async let fetchedSubstances = api.fetchSubstances(token: token, query: nil)
-            async let fetchedUserActions = api.fetchUserActions(token: token, category: nil, isActive: nil, page: nil, pageSize: nil)
-
-            let (actions, substances, userActionsPage) = try await (fetchedActions, fetchedSubstances, fetchedUserActions)
-            availableActions = actions.toActionItems(using: substances)
+            let fetchedActions = try await api.fetchActions(token: token, category: nil, modality: nil, query: nil)
+            availableActions = fetchedActions.toActionItems()
             allActions = availableActions
-            userActions = userActionsPage.items
         } catch {
             errorMessage = (error as? LocalizedError)?.errorDescription ?? "Не удалось загрузить действия."
         }
     }
 
-    func addPredefinedAction(_ action: ActionItem) {
+    /// Single unified add (Step 22): replaces the former
+    /// addPredefinedAction/addUserAction pair — every action now comes
+    /// from the unified ActionPickerView with one ID space.
+    func addAction(_ action: ActionItem) {
         guard draft.actions.contains(where: { $0.id == action.id }) == false else { return }
         draft.actions.append(action)
-    }
-
-    func addUserAction(_ userAction: UserAction) {
-        let actionItemId = userAction.id.uuidString
-        guard draft.actions.contains(where: { $0.id == actionItemId }) == false else { return }
-        let item = ActionItem(
-            id: actionItemId,
-            name: userAction.name,
-            userActionId: userAction.id,
-            userActionCategory: userAction.category
-        )
-        draft.actions.append(item)
     }
 
     func removeAction(_ action: ActionItem) {
@@ -137,14 +84,14 @@ final class ProtocolBuilderViewModel: ObservableObject {
             return false
         }
 
+        // Unified payload (Step 22): single actionId + per-protocol user_parameters.
         let actionsPayload: [ProtocolActionCreate] = draft.actions.enumerated().map { index, action in
-            let actionId: String? = action.userActionId == nil ? action.id : nil
             let defaultSchedule = ActionSchedule(frequency: .daily, days: ScheduleDay.allCases, hour: 8, minute: 0)
             let rrule = action.schedule?.toRRule() ?? defaultSchedule.toRRule()
             let firstReminderSlot = action.slots.first { $0.isReminderOn }
             return ProtocolActionCreate(
-                actionId: actionId,
-                userActionId: action.userActionId,
+                actionId: action.id,
+                userParameters: action.userParameters,
                 rrule: rrule,
                 position: index,
                 notificationTime: firstReminderSlot?.timeLabel,
@@ -235,9 +182,9 @@ final class ProtocolBuilderViewModel: ObservableObject {
     func removeSelectedImage() {
         selectedImageData = nil
     }
-    
+
     // MARK: - Notification Preferences
-    
+
     /// Updates notification preferences for a specific action in the draft
     func updateNotificationPreferences(for action: ActionItem, preferences: DraftNotificationPreferences) {
         guard let index = draft.actions.firstIndex(where: { $0.id == action.id }) else { return }
@@ -251,7 +198,7 @@ final class ProtocolBuilderViewModel: ObservableObject {
             draft.actions[index].slots = slots
         }
     }
-    
+
     private func requestNotificationsAndSync(token: String) async {
         let granted = await NotificationManager.shared.requestAuthorization()
         guard granted else { return }
@@ -271,12 +218,8 @@ final class ProtocolBuilderViewModel: ObservableObject {
         for action in draft.actions {
             let reminderSlots = action.slots.filter { $0.isReminderOn }
             guard !reminderSlots.isEmpty else { continue }
-            let protocolAction: ProtocolAction?
-            if let userActionId = action.userActionId {
-                protocolAction = protocolItem.actions.first { $0.userActionId == userActionId }
-            } else {
-                protocolAction = protocolItem.actions.first { $0.actionId == action.id }
-            }
+            // Single-ID model: match the protocol action by its unified action id.
+            let protocolAction = protocolItem.actions.first { $0.actionId == action.id }
             guard let protocolAction else { continue }
 
             for slot in reminderSlots {

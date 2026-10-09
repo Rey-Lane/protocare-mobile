@@ -1,55 +1,113 @@
 import SwiftUI
 
+/// Unified filter chips (Step 25b of the unified action model migration).
+///
+/// Two axes, matching the ActionPickerView filter design from Step 21:
+///  - primary: "All" + 10 `ActionCategory` cases (with tagColor + tagIcon)
+///  - secondary: "All" + 5 `ActionModality` cases
+///
+/// Replaces the old modality-only chips ("All/Topical/Oral/Device/Hygiene").
 struct CategoryChips: View {
-    @Binding var selectedCategory: ProtocolBuilderViewModel.ActionsCategory?
-    let onSelect: (ProtocolBuilderViewModel.ActionsCategory?) -> Void
+    @Binding var selectedCategory: ActionCategory?
+    @Binding var selectedModality: ActionModality?
+    let onSelect: () -> Void
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(ProtocolBuilderViewModel.ActionsCategory.allCases) { category in
+        VStack(spacing: 8) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
                     CategoryChip(
-                        title: category.rawValue,
-                        isSelected: selectedCategory == category,
+                        title: "All",
+                        isSelected: selectedCategory == nil,
                         action: {
                             withAnimation(.easeInOut(duration: 0.2)) {
-                                if selectedCategory == category && category == .all {
-                                    selectedCategory = nil
-                                } else {
-                                    selectedCategory = category
-                                }
+                                selectedCategory = nil
                             }
-                            onSelect(selectedCategory)
+                            onSelect()
                         }
                     )
+                    ForEach(ActionCategory.allCases) { category in
+                        CategoryChip(
+                            title: category.displayName,
+                            icon: category.tagIcon,
+                            color: category.tagColor,
+                            isSelected: selectedCategory == category,
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedCategory = category
+                                }
+                                onSelect()
+                            }
+                        )
+                    }
                 }
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    CategoryChip(
+                        title: "All",
+                        isSelected: selectedModality == nil,
+                        action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedModality = nil
+                            }
+                            onSelect()
+                        }
+                    )
+                    ForEach(ActionModality.allCases, id: \.self) { modality in
+                        CategoryChip(
+                            title: modality.displayName,
+                            isSelected: selectedModality == modality,
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedModality = modality
+                                }
+                                onSelect()
+                            }
+                        )
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
         }
     }
 }
 
 private struct CategoryChip: View {
     let title: String
+    var icon: String? = nil
+    var color: Color = .appPrimary
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.system(size: 14, weight: isSelected ? .semibold : .medium))
-                .foregroundStyle(isSelected ? .white : .secondary)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule()
-                        .fill(isSelected ? Color.appPrimary : Color(.systemGray5))
-                )
+            HStack(spacing: 5) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 11, weight: .semibold))
+                }
+                Text(title)
+                    .font(.system(size: 14, weight: isSelected ? .semibold : .medium))
+            }
+            .foregroundStyle(isSelected ? .white : .secondary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(
+                Capsule()
+                    .fill(isSelected ? color : Color(.systemGray5))
+            )
         }
         .buttonStyle(.plain)
     }
 }
 
 #Preview {
-    CategoryChips(selectedCategory: .constant(nil)) { _ in }
+    CategoryChips(
+        selectedCategory: .constant(nil),
+        selectedModality: .constant(nil),
+        onSelect: {}
+    )
 }

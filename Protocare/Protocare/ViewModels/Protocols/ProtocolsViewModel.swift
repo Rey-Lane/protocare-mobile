@@ -5,7 +5,6 @@ import Combine
 final class ProtocolsViewModel: ObservableObject {
     @Published private(set) var protocols: [ProtocolItem] = []
     @Published private(set) var actionsLookup: [String: ActionItem] = [:]
-    @Published private(set) var userActionsLookup: [String: ActionItem] = [:]
     @Published private(set) var protocolImageURLs: [String: String] = [:]
     @Published private(set) var deletingProtocolIDs: Set<String> = []
     @Published var isLoading: Bool = false
@@ -13,7 +12,7 @@ final class ProtocolsViewModel: ObservableObject {
     @Published var deletionErrorMessage: String? = nil
     @Published var protocolPendingDeletion: ProtocolItem? = nil
     @Published var searchQuery: String = ""
-    @Published var selectedCategory: ProtocolCategory?
+    @Published var selectedCategory: ActionCategory?
 
     private let api: AuthAPI
     private let authStore: AuthStore
@@ -34,9 +33,9 @@ final class ProtocolsViewModel: ObservableObject {
         return result
     }
 
-    var availableCategories: [ProtocolCategory] {
+    var availableCategories: [ActionCategory] {
         let categories = Set(protocols.compactMap { $0.category })
-        return ProtocolCategory.allCases.filter { categories.contains($0) }
+        return ActionCategory.allCases.filter { categories.contains($0) }
     }
 
     func load() async {
@@ -52,24 +51,16 @@ final class ProtocolsViewModel: ObservableObject {
 
         do {
             async let fetchedProtocols = api.fetchProtocols(token: token, category: nil)
-            async let fetchedActions = api.fetchActions(token: token, query: nil)
-            async let fetchedSubstances = api.fetchSubstances(token: token, query: nil)
-            async let fetchedUserActions = api.fetchUserActions(token: token, category: nil, isActive: nil, page: nil, pageSize: nil)
+            async let fetchedActions = api.fetchActions(token: token, category: nil, modality: nil, query: nil)
 
-            let (protocolsResponse, actionsResponse, substances, userActionsResponse) = try await (fetchedProtocols, fetchedActions, fetchedSubstances, fetchedUserActions)
+            let (protocolsResponse, actionsResponse) = try await (fetchedProtocols, fetchedActions)
             protocols = protocolsResponse
             protocolImageURLs = await fetchProtocolImageURLs(for: protocolsResponse, token: authStore.accessToken ?? token)
-            let enriched = actionsResponse.toActionItems(using: substances)
+            // Unified action model (Step 25a): GET /actions returns library AND
+            // user-created actions with category/modality inline — no substance
+            // lookup needed; one lookup covers every protocol action.
+            let enriched = actionsResponse.toActionItems()
             actionsLookup = Dictionary(uniqueKeysWithValues: enriched.map { ($0.id, $0) }) as [String: ActionItem]
-            userActionsLookup = Dictionary(uniqueKeysWithValues: userActionsResponse.items.compactMap { ua -> (String, ActionItem)? in
-                let item = ActionItem(
-                    id: ua.id.uuidString,
-                    name: ua.name,
-                    userActionId: ua.id,
-                    userActionCategory: ua.category
-                )
-                return (ua.id.uuidString, item)
-            })
         } catch {
             errorMessage = (error as? LocalizedError)?.errorDescription ?? "Failed to load protocols."
         }

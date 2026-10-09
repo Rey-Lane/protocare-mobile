@@ -77,7 +77,7 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
 
     func testUpdateSchedule_UpdatesActionScheduleAndSlots() {
         let action = ActionItem(id: "a1", name: "Test Action")
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         let schedule = ActionSchedule(frequency: .weekly, days: [.tuesday, .thursday], hour: 10, minute: 0)
         let slots = [ScheduleSlot(hour: 10, minute: 0, isReminderOn: true, reminderOffsetMinutes: 5)]
@@ -92,7 +92,7 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
     func testSave_UsesScheduleRRule() async {
         sut.draft.name = "Test Protocol"
         let action = ActionItem(id: "action-1", name: "Test")
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         let schedule = ActionSchedule(frequency: .weekly, days: [.monday, .wednesday, .friday], hour: 21, minute: 30)
         sut.updateSchedule(for: action, schedule: schedule)
@@ -111,7 +111,7 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
     func testSave_DefaultScheduleWhenNoneSet_UsesDailyRRule() async {
         sut.draft.name = "Test Protocol"
         let action = ActionItem(id: "action-1", name: "Test")
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         mockAPI.createProtocolWithImageResult = .success(
             ProtocolItem(id: "new-protocol", userId: "test-user-id", name: "Test Protocol", actions: [], isActive: true)
@@ -124,15 +124,14 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
         XCTAssertEqual(payload?.actions.first?.rrule, "RRULE:FREQ=DAILY;BYHOUR=8;BYMINUTE=0")
     }
 
-    func testSave_WithUserActionId_PassesCorrectIds() async {
-        let userActionId = UUID(uuidString: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")!
+    func testSave_PassesUnifiedActionId() async {
         let action = ActionItem(
-            id: userActionId.uuidString,
+            id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
             name: "Custom Action",
-            userActionId: userActionId
+            category: .mindfulness
         )
         sut.draft.name = "Test"
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         let schedule = ActionSchedule(frequency: .daily, days: ScheduleDay.allCases, hour: 7, minute: 30)
         sut.updateSchedule(for: action, schedule: schedule)
@@ -145,15 +144,16 @@ final class ProtocolBuilderScheduleTests: XCTestCase {
 
         let payloadAction = mockAPI.lastCreateProtocolPayload?.actions.first
         XCTAssertNotNil(payloadAction)
-        XCTAssertNil(payloadAction?.actionId)
-        XCTAssertEqual(payloadAction?.userActionId, userActionId)
+        // Unified model: single action_id, no dual ID, no user_parameters unless overridden.
+        XCTAssertEqual(payloadAction?.actionId, "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d")
+        XCTAssertNil(payloadAction?.userParameters)
         XCTAssertEqual(payloadAction?.rrule, "RRULE:FREQ=DAILY;BYHOUR=7;BYMINUTE=30")
     }
 
     func testEndToEnd_ScheduleToRRuleToPayloadWithSlots() async {
         sut.draft.name = "Skincare Protocol"
         let action = ActionItem(id: "action-1", name: "Tretinoin")
-        sut.addPredefinedAction(action)
+        sut.addAction(action)
 
         let schedule = ActionSchedule(frequency: .weekly, days: [.monday, .wednesday, .friday], hour: 21, minute: 30)
         let slots = [

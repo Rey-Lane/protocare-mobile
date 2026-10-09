@@ -98,7 +98,6 @@ struct ProtocolsView: View {
                 ProtocolDetailView(
                     item: item,
                     actionsLookup: vm.actionsLookup,
-                    userActionsLookup: vm.userActionsLookup,
                     api: api,
                     authStore: authStore,
                     viewModel: vm,
@@ -447,7 +446,7 @@ struct ProtocolsView_Previews: PreviewProvider {
         func login(email: String, password: String) async throws -> AccessToken { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r", tokenType: "Bearer") }
         func refresh(request: RefreshTokenRequest) async throws -> TokenPair { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r") }
         func logout(refreshToken: String) async throws {}
-        func fetchProtocols(token: String, category: ProtocolCategory? = nil) async throws -> [ProtocolItem] {
+        func fetchProtocols(token: String, category: ActionCategory? = nil) async throws -> [ProtocolItem] {
             [
                 ProtocolItem(
                     id: UUID().uuidString,
@@ -468,13 +467,18 @@ struct ProtocolsView_Previews: PreviewProvider {
                     isActive: true,
                     startedAt: "2025-12-20",
                     endedAt: nil,
-                    category: .biohacking,
+                    category: .supplement,
                     streak: 0
                 )
             ]
         }
-        func fetchActions(token: String, query: String? = nil) async throws -> [Action] { [] }
-        func fetchSubstances(token: String, query: String? = nil) async throws -> [Substance] { [] }
+        func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil) async throws -> [Action] { [] }
+        func createAction(token: String, payload: ActionCreate) async throws -> Action {
+            Action(id: UUID().uuidString, name: payload.name, description: payload.description, category: payload.category, modality: payload.modality)
+        }
+        func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action {
+            Action(id: actionId, name: payload.name ?? "", category: payload.category ?? .custom)
+        }
         func createProtocol(token: String, payload: ProtocolCreateRequest) async throws -> ProtocolItem {
             ProtocolItem(
                 id: UUID().uuidString,
@@ -484,7 +488,6 @@ struct ProtocolsView_Previews: PreviewProvider {
                     ProtocolAction(
                         id: UUID().uuidString,
                         actionId: action.actionId,
-                        userActionId: action.userActionId,
                         rrule: action.rrule,
                         position: action.position,
                         checkins: nil
@@ -507,7 +510,6 @@ struct ProtocolsView_Previews: PreviewProvider {
                     ProtocolAction(
                         id: UUID().uuidString,
                         actionId: action.actionId,
-                        userActionId: action.userActionId,
                         rrule: action.rrule,
                         position: action.position,
                         checkins: nil
@@ -524,7 +526,7 @@ struct ProtocolsView_Previews: PreviewProvider {
             ProtocolItem(id: protocolId, userId: UUID().uuidString, name: payload.name ?? "Updated", actions: [], isActive: payload.isActive, startedAt: payload.startedAt, endedAt: payload.endedAt, category: payload.category, streak: 0)
         }
         func createCheckin(token: String, payload: ProtocolCheckinCreate) async throws -> CheckIn {
-            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, appliedVolume: payload.appliedVolume, appliedDurationSeconds: payload.appliedDurationSeconds, id: UUID().uuidString, userId: nil)
+            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, quantity: payload.quantity, unit: payload.unit, durationSeconds: payload.durationSeconds, completed: payload.completed, id: UUID().uuidString, userId: nil)
         }
         func deleteCheckin(token: String, protocolId: String, checkinId: String) async throws {}
         func uploadProtocolImage(token: String, protocolId: String, imageData: Data) async throws -> ImageAttachmentCreate {
@@ -559,8 +561,7 @@ struct ProtocolsView_Previews: PreviewProvider {
                         isCompleted: true,
                         completedAt: "2024-01-01T10:00:00Z",
                         checkinId: UUID().uuidString,
-                        appliedVolume: Quantity(amount: 2, unit: .ml),
-                        appliedDurationSeconds: nil
+                        quantity: 2, unit: .ml, completed: true
                     ),
                     ActionCheckinStatus(
                         protocolActionId: UUID().uuidString,
@@ -571,8 +572,10 @@ struct ProtocolsView_Previews: PreviewProvider {
                         isCompleted: false,
                         completedAt: nil,
                         checkinId: nil,
-                        appliedVolume: nil,
-                        appliedDurationSeconds: nil
+                        quantity: nil,
+                        unit: nil,
+                        durationSeconds: nil,
+                        completed: true
                     ),
                     ActionCheckinStatus(
                         protocolActionId: UUID().uuidString,
@@ -583,8 +586,10 @@ struct ProtocolsView_Previews: PreviewProvider {
                         isCompleted: false,
                         completedAt: nil,
                         checkinId: nil,
-                        appliedVolume: nil,
-                        appliedDurationSeconds: nil
+                        quantity: nil,
+                        unit: nil,
+                        durationSeconds: nil,
+                        completed: true
                     )
                 ]
             )
@@ -618,26 +623,6 @@ struct ProtocolsView_Previews: PreviewProvider {
             NotificationScheduleResponse(id: UUID().uuidString, protocolActionId: actionId, userId: UUID().uuidString, preferredTime: payload.preferredTime, timezone: payload.timezone, isEnabled: payload.isEnabled ?? true, createdAt: "2024-01-01T12:00:00Z")
         }
 
-        func fetchUserActions(token: String, category: ActionCategory?, isActive: Bool?, page: Int?, pageSize: Int?) async throws -> PaginatedUserActions {
-            PaginatedUserActions(items: [], total: 0, page: 1, pageSize: 20)
-        }
-        func createUserAction(token: String, payload: UserActionCreate) async throws -> UserAction {
-            UserAction(id: UUID(), userId: UUID(), name: payload.name, category: payload.category)
-        }
-        func fetchUserAction(token: String, actionId: UUID) async throws -> UserAction {
-            UserAction(id: actionId, userId: UUID(), name: "", category: .custom)
-        }
-        func updateUserAction(token: String, actionId: UUID, payload: UserActionUpdate) async throws -> UserAction {
-            UserAction(id: actionId, userId: UUID(), name: payload.name ?? "", category: .custom)
-        }
-        func deleteUserAction(token: String, actionId: UUID) async throws {}
-        func fetchUserActionTemplates(token: String) async throws -> [UserAction] { [] }
-        func duplicateUserAction(token: String, actionId: UUID) async throws -> UserAction {
-            UserAction(id: UUID(), userId: UUID(), name: "", category: .custom)
-        }
-        func fetchUserActionUsage(token: String, actionId: UUID) async throws -> UserActionUsage {
-            []
-        }
         func fetchCurrentUser(token: String) async throws -> UserMeResponse {
             UserMeResponse(id: UUID().uuidString, email: "preview@protocare.app", name: "Preview", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 3, streak: StreakInfo(currentStreak: 7, longestStreak: 14), totalCheckins: 42)
         }

@@ -1,18 +1,21 @@
 import SwiftUI
 
+/// Daily dashboard action row (Step 25c).
+/// Binary/activity actions toggle directly; substance and timed-activity actions
+/// open the adaptive `CheckinDosageSheet`.
 struct ActionRowView: View {
     let action: DailyActionStatus
     let isReadOnly: Bool
     let onToggle: () -> Void
-    let onCheckinWithDosage: (QuantityOutput?, Int?) -> Void
+    let onCheckinWithDosage: (Double?, SubstanceUnit?, Int?) -> Void
 
     @State private var showDosageSheet = false
 
     private let accent = Color.appPrimary
 
+    /// Actions with a quantity or duration get the dosage sheet; binary actions toggle inline.
     private var hasDosageFields: Bool {
-        action.defaultVolume != nil || action.appliedVolume != nil
-            || action.defaultDurationSeconds != nil || action.appliedDurationSeconds != nil
+        action.checkInFormKind != .binary
     }
 
     var body: some View {
@@ -56,8 +59,8 @@ struct ActionRowView: View {
         .padding(.vertical, 8)
         .padding(.horizontal, 4)
         .sheet(isPresented: $showDosageSheet) {
-            CheckinDosageSheet(action: action) { volume, duration in
-                onCheckinWithDosage(volume, duration)
+            CheckinDosageSheet(action: action) { quantity, unit, duration in
+                onCheckinWithDosage(quantity, unit, duration)
             }
         }
     }

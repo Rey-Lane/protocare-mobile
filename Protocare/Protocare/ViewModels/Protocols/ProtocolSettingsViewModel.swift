@@ -6,15 +6,13 @@ import SwiftUI
 final class ProtocolSettingsViewModel: ObservableObject {
     let item: ProtocolItem
     let actionsLookup: [String: ActionItem]
-    let userActionsLookup: [String: ActionItem]
     let api: AuthAPI
     let authStore: AuthStore
 
     // MARK: - Edit State
 
     @Published var editName = ""
-    @Published var editIcon: String?
-    @Published var editCategory: ProtocolCategory?
+    @Published var editCategory: ActionCategory?
     @Published var editMetricKeys: [MetricKey]?
     @Published var editIsActive = true
     @Published var editStartedAt = Date()
@@ -46,7 +44,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
 
     // Library loading (for action picker)
     @Published var availableActions: [ActionItem] = []
-    @Published var userActions: [UserAction] = []
     @Published var isLoadingActions = false
 
     var currentProtocol: ProtocolItem { item }
@@ -60,7 +57,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
     init(
         item: ProtocolItem,
         actionsLookup: [String: ActionItem],
-        userActionsLookup: [String: ActionItem],
         api: AuthAPI,
         authStore: AuthStore,
         protocolImageURL: String? = nil,
@@ -68,7 +64,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
     ) {
         self.item = item
         self.actionsLookup = actionsLookup
-        self.userActionsLookup = userActionsLookup
         self.api = api
         self.authStore = authStore
         self.protocolImageURL = protocolImageURL
@@ -78,7 +73,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
         editName = item.name
         editCategory = item.category
         editIsActive = item.isActive ?? true
-        editIcon = nil // Protocol has no icon on backend — local only
 
         // Parse metric keys
         if let keys = item.metricKeys {
@@ -94,40 +88,13 @@ final class ProtocolSettingsViewModel: ObservableObject {
             hasEditEndedAt = true
         }
 
-        // Build action items from protocol actions
+        // Build action items from protocol actions.
+        // Unified model (Step 23): every ProtocolAction carries a single
+        // non-optional `action_id`; resolve names straight from actionsLookup.
         editActions = item.actions.sorted(by: { ($0.position ?? 0) < ($1.position ?? 0) }).compactMap { pa in
-            let schedule = ActionSchedule.fromRRule(pa.rrule)
-            var resolvedItem: ActionItem?
-            if let actionId = pa.actionId, let action = actionsLookup[actionId] {
-                var item = action
-                item.schedule = schedule
-                resolvedItem = item
-            } else if let userActionId = pa.userActionId, let action = userActionsLookup[userActionId.uuidString] {
-                var item = action
-                item.schedule = schedule
-                resolvedItem = item
-            }
-            if var resolvedItem {
-                actionItemToProtocolActionId[resolvedItem.id] = pa.id
-                // Restore slots from notification schedule so ScheduleActionSheet
-                // shows the previously saved time instead of defaulting to 8:00
-                if resolvedItem.slots.isEmpty, let notifSchedule = pa.notificationSchedule {
-                    let parts = notifSchedule.preferredTime.split(separator: ":")
-                    let hour = parts.count >= 1 ? Int(parts[0]) ?? 8 : 8
-                    let minute = parts.count >= 2 ? Int(parts[1]) ?? 0 : 0
-                    let snappedMinute = (minute / 5) * 5
-                    resolvedItem.slots = [
-                        ScheduleSlot(
-                            hour: hour,
-                            minute: snappedMinute,
-                            isReminderOn: notifSchedule.isEnabled,
-                            reminderOffsetMinutes: 0
-                        )
-                    ]
-                }
-                return resolvedItem
-            }
-            return nil
+            guard let item = actionsLookup[pa.actionId] else { return nil }
+            actionItemToProtocolActionId[item.id] = pa.id
+            return item.hydrated(from: pa)
         }
     }
 
@@ -135,18 +102,15 @@ final class ProtocolSettingsViewModel: ObservableObject {
 
     func loadAvailableActions() async {
         guard let token = authStore.accessToken else { return }
-        guard availableActions.isEmpty && userActions.isEmpty else { return } // Load once
+        guard availableActions.isEmpty else { return } // Load once
         isLoadingActions = true
         defer { isLoadingActions = false }
 
         do {
-            async let fetchedActions = api.fetchActions(token: token, query: nil)
-            async let fetchedSubstances = api.fetchSubstances(token: token, query: nil)
-            async let fetchedUserActions = api.fetchUserActions(token: token, category: nil, isActive: nil, page: nil, pageSize: nil)
-
-            let (actions, substances, userActionsPage) = try await (fetchedActions, fetchedSubstances, fetchedUserActions)
-            availableActions = actions.toActionItems(using: substances)
-            userActions = userActionsPage.items
+            // Unified action source: GET /actions returns library + user-created
+            // actions. No user-actions fetch, no substances needed for display.
+            let fetchedActions = try await api.fetchActions(token: token, category: nil, modality: nil, query: nil)
+            availableActions = fetchedActions.toActionItems()
         } catch {
             // Non-critical — picker will show empty state
         }
@@ -157,18 +121,6 @@ final class ProtocolSettingsViewModel: ObservableObject {
     func addAction(_ action: ActionItem) {
         guard !editActions.contains(where: { $0.id == action.id }) else { return }
         editActions.append(action)
-    }
-
-    func addUserAction(_ userAction: UserAction) {
-        let actionItemId = userAction.id.uuidString
-        guard !editActions.contains(where: { $0.id == actionItemId }) else { return }
-        let item = ActionItem(
-            id: actionItemId,
-            name: userAction.name,
-            userActionId: userAction.id,
-            userActionCategory: userAction.category
-        )
-        editActions.append(item)
     }
 
     func removeAction(_ action: ActionItem) {

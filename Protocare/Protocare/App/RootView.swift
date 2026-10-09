@@ -54,6 +54,17 @@ private struct MainTabView: View {
                 Label("Daily", systemImage: "checklist")
             }
             .tag(0)
+            .onChange(of: selectedTab) { _, newTab in
+                // Bug #6 fix: `.task` runs once per view lifetime inside a
+                // TabView, so returning to the Daily tab showed stale data
+                // (e.g. a check-in made from the Journal tab). Reload when
+                // the tab becomes selected again.
+                if newTab == 0 {
+                    Task {
+                        await dashboardVM.load()
+                    }
+                }
+            }
 
             JournalListView(
                 vm: journalVM,

@@ -1,38 +1,103 @@
-# Repository Guidelines
+# Protocare iOS — Agent Guide
 
-## Project Structure & Module Organization
-- `Protocare.xcodeproj` at root; all app sources are in `Protocare/`.
-- SwiftUI MVVM: `RootView` routes between auth and protocol flows; view models (`RegistrationViewModel`, `LoginViewModel`, `ProtocolsViewModel`, `ProtocolBuilderViewModel`) are `@MainActor` `ObservableObject`s.
-- Networking lives in `APIClient.swift` with auth models in `AuthModels.swift`; auth state and keychain persistence are in `AuthStore.swift`/`KeychainStore.swift`.
-- UI layers: auth screens (`LoginView.swift`, `RegistrationView.swift`), protocol list (`ProtocolsView.swift`), builder (`ProtocolBuilderView.swift`, `ProtocolDraft.swift`, `LibraryCardView.swift`), and shared components such as `ActionRow.swift`. Assets sit in `Assets.xcassets`. Tests are not yet present—plan to add `ProtocareTests/`.
+> Branch: `feature/unified-action-model`. This file was rewritten 2026-10-09 to match the actual branch state.
 
-## Build, Test, and Development Commands
-- Open in Xcode: `open Protocare.xcodeproj`, select the `Protocare` scheme, run on a simulator or device.
-- CLI build (tweak destination to your simulator):  
-  ```sh
-  xcodebuild -scheme Protocare -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' clean build
-  ```
-- Tests (after adding a test target):  
-  ```sh
-  xcodebuild -scheme Protocare -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' test
-  ```
-- API base URL is set in `Protocare/ProtocareApp.swift`; prefer scheme/build settings over hardcoded strings for new environments.
+## Workflow Rules
 
-## Coding Style & Naming Conventions
-- Swift 5/SwiftUI with 4-space indent; keep view logic in `struct` `View`s and state in `final class` view models marked `@MainActor`.
-- Use property wrappers (`@StateObject`, `@ObservedObject`, `@Published`) consistently; validate form inputs before hitting the network as in `RegistrationViewModel`.
-- Suffixes: `View`, `ViewModel`, `Store`, `Client`, `Draft`, `Request/Response`. Keep API request construction and JSON decoding centralized in `APIClient`.
-- Favor small, testable helpers (e.g., `String.isValidEmail`); keep copy concise and user-facing strings ready for localization.
+- Read files before assuming — this guide is a map, not the territory
+- Make minimal changes to achieve the goal; no drive-by refactors
+- Run tests after any code change (Cmd+U or `xcodebuild test`, see below)
+- When backend API schemas change, update iOS models manually — code generation is abandoned
+- **Design reference**: Stitch project `3277867970988009263` for target UI screens
 
-## Testing Guidelines
-- Introduce an `XCTest` target covering validation rules, error mapping, date formatting, and persistence. Stub network calls with `URLProtocol` and inject `URLSession`.
-- Name tests after the behavior under test (`testLoginRejectsInvalidEmail`, etc.) and keep them deterministic. Run `xcodebuild ... test` before merging.
+## Stack
 
-## Commit & Pull Request Guidelines
-- Commit messages: short, imperative (e.g., “Add protocol builder actions”), scoped to a single concern.
-- PRs should include a summary of changes, test commands executed, and screenshots/recordings for UI updates. Link issues/tasks and note impacts to API contracts, base URLs, or stored data so reviewers can retest auth and protocol flows.
+| Layer | Technology |
+|-------|------------|
+| Language | Swift 5.9, SwiftUI, MVVM |
+| Min target | iOS 17 (Package.swift: `.iOS(.v17)`) |
+| Concurrency | async/await, `@MainActor` view models |
+| Networking | Custom `APIClient` (~760 lines) + `TokenRefreshManager` (refresh rotation) |
+| Persistence | `KeychainStore` (tokens); in-memory caches |
+| Testing | XCTest, 22 test files under `ProtocareTests/` |
 
-## Security & Configuration Tips
-- Never commit secrets or tokens; rely on `KeychainStore` for sensitive values and avoid logging auth data.
-- Configure env-specific base URLs via schemes/build settings; clear keychain data (`AuthStore.logout()`) when changing auth contexts.
-- Keep derived data and personal Xcode settings out of source control.
+**SPM dependencies: none in app code.** (`swift-openapi-runtime` resolves but is unused — no `import OpenAPIRuntime` in `Protocare/`.)
+
+## Commands
+
+```bash
+cd protocare_mobile/Protocare
+open Protocare.xcodeproj                # scheme: Protocare
+
+# CLI build/test (iPhone 17 simulator available locally):
+xcodebuild -scheme Protocare -configuration Debug \
+  -destination 'platform=iOS Simulator,name=iPhone 17' build
+
+xcodebuild -scheme Protocare -configuration Debug \
+  -destination 'platform=iOS Simulator,name=iPhone 17' test
+```
+
+API base URL comes from `API_BASE_URL` build setting (`Config/{Debug,Staging,Release}.xcconfig`) → Info.plist → `AppEnvironment`:
+- Debug: `http://192.168.1.71:8000/v1`
+- Staging: `https://staging-api.protocare.com/v1`
+- Release: `https://api.protocare.com/v1`
+
+## Project Structure
+
+```
+Protocare/
+├── Protocare/
+│   ├── App/                     # ProtocareApp.swift, RootView.swift (auth/protocol routing)
+│   ├── Views/
+│   │   ├── Auth/                # LoginView, RegistrationView, AuthContainerView, PillTabSwitcher
+│   │   ├── Protocols/           # list, detail, builder, settings, checkin, ScheduleActionSheet + Components/
+│   │   ├── Dashboard/           # DashboardView + Components/ (ActionRowView, WeekCalendarView, ProgressCardView, CheckinDosageSheet, StreakCardView)
+│   │   ├── Journal/             # OutcomeJournalView, JournalListView, MetricSliderView, ActionCheckinCard
+│   │   ├── Profile/            # ProfileView, EditProfileView, NotificationSettingsView
+│   │   ├── UserActions/        # ActionPickerView, ActionCreatorView
+│   │   ├── Splash/             # SplashView
+│   │   └── Components/         # TimeDrumPicker, ComparisonSliderView, ImagePicker, SearchBar, ImageViewer, ResilientAsyncImage, CategoryChips
+│   ├── ViewModels/             # @MainActor ObservableObject (one per screen)
+│   ├── Models/                 # APIModels.swift + ActionSchedule, DailyStatus, Journal, MetricTrend models; Profile/
+│   ├── Networking/             # APIClient.swift (all endpoints), TokenRefreshManager.swift
+│   ├── Stores/                 # AuthStore, KeychainStore
+│   ├── Utilities/              # AppEnvironment, AppTheme, DependencyInjection, NotificationManager
+│   └── Extensions/             # Action+Enrichment, Double+Formatting, String+Validation
+├── ProtocareTests/             # 22 files: Mocks/ (MockAuthAPI, MockAuthStore), Models/, Networking/, Stores/, ViewModels/, Extensions/, Utils/
+└── Config/                     # xcconfigs + openapi.json (stale snapshot)
+```
+
+**Empty legacy dirs (do not use):** `Views/Subscription/`, `Models/Subscription/`, `ViewModels/Subscription/`, `Services/Subscription/`, `ProtocareTests/Services/Subscription/`, `ProtocareTests/ViewModels/Subscription/` — subscription code was removed from this branch; the directories remain empty. Same for `Views/Dashboard/` comparison-era leftovers if referenced elsewhere.
+
+## Code Style
+
+- 4-space indent, `@MainActor final class` view models
+- Property wrappers: `@StateObject`, `@ObservedObject`, `@Published` (ObservableObject — no `@Observable` macro yet)
+- Suffixes: View, ViewModel, Store, Client, Draft, Request/Response
+- All networking centralized in `APIClient.swift` — no fetch calls in views
+- Views must not access `vm.api`/`vm.authStore` internals (MVVM layering)
+
+## Cross-Platform Notes
+
+| Backend (API) | iOS | Notes |
+|---------------|-----|-------|
+| snake_case fields | camelCase | manual mapping in models |
+| `datetime` ISO8601 + `Z` | `Date` (.iso8601) | UTC everywhere |
+| UUID strings | `UUID`/`String` | |
+| All routes under `/v1` | `API_BASE_URL` ends with `/v1` | keep in sync |
+
+- Images: presigned URLs from backend; `ResilientAsyncImage` retries against `AppEnvironment.current.baseURL` host when localhost
+- Local dev: MinIO `127.0.0.1:9000`
+
+## Security
+
+- `KeychainStore` for tokens; atomic `SecItemUpdate`, errors surfaced on write/delete; cleared on logout
+- `AuthStore.accessToken` private; `isAuthenticated` published proxy
+- `#if !DEBUG` guard: HTTP URLs fatal-error in production builds
+- Never commit secrets; `.env` and tfstate are gitignored in the backend repo
+
+## Testing
+
+- XCTest target `ProtocareTests`, mocks in `ProtocareTests/Mocks/`
+- `TestFixtures.swift` for shared fixtures
+- Run full suite via `xcodebuild test` (destination above) — keep it green before merges

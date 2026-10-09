@@ -7,16 +7,8 @@ struct ProtocolBuilderView: View {
     @State private var isShowingImagePicker = false
     @State private var scheduleAction: ActionItem?
     @State private var isShowingActionPicker = false
-    @State private var isShowingIconPicker = false
     @State private var showingAllMetrics = false
     private let onSaved: (() -> Void)?
-
-    private let protocolIcons = [
-        "🧴", "💊", "🏃", "🧘", "🥗", "🧠",
-        "💤", "🔬", "🩺", "🧪", "🫀", "💪",
-        "🎯", "📅", "✨", "🌿", "🫧", "🧖",
-        "💆", "🦷", "👁️", "🫁", "🦴", "❤️‍🩹"
-    ]
 
     init(api: AuthAPI, authStore: AuthStore, onSaved: (() -> Void)? = nil) {
         _vm = StateObject(wrappedValue: ProtocolBuilderViewModel(api: api, authStore: authStore))
@@ -46,35 +38,8 @@ struct ProtocolBuilderView: View {
                 }
 
                 Section {
-                    Button {
-                        isShowingIconPicker = true
-                    } label: {
-                        HStack {
-                            if let icon = vm.draft.icon {
-                                Text(icon)
-                                    .font(.system(size: 28))
-                            } else {
-                                Image(systemName: "circle.dashed")
-                                    .font(.system(size: 28))
-                                    .foregroundStyle(.secondary)
-                            }
-                            Text(vm.draft.icon == nil ? "Choose Icon" : "Change Icon")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                } header: {
-                    Text("Icon")
-                }
-
-                Section {
                     Menu {
-                        ForEach(ProtocolCategory.allCases) { cat in
+                        ForEach(ActionCategory.allCases) { cat in
                             Button {
                                 vm.draft.category = vm.draft.category == cat ? nil : cat
                             } label: {
@@ -96,19 +61,22 @@ struct ProtocolBuilderView: View {
                 }
 
                 Section {
-                    // Show category defaults + any user-selected metrics not in defaults (no duplicates)
-                    let categoryDefaults: [MetricKey] = {
-                        if let cat = vm.draft.category { return MetricKey.defaults(for: cat) }
-                        return []
+                    // Bug #1 fix: show only metrics the user actually selected
+                    // (selected category defaults first, then any custom picks).
+                    // The old `categoryDefaults + selectedNonDefault` formula kept
+                    // unselected defaults permanently visible in the list.
+                    let displayedMetrics: [MetricKey] = {
+                        let selected = vm.draft.metricKeys ?? []
+                        let defaults = vm.draft.category.map { MetricKey.defaults(for: $0) } ?? []
+                        let selectedDefaults = defaults.filter { selected.contains($0) }
+                        let customPicks = selected.filter { !defaults.contains($0) }
+                        return selectedDefaults + customPicks
                     }()
-                    let selectedNonDefault: [MetricKey] = {
-                        guard let selected = vm.draft.metricKeys else { return [] }
-                        return selected.filter { !categoryDefaults.contains($0) }
-                    }()
-                    let displayedMetrics = categoryDefaults + selectedNonDefault
 
                     if displayedMetrics.isEmpty {
-                        Text("Select a goal to see recommended metrics")
+                        Text(vm.draft.category == nil
+                             ? "Select a goal to see recommended metrics"
+                             : "No metrics selected — add the ones you want to track")
                             .foregroundStyle(.secondary)
                             .font(.subheadline)
                     } else {
@@ -116,7 +84,9 @@ struct ProtocolBuilderView: View {
                             Button {
                                 if vm.draft.metricKeys?.contains(metric) == true {
                                     vm.draft.metricKeys?.removeAll { $0 == metric }
-                                    if vm.draft.metricKeys?.isEmpty == true { vm.draft.metricKeys = nil }
+                                    // Bug #2 fix: keep [] instead of collapsing to nil —
+                                    // nil drops metric_keys from the JSON and the backend
+                                    // re-auto-populates category defaults.
                                 } else {
                                     if vm.draft.metricKeys == nil { vm.draft.metricKeys = [] }
                                     vm.draft.metricKeys?.append(metric)
@@ -150,9 +120,21 @@ struct ProtocolBuilderView: View {
                 }
 
                 Section {
-                    if vm.isLoading && vm.draft.actions.isEmpty {
-                        ProgressView("Loading actions...")
-                            .frame(maxWidth: .infinity, alignment: .center)
+                    if vm.draft.actions.isEmpty {
+                        VStack(spacing: 10) {
+                            Image(systemName: "square.stack.3d.up.slash")
+                                .font(.system(size: 26))
+                                .foregroundStyle(.secondary)
+                            Text("No actions yet")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                            Text("Add actions from the unified library to build your protocol.")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
                     } else {
                         ForEach(vm.draft.actions) { action in
                             ActionRow(
@@ -177,47 +159,15 @@ struct ProtocolBuilderView: View {
                 }
 
                 Section {
-                    Picker("", selection: $vm.selectedTab) {
-                        Text("Library").tag(ProtocolBuilderViewModel.Tab.library)
-                        Text("Custom").tag(ProtocolBuilderViewModel.Tab.custom)
+                    Button {
+                        isShowingActionPicker = true
+                    } label: {
+                        Label("Add Action", systemImage: "plus.circle.fill")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Color.appPrimary)
+                            .frame(maxWidth: .infinity)
                     }
-                    .pickerStyle(.segmented)
-
-                    if vm.selectedTab == .library {
-                        CategoryChips(
-                            selectedCategory: $vm.selectedCategory,
-                            onSelect: { _ in }
-                        )
-                        .padding(.vertical, 6)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-
-                        HStack(spacing: 8) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 14))
-                            TextField("Search actions...", text: $vm.searchQuery)
-                                .font(.system(size: 15))
-                            if !vm.searchQuery.isEmpty {
-                                Button {
-                                    vm.searchQuery = ""
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundStyle(.secondary)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 14)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 4, trailing: 16))
-
-                        libraryTabContent
-                    } else {
-                        customTabContent
-                    }
+                    .buttonStyle(.plain)
                 }
             }
             .listStyle(.insetGrouped)
@@ -262,9 +212,6 @@ struct ProtocolBuilderView: View {
                     vm.selectImage(data)
                 }
             }
-            .task {
-                await vm.loadActions()
-            }
             .sheet(item: $scheduleAction) { action in
                 ScheduleActionSheet(action: action) { schedule, slots in
                     vm.updateSchedule(for: action, schedule: schedule, slots: slots)
@@ -277,12 +224,9 @@ struct ProtocolBuilderView: View {
                     api: vm.api,
                     authStore: vm.authStore,
                     onSelect: { actionItem in
-                        vm.addPredefinedAction(actionItem)
+                        vm.addAction(actionItem)
                     }
                 )
-            }
-            .sheet(isPresented: $isShowingIconPicker) {
-                iconPickerSheet
             }
             .onChange(of: vm.draft.category) { _, newCategory in
                 if let newCategory {
@@ -300,7 +244,7 @@ struct ProtocolBuilderView: View {
                             Button {
                                 if vm.draft.metricKeys?.contains(metric) == true {
                                     vm.draft.metricKeys?.removeAll { $0 == metric }
-                                    if vm.draft.metricKeys?.isEmpty == true { vm.draft.metricKeys = nil }
+                                    // Bug #2 fix: keep [] instead of collapsing to nil.
                                 } else {
                                     if vm.draft.metricKeys == nil { vm.draft.metricKeys = [] }
                                     vm.draft.metricKeys?.append(metric)
@@ -391,39 +335,6 @@ struct ProtocolBuilderView: View {
         .padding(.top, 4)
     }
 
-    private var iconPickerSheet: some View {
-        NavigationStack {
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 6)
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(protocolIcons, id: \.self) { icon in
-                        Button {
-                            vm.draft.icon = icon
-                            isShowingIconPicker = false
-                        } label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(vm.draft.icon == icon ? Color.appPrimary.opacity(0.15) : Color(.systemGray6))
-                                    .frame(width: 48, height: 48)
-                                Text(icon)
-                                    .font(.system(size: 26))
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding()
-            }
-            .navigationTitle("Choose Icon")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { isShowingIconPicker = false }
-                }
-            }
-        }
-    }
-
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Define Protocol")
@@ -433,79 +344,5 @@ struct ProtocolBuilderView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 4)
-    }
-
-    @ViewBuilder
-    private var libraryTabContent: some View {
-        if vm.isLoading && vm.availableActions.isEmpty {
-            ProgressView("Loading actions...")
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.vertical, 10)
-        } else if vm.filteredActions.isEmpty {
-            VStack(spacing: 8) {
-                Text(vm.searchQuery.isEmpty && vm.selectedCategory == nil ? "No actions found." : "No matching actions.")
-                    .foregroundStyle(.secondary)
-                if vm.searchQuery.isEmpty && vm.selectedCategory == nil {
-                    Button("Reload") {
-                        Task { await vm.loadActions() }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity)
-        } else {
-            ForEach(vm.filteredActions) { action in
-                LibraryListRow(
-                    action: action,
-                    onAdd: { vm.addPredefinedAction(action) }
-                )
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var customTabContent: some View {
-        if vm.customActionItems.isEmpty && vm.userActions.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 28))
-                        .foregroundStyle(.secondary)
-                    Text("Create custom actions")
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    Text("Build your own tracking actions with custom parameters, then add them to your protocols.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.leading)
-                    Button {
-                        isShowingActionPicker = true
-                    } label: {
-                        Label("Browse & Create Actions", systemImage: "plus.circle.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.appPrimary)
-                }
-                .padding(.vertical, 16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                ForEach(vm.customActionItems) { action in
-                    CustomActionRow(
-                        action: action,
-                        userAction: vm.userActions.first(where: { $0.id.uuidString == action.id }),
-                        onAdd: { vm.addPredefinedAction(action) }
-                    )
-                }
-
-                Button {
-                    isShowingActionPicker = true
-                } label: {
-                    Label("New Custom Action", systemImage: "plus.circle.fill")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Color.appPrimary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                }
-                .buttonStyle(.plain)
-            }
     }
 }

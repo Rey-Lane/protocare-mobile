@@ -1,58 +1,50 @@
 import SwiftUI
 
+/// Unified action picker (Step 21 of the unified action model migration).
+///
+/// Replaces the old Library/Custom tab split with a single list fed by
+/// `GET /actions` (library + user-created actions in one unified collection):
+///  - category chips (primary filter): All + 10 `ActionCategory` cases
+///  - modality chips (secondary filter): All + 5 `ActionModality` cases
+///  - client-side search over the loaded actions
+///  - "Create custom action" row at the bottom (existing ActionCreatorView flow)
 struct ActionPickerView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var store: UserActionsStore
     @State private var searchText = ""
-    @State private var selectedTab: PickerTab = .library
-    @State private var selectedLibraryCategory: ActionsCategory? = nil
+    @State private var selectedCategory: ActionCategory?
+    @State private var selectedModality: ActionModality?
     @State private var isShowingCreator = false
-
-    // Library data (loaded here, not in UserActionsStore)
-    @State private var libraryActions: [ActionItem] = []
-    @State private var isLoadingLibrary = false
+    @State private var actions: [ActionItem] = []
+    @State private var isLoading = false
+    @State private var loadFailed = false
 
     private let api: AuthAPI
+    private let authStore: AuthStore
     private let onSelect: (ActionItem) -> Void
 
-    enum PickerTab: String, CaseIterable, Identifiable {
-        case library = "Library"
-        case custom = "Custom"
-        var id: String { rawValue }
-    }
-
-    enum ActionsCategory: String, CaseIterable, Identifiable {
-        case all = "All"
-        case topical = "Topical"
-        case oral = "Oral"
-        case device = "Device"
-        case hygiene = "Hygiene"
-        var id: String { rawValue }
-    }
-
     init(api: AuthAPI, authStore: AuthStore, onSelect: @escaping (ActionItem) -> Void) {
-        _store = StateObject(wrappedValue: UserActionsStore(api: api, authStore: authStore))
         self.api = api
+        self.authStore = authStore
         self.onSelect = onSelect
     }
 
     var body: some View {
         NavigationStack {
             List {
-                // Tab picker
-                Section {
-                    Picker("", selection: $selectedTab) {
-                        ForEach(PickerTab.allCases) { tab in
-                            Text(tab.rawValue).tag(tab)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                }
+                filterChipsSection
 
-                if selectedTab == .library {
-                    libraryContent
-                } else {
-                    customContent
+                actionsSection
+
+                Section {
+                    Button {
+                        isShowingCreator = true
+                    } label: {
+                        Label("Create custom action", systemImage: "plus.circle.fill")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Color.appPrimary)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .listStyle(.insetGrouped)
@@ -65,25 +57,26 @@ struct ActionPickerView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        isShowingCreator = true
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 20))
-                    }
-                }
             }
             .sheet(isPresented: $isShowingCreator) {
                 ActionCreatorView(
-                    api: store.api,
-                    authStore: store.authStore,
+                    api: api,
+                    authStore: authStore,
                     onCreated: { action in
+                        // Custom actions come back with no schedule/UI state —
+                        // the caller adds it to a protocol with the default
+                        // parameters attached.
                         let item = ActionItem(
-                            id: action.id.uuidString,
+                            id: action.id,
                             name: action.name,
-                            userActionId: action.id,
-                            userActionCategory: action.category
+                            substanceId: nil,
+                            substance: nil,
+                            volume: nil,
+                            durationSeconds: nil,
+                            category: action.category,
+                            modality: action.modality,
+                            defaultParameters: action.defaultParameters,
+                            isLibrary: false
                         )
                         onSelect(item)
                         dismiss()
@@ -91,55 +84,107 @@ struct ActionPickerView: View {
                 )
             }
             .task {
-                await loadAllData()
+                if actions.isEmpty {
+                    await loadActions()
+                }
+            }
+            .refreshable {
+                await loadActions()
             }
         }
     }
 
-    // MARK: - Library Tab
+    // MARK: - Filter Chips
 
-    @ViewBuilder
-    private var libraryContent: some View {
+    /// Primary axis (ActionCategory) + secondary axis (ActionModality),
+    /// each preceded by an "All" chip, both scrolling horizontally.
+    private var filterChipsSection: some View {
         Section {
-            // Category chips for library (substance type filter)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(ActionsCategory.allCases) { cat in
-                        ActionCategoryPill(
-                            label: cat.rawValue,
-                            isSelected: selectedLibraryCategory == cat || (cat == .all && selectedLibraryCategory == nil),
-                            onTap: {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    selectedLibraryCategory = cat == .all ? nil : cat
-                                }
-                            }
-                        )
+                    FilterChip(
+                        label: "All",
+                        icon: nil,
+                        color: .appPrimary,
+                        isSelected: selectedCategory == nil
+                    ) {
+                        withAnimation(.easeInOut(duration: 0.2)) { selectedCategory = nil }
+                    }
+
+                    ForEach(ActionCategory.allCases) { category in
+                        FilterChip(
+                            label: category.displayName,
+                            icon: category.tagIcon,
+                            color: category.tagColor,
+                            isSelected: selectedCategory == category
+                        ) {
+                            withAnimation(.easeInOut(duration: 0.2)) { selectedCategory = category }
+                        }
                     }
                 }
                 .padding(.horizontal, 4)
+                .padding(.vertical, 2)
+            }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    FilterChip(
+                        label: "All",
+                        icon: nil,
+                        color: .appPrimary,
+                        isSelected: selectedModality == nil
+                    ) {
+                        withAnimation(.easeInOut(duration: 0.2)) { selectedModality = nil }
+                    }
+
+                    ForEach(ActionModality.allCases, id: \.self) { modality in
+                        FilterChip(
+                            label: modality.displayName,
+                            icon: nil,
+                            color: .appPrimary,
+                            isSelected: selectedModality == modality
+                        ) {
+                            withAnimation(.easeInOut(duration: 0.2)) { selectedModality = modality }
+                        }
+                    }
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 2)
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
         }
+    }
 
+    // MARK: - Actions
+
+    private var actionsSection: some View {
         Section {
-            if isLoadingLibrary && libraryActions.isEmpty {
+            if isLoading && actions.isEmpty {
                 ProgressView("Loading actions...")
                     .frame(maxWidth: .infinity, alignment: .center)
-            } else if filteredLibraryActions.isEmpty {
+                    .padding(.vertical, 12)
+            } else if filteredActions.isEmpty {
                 VStack(spacing: 12) {
-                    Image(systemName: "magnifyingglass")
+                    Image(systemName: loadFailed ? "wifi.exclamationmark" : "magnifyingglass")
                         .font(.system(size: 32))
                         .foregroundStyle(.secondary)
-                    Text("No matching actions")
+                    Text(loadFailed ? "Couldn't load actions." : "No matching actions")
                         .font(.headline)
                         .foregroundStyle(.secondary)
+                    if loadFailed {
+                        Button("Retry") {
+                            Task { await loadActions() }
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
             } else {
-                ForEach(filteredLibraryActions) { action in
-                    LibraryListRow(action: action) {
+                ForEach(filteredActions) { action in
+                    UnifiedActionRow(action: action) {
                         onSelect(action)
                         dismiss()
                     }
@@ -147,94 +192,9 @@ struct ActionPickerView: View {
             }
         } header: {
             HStack {
-                Text("Predefined Actions")
+                Text("Actions")
                 Spacer()
-                Text("\(filteredLibraryActions.count)")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-
-    // MARK: - Custom Tab
-
-    @ViewBuilder
-    private var customContent: some View {
-        if !store.templates.isEmpty {
-            Section {
-                ForEach(filteredTemplates) { action in
-                    CustomActionRow(
-                        action: ActionItem(
-                            id: action.id.uuidString,
-                            name: action.name,
-                            userActionId: action.id,
-                            userActionCategory: action.category
-                        ),
-                        userAction: action,
-                        onAdd: {
-                            let item = ActionItem(
-                                id: action.id.uuidString,
-                                name: action.name,
-                                userActionId: action.id,
-                                userActionCategory: action.category
-                            )
-                            onSelect(item)
-                            dismiss()
-                        }
-                    )
-                }
-            } header: {
-                Text("Templates")
-            }
-        }
-
-        Section {
-            if store.isLoading && store.userActions.isEmpty {
-                ProgressView("Loading actions...")
-                    .frame(maxWidth: .infinity, alignment: .center)
-            } else if filteredCustomActions.isEmpty && filteredTemplates.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 32))
-                        .foregroundStyle(.secondary)
-                    Text("No custom actions yet")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    Text("Create your first custom action to track anything you want.")
-                        .font(.subheadline)
-                        .foregroundStyle(.tertiary)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
-            } else {
-                ForEach(filteredCustomActions) { action in
-                    CustomActionRow(
-                        action: ActionItem(
-                            id: action.id.uuidString,
-                            name: action.name,
-                            userActionId: action.id,
-                            userActionCategory: action.category
-                        ),
-                        userAction: action,
-                        onAdd: {
-                            let item = ActionItem(
-                                id: action.id.uuidString,
-                                name: action.name,
-                                userActionId: action.id,
-                                userActionCategory: action.category
-                            )
-                            onSelect(item)
-                            dismiss()
-                        }
-                    )
-                }
-            }
-        } header: {
-            HStack {
-                Text("My Actions")
-                Spacer()
-                Text("\(filteredCustomActions.count)")
+                Text("\(filteredActions.count)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -243,72 +203,125 @@ struct ActionPickerView: View {
 
     // MARK: - Filtering
 
-    private var filteredLibraryActions: [ActionItem] {
-        libraryActions.filter { action in
-            let matchesCategory: Bool = {
-                guard let category = selectedLibraryCategory, category != .all else { return true }
-                return action.substance?.type.rawValue == category.rawValue
-            }()
-            let matchesSearch = searchText.isEmpty || action.name.localizedCaseInsensitiveContains(searchText)
-            return matchesCategory && matchesSearch
-        }
-    }
-
-    private var filteredCustomActions: [UserAction] {
-        store.activeActions.filter { action in
-            let matchesSearch = searchText.isEmpty || action.name.localizedCaseInsensitiveContains(searchText)
-            return matchesSearch
-        }
-    }
-
-    private var filteredTemplates: [UserAction] {
-        store.templates.filter { action in
-            let matchesSearch = searchText.isEmpty || action.name.localizedCaseInsensitiveContains(searchText)
-            return matchesSearch
+    private var filteredActions: [ActionItem] {
+        actions.filter { action in
+            let matchesCategory = selectedCategory == nil || action.category == selectedCategory
+            let matchesModality = selectedModality == nil || action.modality == selectedModality
+            let matchesSearch = searchText.isEmpty
+                || action.name.localizedCaseInsensitiveContains(searchText)
+                || action.displayName.localizedCaseInsensitiveContains(searchText)
+            return matchesCategory && matchesModality && matchesSearch
         }
     }
 
     // MARK: - Data Loading
 
-    private func loadAllData() async {
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { await self.loadLibraryActions() }
-            group.addTask { await store.loadUserActions() }
+    private func loadActions() async {
+        guard let token = authStore.accessToken else {
+            loadFailed = true
+            return
         }
-    }
-
-    private func loadLibraryActions() async {
-        guard let token = store.authStore.accessToken else { return }
-        isLoadingLibrary = true
-        defer { isLoadingLibrary = false }
+        isLoading = true
+        loadFailed = false
+        defer { isLoading = false }
 
         do {
-            async let fetchedActions = api.fetchActions(token: token, query: nil)
-            async let fetchedSubstances = api.fetchSubstances(token: token, query: nil)
-            let (actions, substances) = try await (fetchedActions, fetchedSubstances)
-            libraryActions = actions.toActionItems(using: substances)
+            // Unified actions (library + user-created) in one request.
+            // No substances lookup: Action carries name/category/modality itself.
+            let fetched = try await api.fetchActions(token: token, category: nil, modality: nil, query: nil)
+            actions = fetched.toActionItems()
         } catch {
-            // Non-critical — library tab will show empty state
+            // Keep whatever was loaded before; flag failure only when the
+            // list would otherwise be empty.
+            if actions.isEmpty {
+                loadFailed = true
+            }
         }
     }
 }
 
-// MARK: - Category Pill
+// MARK: - Filter Chip
 
-private struct ActionCategoryPill: View {
+private struct FilterChip: View {
     let label: String
+    let icon: String?
+    let color: Color
     let isSelected: Bool
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
-            Text(label)
-                .font(.system(size: 13, weight: .semibold))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(isSelected ? Color.appPrimary : Color.appPrimaryLight)
-                .foregroundStyle(isSelected ? .white : .primary)
-                .clipShape(Capsule())
+            HStack(spacing: 5) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 11, weight: .semibold))
+                }
+                Text(label)
+                    .font(.system(size: 13, weight: .semibold))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .foregroundStyle(isSelected ? .white : .primary)
+            .background(isSelected ? color : Color(.systemGray5))
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Unified Action Row
+
+/// Row for the unified picker: name + category tag (tagColor + tagIcon)
+/// + modality badge when the action has one.
+private struct UnifiedActionRow: View {
+    let action: ActionItem
+    let onAdd: () -> Void
+
+    var body: some View {
+        Button(action: onAdd) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(action.displayName)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.leading)
+
+                    HStack(spacing: 6) {
+                        HStack(spacing: 4) {
+                            Image(systemName: action.category.tagIcon)
+                                .font(.system(size: 10, weight: .semibold))
+                            Text(action.category.displayName)
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .foregroundStyle(action.category.tagColor)
+                        .background(action.category.tagColor.opacity(0.14))
+                        .clipShape(Capsule())
+
+                        if let modality = action.modality {
+                            Text(modality.displayName)
+                                .font(.system(size: 11, weight: .medium))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .foregroundStyle(.secondary)
+                                .background(Color(.systemGray5))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+
+                Spacer()
+
+                Text("+ Add")
+                    .font(.system(size: 13, weight: .semibold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Color.appPrimary.opacity(0.12))
+                    .foregroundStyle(Color.appPrimary)
+                    .clipShape(Capsule())
+            }
+            .padding(.vertical, 4)
         }
         .buttonStyle(.plain)
     }

@@ -11,7 +11,6 @@ struct ProtocolDetailView: View {
     init(
         item: ProtocolItem,
         actionsLookup: [String: ActionItem],
-        userActionsLookup: [String: ActionItem],
         api: AuthAPI,
         authStore: AuthStore,
         viewModel: ProtocolsViewModel,
@@ -21,7 +20,6 @@ struct ProtocolDetailView: View {
         _viewModel = StateObject(wrappedValue: ProtocolDetailViewModel(
             item: item,
             actionsLookup: actionsLookup,
-            userActionsLookup: userActionsLookup,
             api: api,
             authStore: authStore,
             parentViewModel: viewModel,
@@ -67,7 +65,6 @@ struct ProtocolDetailView: View {
                         settingsVM = ProtocolSettingsViewModel(
                             item: viewModel.currentProtocol,
                             actionsLookup: viewModel.actionsLookup,
-                            userActionsLookup: viewModel.userActionsLookup,
                             api: viewModel.api,
                             authStore: viewModel.authStore,
                             protocolImageURL: viewModel.protocolImageURL,
@@ -119,7 +116,6 @@ struct ProtocolDetailView: View {
                 settingsVM = ProtocolSettingsViewModel(
                     item: viewModel.currentProtocol,
                     actionsLookup: viewModel.actionsLookup,
-                    userActionsLookup: viewModel.userActionsLookup,
                     api: viewModel.api,
                     authStore: viewModel.authStore,
                     protocolImageURL: viewModel.protocolImageURL,
@@ -134,7 +130,7 @@ struct ProtocolDetailView: View {
                 ActionCheckinView(
                     protocolId: viewModel.item.id,
                     protocolAction: action,
-                    action: action.actionId.flatMap { viewModel.actionsLookup[$0] } ?? action.userActionId.flatMap { viewModel.userActionsLookup[$0.uuidString] },
+                    action: viewModel.actionsLookup[action.actionId],
                     vm: ActionCheckinViewModel(api: viewModel.api, authStore: viewModel.authStore, protocolId: viewModel.item.id, protocolActionId: action.id),
                     onSubmit: {
                         Task {
@@ -145,8 +141,11 @@ struct ProtocolDetailView: View {
             }
         }
         .sheet(item: $viewModel.selectedActionForSchedule) { action in
-            let actionItem = action.actionId.flatMap { viewModel.actionsLookup[$0] }
-                ?? action.userActionId.flatMap { viewModel.userActionsLookup[$0.uuidString] }
+            // Unified model (Step 23): single non-optional action_id lookup.
+            // Bug #4 fix: hydrate slots/schedule from the stored ProtocolAction
+            // so the sheet shows the persisted time instead of the 8:00 default
+            // (and Save no longer overwrites the real schedule).
+            let actionItem = viewModel.actionsLookup[action.actionId]?.hydrated(from: action)
             if let actionItem {
                 ScheduleActionSheet(action: actionItem) { schedule, slots in
                     Task {
@@ -272,18 +271,16 @@ struct ProtocolDetailView: View {
                 VStack(spacing: 10) {
                     ForEach(sorted) { actionStatus in
                         let protocolAction = viewModel.currentProtocol.actions.first { $0.id == actionStatus.protocolActionId }
-                        let categoryIcon: String = {
-                            if let userActionId = actionStatus.userActionId,
-                               let actionItem = viewModel.userActionsLookup[userActionId.uuidString],
-                               let category = actionItem.userActionCategory {
-                                return category.icon
-                            }
-                            return "star.fill"
-                        }()
+                        // Unified model (Step 23): single action_id resolution —
+                        // category icon comes straight from the unified Action.
+                        let resolvedAction = actionStatus.actionId.flatMap { viewModel.actionsLookup[$0] }
+                        let categoryIcon = resolvedAction?.category.tagIcon ?? "star.fill"
                         StepRow(
                             title: actionStatus.actionName,
                             subtitle: actionStatus.subtitle,
                             categoryIcon: categoryIcon,
+                            category: resolvedAction?.category,
+                            modality: resolvedAction?.modality,
                             isCompleted: actionStatus.isCompleted,
                             onCheckin: {
                                 if let pa = protocolAction {
@@ -441,6 +438,8 @@ private struct StepRow: View {
     let title: String
     let subtitle: String
     let categoryIcon: String
+    var category: ActionCategory?
+    var modality: ActionModality?
     let isCompleted: Bool
     let onCheckin: () -> Void
     let onSettings: () -> Void
@@ -455,10 +454,10 @@ private struct StepRow: View {
             } else {
                 ZStack {
                     Circle()
-                        .fill(Color(.systemGray5))
+                        .fill((category?.tagColor ?? Color(.systemGray5)).opacity(0.16))
                     Image(systemName: categoryIcon)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(category?.tagColor ?? .secondary)
                 }
                 .frame(width: 36, height: 36)
             }
@@ -470,6 +469,33 @@ private struct StepRow: View {
                 Text(subtitle)
                     .font(.caption)
                     .foregroundStyle(isCompleted ? accent : .secondary)
+                // Unified model (Step 23): show category/modality instead of
+                // the old "Library"/"Custom" provenance labels.
+                if !isCompleted, let category {
+                    HStack(spacing: 6) {
+                        HStack(spacing: 4) {
+                            Image(systemName: category.tagIcon)
+                                .font(.system(size: 10, weight: .semibold))
+                            Text(category.displayName)
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .foregroundStyle(category.tagColor)
+                        .background(category.tagColor.opacity(0.14))
+                        .clipShape(Capsule())
+
+                        if let modality {
+                            Text(modality.displayName)
+                                .font(.system(size: 11, weight: .medium))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .foregroundStyle(.secondary)
+                                .background(Color(.systemGray5))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
             }
 
             Spacer()
@@ -533,9 +559,14 @@ struct ProtocolDetailView_Previews: PreviewProvider {
         func login(email: String, password: String) async throws -> AccessToken { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r", tokenType: "Bearer") }
         func refresh(request: RefreshTokenRequest) async throws -> TokenPair { .init(userId: UUID().uuidString, accessToken: "t", refreshToken: "r") }
         func logout(refreshToken: String) async throws {}
-        func fetchProtocols(token: String, category: ProtocolCategory? = nil) async throws -> [ProtocolItem] { [] }
-        func fetchActions(token: String, query: String? = nil) async throws -> [Action] { [] }
-        func fetchSubstances(token: String, query: String? = nil) async throws -> [Substance] { [] }
+        func fetchProtocols(token: String, category: ActionCategory? = nil) async throws -> [ProtocolItem] { [] }
+        func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil) async throws -> [Action] { [] }
+        func createAction(token: String, payload: ActionCreate) async throws -> Action {
+            Action(id: UUID().uuidString, name: payload.name, description: payload.description, category: payload.category, modality: payload.modality)
+        }
+        func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action {
+            Action(id: actionId, name: payload.name ?? "", category: payload.category ?? .custom)
+        }
         func createProtocol(token: String, payload: ProtocolCreateRequest) async throws -> ProtocolItem {
             ProtocolItem(
                 id: UUID().uuidString,
@@ -545,7 +576,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
                     ProtocolAction(
                         id: UUID().uuidString,
                         actionId: action.actionId,
-                        userActionId: action.userActionId,
                         rrule: action.rrule,
                         position: action.position,
                         checkins: nil
@@ -566,7 +596,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
                     ProtocolAction(
                         id: UUID().uuidString,
                         actionId: action.actionId,
-                        userActionId: action.userActionId,
                         rrule: action.rrule,
                         position: action.position,
                         checkins: nil
@@ -581,7 +610,7 @@ struct ProtocolDetailView_Previews: PreviewProvider {
             ProtocolItem(id: protocolId, userId: UUID().uuidString, name: payload.name ?? "Updated", actions: [], isActive: payload.isActive, startedAt: payload.startedAt, endedAt: payload.endedAt)
         }
         func createCheckin(token: String, payload: ProtocolCheckinCreate) async throws -> CheckIn {
-            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, appliedVolume: payload.appliedVolume, appliedDurationSeconds: payload.appliedDurationSeconds, id: UUID().uuidString, userId: nil)
+            return CheckIn(protocolActionId: payload.protocolActionId, ts: payload.ts, quantity: payload.quantity, unit: payload.unit, durationSeconds: payload.durationSeconds, completed: payload.completed, id: UUID().uuidString, userId: nil)
         }
         func deleteCheckin(token: String, protocolId: String, checkinId: String) async throws {}
         func uploadProtocolImage(token: String, protocolId: String, imageData: Data) async throws -> ImageAttachmentCreate {
@@ -608,11 +637,11 @@ struct ProtocolDetailView_Previews: PreviewProvider {
                 completedActions: 2,
                 completionPercentage: 40,
                 actions: [
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Gentle Cleanser", position: 0, scheduledTime: "08:00", isCompleted: true, completedAt: "2024-01-01T10:00:00Z", checkinId: UUID().uuidString, appliedVolume: Quantity(amount: 2, unit: .ml), appliedDurationSeconds: nil),
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Hydrating Toner", position: 1, scheduledTime: "08:05", isCompleted: true, completedAt: "2024-01-01T10:05:00Z", checkinId: UUID().uuidString, appliedVolume: Quantity(amount: 3, unit: .ml), appliedDurationSeconds: nil),
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Vitamin C Serum", position: 2, scheduledTime: "08:10", isCompleted: false, completedAt: nil, checkinId: nil, appliedVolume: nil, appliedDurationSeconds: nil),
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Moisturizer", position: 3, scheduledTime: "08:15", isCompleted: false, completedAt: nil, checkinId: nil, appliedVolume: nil, appliedDurationSeconds: nil),
-                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Sunscreen SPF 50", position: 4, scheduledTime: "08:20", isCompleted: false, completedAt: nil, checkinId: nil, appliedVolume: nil, appliedDurationSeconds: nil)
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Gentle Cleanser", position: 0, scheduledTime: "08:00", isCompleted: true, completedAt: "2024-01-01T10:00:00Z", checkinId: UUID().uuidString, quantity: 2, unit: .ml, durationSeconds: nil, completed: true),
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Hydrating Toner", position: 1, scheduledTime: "08:05", isCompleted: true, completedAt: "2024-01-01T10:05:00Z", checkinId: UUID().uuidString, quantity: 3, unit: .ml, durationSeconds: nil, completed: true),
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Vitamin C Serum", position: 2, scheduledTime: "08:10", isCompleted: false, completedAt: nil, checkinId: nil, quantity: nil, unit: nil, durationSeconds: nil, completed: true),
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Moisturizer", position: 3, scheduledTime: "08:15", isCompleted: false, completedAt: nil, checkinId: nil, quantity: nil, unit: nil, durationSeconds: nil, completed: true),
+                    ActionCheckinStatus(protocolActionId: UUID().uuidString, actionId: UUID().uuidString, actionName: "Sunscreen SPF 50", position: 4, scheduledTime: "08:20", isCompleted: false, completedAt: nil, checkinId: nil, quantity: nil, unit: nil, durationSeconds: nil, completed: true)
                 ]
             )
         }
@@ -645,27 +674,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
             NotificationScheduleResponse(id: UUID().uuidString, protocolActionId: actionId, userId: UUID().uuidString, preferredTime: payload.preferredTime, timezone: payload.timezone, isEnabled: payload.isEnabled ?? true, createdAt: "2024-01-01T12:00:00Z")
         }
 
-        func fetchUserActions(token: String, category: ActionCategory?, isActive: Bool?, page: Int?, pageSize: Int?) async throws -> PaginatedUserActions {
-            PaginatedUserActions(items: [], total: 0, page: 1, pageSize: 20)
-        }
-        func createUserAction(token: String, payload: UserActionCreate) async throws -> UserAction {
-            UserAction(id: UUID(), userId: UUID(), name: payload.name, category: payload.category)
-        }
-        func fetchUserAction(token: String, actionId: UUID) async throws -> UserAction {
-            UserAction(id: actionId, userId: UUID(), name: "", category: .custom)
-        }
-        func updateUserAction(token: String, actionId: UUID, payload: UserActionUpdate) async throws -> UserAction {
-            UserAction(id: actionId, userId: UUID(), name: payload.name ?? "", category: .custom)
-        }
-        func deleteUserAction(token: String, actionId: UUID) async throws {}
-        func fetchUserActionTemplates(token: String) async throws -> [UserAction] { [] }
-        func duplicateUserAction(token: String, actionId: UUID) async throws -> UserAction {
-            UserAction(id: UUID(), userId: UUID(), name: "", category: .custom)
-        }
-        func fetchUserActionUsage(token: String, actionId: UUID) async throws -> UserActionUsage {
-            []
-        }
-
         func fetchCurrentUser(token: String) async throws -> UserMeResponse {
             UserMeResponse(id: UUID().uuidString, email: "preview@protocare.app", name: "Preview", avatarURL: nil, isActive: true, role: "user", timezone: nil, protocolsCount: 3, streak: StreakInfo(currentStreak: 7, longestStreak: 14), totalCheckins: 42)
         }
@@ -682,7 +690,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
             let newAction = ProtocolAction(
                 id: UUID().uuidString,
                 actionId: payload.actionId,
-                userActionId: payload.userActionId,
                 rrule: payload.rrule,
                 position: payload.position ?? 0,
                 checkins: nil
@@ -729,7 +736,6 @@ struct ProtocolDetailView_Previews: PreviewProvider {
                 endedAt: nil
             ),
             actionsLookup: [:],
-            userActionsLookup: [:],
             api: api,
             authStore: authStore,
             viewModel: vm

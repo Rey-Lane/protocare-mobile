@@ -39,9 +39,10 @@ protocol AuthAPI {
     func login(email: String, password: String) async throws -> AccessToken
     func refresh(request: RefreshTokenRequest) async throws -> TokenPair
     func logout(refreshToken: String) async throws
-    func fetchProtocols(token: String, category: ProtocolCategory?) async throws -> [ProtocolItem]
-    func fetchActions(token: String, query: String?) async throws -> [Action]
-    func fetchSubstances(token: String, query: String?) async throws -> [Substance]
+    func fetchProtocols(token: String, category: ActionCategory?) async throws -> [ProtocolItem]
+    func fetchActions(token: String, category: ActionCategory?, modality: ActionModality?, query: String?) async throws -> [Action]
+    func createAction(token: String, payload: ActionCreate) async throws -> Action
+    func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action
     func createProtocol(token: String, payload: ProtocolCreateRequest) async throws -> ProtocolItem
     func deleteProtocol(token: String, protocolId: String) async throws
     func createProtocolWithImage(token: String, payload: ProtocolCreateRequest, imageData: Data?) async throws -> ProtocolItem
@@ -71,16 +72,6 @@ protocol AuthAPI {
     func addActionToProtocol(token: String, protocolId: String, payload: ProtocolActionCreate) async throws -> ProtocolItem
     func removeActionFromProtocol(token: String, protocolId: String, protocolActionId: String) async throws
     func reorderProtocolActions(token: String, protocolId: String, actionIds: [String]) async throws
-
-    // MARK: - User Actions
-    func fetchUserActions(token: String, category: ActionCategory?, isActive: Bool?, page: Int?, pageSize: Int?) async throws -> PaginatedUserActions
-    func createUserAction(token: String, payload: UserActionCreate) async throws -> UserAction
-    func fetchUserAction(token: String, actionId: UUID) async throws -> UserAction
-    func updateUserAction(token: String, actionId: UUID, payload: UserActionUpdate) async throws -> UserAction
-    func deleteUserAction(token: String, actionId: UUID) async throws
-    func fetchUserActionTemplates(token: String) async throws -> [UserAction]
-    func duplicateUserAction(token: String, actionId: UUID) async throws -> UserAction
-    func fetchUserActionUsage(token: String, actionId: UUID) async throws -> UserActionUsage
 
     // MARK: - Notification Schedules
     func fetchNotificationSchedules(token: String, protocolActionId: String?) async throws -> [NotificationScheduleResponse]
@@ -227,7 +218,7 @@ final class APIClient: AuthAPI, @unchecked Sendable {
 
     // MARK: - Data Fetching
 
-    func fetchProtocols(token: String, category: ProtocolCategory? = nil) async throws -> [ProtocolItem] {
+    func fetchProtocols(token: String, category: ActionCategory? = nil) async throws -> [ProtocolItem] {
         var path = "/protocols"
         if let category {
             path += "?category=\(category.rawValue)"
@@ -235,20 +226,35 @@ final class APIClient: AuthAPI, @unchecked Sendable {
         return try await get(path: path, token: token)
     }
 
-    func fetchActions(token: String, query: String? = nil) async throws -> [Action] {
+    /// `GET /v1/actions` — unified actions (library + user-created).
+    /// Query params mirror the backend contract: `category`, `modality`, `q`.
+    func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil) async throws -> [Action] {
         var path = "/actions"
+        var queryItems: [String] = []
+        if let category {
+            queryItems.append("category=\(category.rawValue)")
+        }
+        if let modality {
+            queryItems.append("modality=\(modality.rawValue)")
+        }
         if let query, !query.isEmpty {
-            path += "?q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)"
+            queryItems.append("q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)")
+        }
+        if !queryItems.isEmpty {
+            path += "?" + queryItems.joined(separator: "&")
         }
         return try await get(path: path, token: token)
     }
 
-    func fetchSubstances(token: String, query: String? = nil) async throws -> [Substance] {
-        var path = "/substances"
-        if let query, !query.isEmpty {
-            path += "?q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)"
-        }
-        return try await get(path: path, token: token)
+    // MARK: - Unified Actions (Step 25d)
+
+    func createAction(token: String, payload: ActionCreate) async throws -> Action {
+        try await post(path: "/actions", body: payload, token: token)
+    }
+
+    func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action {
+        let request = try makeRequest(path: "/actions/\(actionId)", method: "PATCH", body: payload, token: token)
+        return try await perform(request: request)
     }
 
     // MARK: - Data Creation
@@ -335,56 +341,6 @@ final class APIClient: AuthAPI, @unchecked Sendable {
         let body = ["action_ids": actionIds]
         let request = try makeRequest(path: "/protocols/\(protocolId)/actions/reorder", method: "PUT", body: body, token: token)
         _ = try await performData(request: request)
-    }
-
-    // MARK: - User Actions
-
-    func fetchUserActions(token: String, category: ActionCategory? = nil, isActive: Bool? = nil, page: Int? = nil, pageSize: Int? = nil) async throws -> PaginatedUserActions {
-        var path = "/user-actions"
-        var queryItems: [String] = []
-        if let category { queryItems.append("category=\(category.rawValue)") }
-        if let isActive { queryItems.append("is_active=\(isActive)") }
-        if let page { queryItems.append("page=\(page)") }
-        if let pageSize { queryItems.append("page_size=\(pageSize)") }
-        if !queryItems.isEmpty { path += "?" + queryItems.joined(separator: "&") }
-        return try await get(path: path, token: token)
-    }
-
-    func createUserAction(token: String, payload: UserActionCreate) async throws -> UserAction {
-        try await post(path: "/user-actions", body: payload, token: token)
-    }
-
-    func fetchUserAction(token: String, actionId: UUID) async throws -> UserAction {
-        try await get(path: "/user-actions/\(actionId.uuidString)", token: token)
-    }
-
-    func updateUserAction(token: String, actionId: UUID, payload: UserActionUpdate) async throws -> UserAction {
-        guard let url = resolveURL(path: "/user-actions/\(actionId.uuidString)") else {
-            throw APIError.invalidURL
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try encoder.encode(payload)
-        return try await perform(request: request)
-    }
-
-    func deleteUserAction(token: String, actionId: UUID) async throws {
-        try await delete(path: "/user-actions/\(actionId.uuidString)", token: token)
-    }
-
-    func fetchUserActionTemplates(token: String) async throws -> [UserAction] {
-        let page: PaginatedUserActions = try await get(path: "/user-actions/templates", token: token)
-        return page.items
-    }
-
-    func duplicateUserAction(token: String, actionId: UUID) async throws -> UserAction {
-        try await post(path: "/user-actions/\(actionId.uuidString)/duplicate", body: EmptyBody(), token: token)
-    }
-
-    func fetchUserActionUsage(token: String, actionId: UUID) async throws -> UserActionUsage {
-        try await get(path: "/user-actions/\(actionId.uuidString)/usage", token: token)
     }
 
     // MARK: - Daily Status
@@ -799,8 +755,6 @@ final class APIClient: AuthAPI, @unchecked Sendable {
         }
     }
 }
-
-private struct EmptyBody: Encodable {}
 
 private struct BatchSchedulesResponse: Codable {
     let schedules: [String: NotificationScheduleResponse]

@@ -32,6 +32,7 @@ private struct MainTabView: View {
     @StateObject private var journalVM: JournalListViewModel
     @StateObject private var protocolsVM: ProtocolsViewModel
     @StateObject private var profileVM: ProfileViewModel
+    @StateObject private var onboardingVM: OnboardingViewModel
 
     init(api: AuthAPI, authStore: AuthStore) {
         self.api = api
@@ -40,6 +41,7 @@ private struct MainTabView: View {
         _journalVM = StateObject(wrappedValue: JournalListViewModel(api: api, authStore: authStore))
         _protocolsVM = StateObject(wrappedValue: ProtocolsViewModel(api: api, authStore: authStore))
         _profileVM = StateObject(wrappedValue: ProfileViewModel(api: api, authStore: authStore))
+        _onboardingVM = StateObject(wrappedValue: OnboardingViewModel(api: api, authStore: authStore))
     }
 
     var body: some View {
@@ -95,6 +97,21 @@ private struct MainTabView: View {
                 Label("Profile", systemImage: "person.fill")
             }
             .tag(3)
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { onboardingVM.shouldShow },
+            set: { _ in }
+        )) {
+            OnboardingWizardView(vm: onboardingVM)
+                .interactiveDismissDisabled()
+        }
+        .task {
+            await onboardingVM.loadState()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .replayOnboardingRequested)) { _ in
+            // Profile → "Replay onboarding": the server state was reset there;
+            // re-fetch so the wizard is presented again from `welcome`.
+            Task { await onboardingVM.loadState() }
         }
     }
 }

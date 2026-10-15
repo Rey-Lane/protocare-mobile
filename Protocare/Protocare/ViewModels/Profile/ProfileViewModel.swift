@@ -112,4 +112,21 @@ final class ProfileViewModel: ObservableObject {
     func logout() {
         authStore.logout()
     }
+
+    /// Profile → "Replay onboarding": reset the server state; RootView
+    /// observes `.replayOnboardingRequested` and re-presents the wizard.
+    func replayOnboarding() async {
+        guard let token = authStore.accessToken else {
+            errorMessage = "Not authenticated"
+            return
+        }
+
+        do {
+            _ = try await api.resetOnboarding(token: token)
+            NotificationCenter.default.post(name: .replayOnboardingRequested, object: nil)
+        } catch {
+            logger.error("Failed to reset onboarding: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
 }

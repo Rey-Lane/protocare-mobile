@@ -188,4 +188,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
 
 extension Notification.Name {
     static let notificationTapped = Notification.Name("notificationTapped")
+    /// Posted by Profile after "Replay onboarding" resets the server state;
+    /// RootView re-fetches onboarding state and re-presents the wizard.
+    static let replayOnboardingRequested = Notification.Name("replayOnboardingRequested")
 }

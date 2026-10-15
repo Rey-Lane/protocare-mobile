@@ -228,7 +228,7 @@ struct ActionPickerView: View {
         do {
             // Unified actions (library + user-created) in one request.
             // No substances lookup: Action carries name/category/modality itself.
-            let fetched = try await api.fetchActions(token: token, category: nil, modality: nil, query: nil)
+            let fetched = try await api.fetchActions(token: token, category: nil, modality: nil, query: nil, libraryOnly: nil)
             actions = fetched.toActionItems()
         } catch {
             // Keep whatever was loaded before; flag failure only when the

@@ -109,7 +109,7 @@ final class ProtocolSettingsViewModel: ObservableObject {
         do {
             // Unified action source: GET /actions returns library + user-created
             // actions. No user-actions fetch, no substances needed for display.
-            let fetchedActions = try await api.fetchActions(token: token, category: nil, modality: nil, query: nil)
+            let fetchedActions = try await api.fetchActions(token: token, category: nil, modality: nil, query: nil, libraryOnly: nil)
             availableActions = fetchedActions.toActionItems()
         } catch {
             // Non-critical — picker will show empty state

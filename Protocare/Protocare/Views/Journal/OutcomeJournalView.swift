@@ -75,7 +75,7 @@ private struct VisualProgressSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Visual Progress")
-                .font(.headline)
+                .font(.appSectionTitle)
 
             if vm.entry?.photoUrl != nil || vm.selectedImage != nil {
                 photoRow
@@ -88,7 +88,7 @@ private struct VisualProgressSection: View {
                     Image(systemName: "camera.fill")
                     Text(vm.entry?.photoUrl == nil ? "Add progress photo" : "Update photo")
                 }
-                .font(.subheadline)
+                .font(.appBody)
                 .foregroundStyle(Color.appPrimary)
             }
         }
@@ -135,7 +135,7 @@ private struct VisualProgressSection: View {
                 .clipShape(.rect(cornerRadius: 12))
                 .overlay(alignment: .bottom) {
                     Text("Day 1")
-                        .font(.caption2)
+                        .font(.appCaption)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Color.appText.opacity(0.5))
@@ -155,7 +155,7 @@ private struct VisualProgressSection: View {
                 .accessibilityLabel("Day \(vm.dayNumber) progress photo")
                 .overlay(alignment: .bottom) {
                     Text("Day \(vm.dayNumber)")
-                        .font(.caption2)
+                        .font(.appCaption)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Color.appText.opacity(0.5))
@@ -180,7 +180,7 @@ private struct DailyMetricsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Daily Metrics")
-                .font(.headline)
+                .font(.appSectionTitle)
 
             ForEach(vm.availableMetrics) { metric in
                 MetricSliderView(
@@ -209,7 +209,7 @@ private struct MetricTrendSection: View {
                 trendChartContent(series: series)
             } else {
                 Text("No trend data yet")
-                    .font(.subheadline)
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
                     .padding(.vertical, 8)
             }
@@ -218,7 +218,7 @@ private struct MetricTrendSection: View {
                 Image(systemName: "chart.line.uptrend.xyaxis")
                     .foregroundStyle(Color.appPrimary)
                 Text("Metric Trend")
-                    .font(.headline)
+                    .font(.appSectionTitle)
             }
         }
     }
@@ -246,9 +246,9 @@ private struct MetricTrendSection: View {
                 HStack(spacing: 4) {
                     Image(systemName: series.icon)
                     Text(series.label)
-                        .font(.subheadline.weight(.semibold))
+                        .font(.appBody.weight(.semibold))
                     Image(systemName: "chevron.down")
-                        .font(.caption2)
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
                 .foregroundStyle(Color.appPrimary)
@@ -259,7 +259,7 @@ private struct MetricTrendSection: View {
                 chartView(series: series)
             } else {
                 Text("Need at least 2 data points")
-                    .font(.caption)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
                     .padding(.vertical, 8)
             }
@@ -309,13 +309,13 @@ private struct MetricTrendSection: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: .stride(by: 2)) {
                 AxisValueLabel()
-                    .font(.caption2)
+                    .font(.appCaption)
             }
         }
         .chartXAxis {
             AxisMarks(values: .stride(by: .day, count: chartData.count > 10 ? 3 : 2)) { value in
                 AxisValueLabel(format: .dateTime.day().month(.abbreviated))
-                    .font(.caption2)
+                    .font(.appCaption)
             }
         }
         .frame(height: 160)
@@ -325,9 +325,9 @@ private struct MetricTrendSection: View {
     private func changeIndicator(change: Double) -> some View {
         HStack(spacing: 4) {
             Image(systemName: change >= 0 ? "arrow.up.right" : "arrow.down.right")
-                .font(.caption.weight(.bold))
+                .font(.appCaption.weight(.bold))
             Text(String(format: "%+.1f vs 7d ago", change))
-                .font(.caption.weight(.medium))
+                .font(.appCaption.weight(.medium))
         }
         .foregroundStyle(change >= 0 ? Color.appSuccess : Color.appError)
     }
@@ -339,7 +339,7 @@ private struct TodayActionsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Today's Actions")
-                .font(.headline)
+                .font(.appSectionTitle)
 
             if let checkins = vm.entry?.checkins, !checkins.isEmpty {
                 ForEach(checkins) { checkin in
@@ -361,7 +361,7 @@ private struct TodayActionsSection: View {
                 }
             } else {
                 Text("No actions scheduled for today")
-                    .font(.subheadline)
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
             }
         }
@@ -374,7 +374,7 @@ private struct NotesSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Notes")
-                .font(.headline)
+                .font(.appSectionTitle)
 
             TextField("Add notes...", text: $notes, axis: .vertical)
                 .lineLimit(3...)
@@ -391,10 +391,10 @@ private struct LogHistorySection: View {
     var body: some View {
         HStack {
             Text("Log History")
-                .font(.headline)
+                .font(.appSectionTitle)
             Spacer()
             Text("Day \(dayNumber)")
-                .font(.subheadline.weight(.medium))
+                .font(.appBody.weight(.medium))
                 .foregroundStyle(Color.appPrimary)
         }
     }

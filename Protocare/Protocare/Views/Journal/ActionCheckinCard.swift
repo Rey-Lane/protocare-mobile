@@ -44,12 +44,12 @@ struct ActionCheckinCard: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: checkin.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title3)
+                    .font(.appSectionTitle)
                     .foregroundStyle(checkin.isCompleted ? Color.appPrimary : Color.appTextSecondary)
                     .accessibilityLabel(checkin.isCompleted ? "Completed" : "Not completed")
 
                 Text(checkin.actionName)
-                    .font(.subheadline)
+                    .font(.appCardTitle)
                     .foregroundStyle(Color.appText)
 
                 Spacer()
@@ -57,16 +57,16 @@ struct ActionCheckinCard: View {
                 if checkin.isCompleted {
                     if let summary = checkin.completedSummary {
                         Text(summary)
-                            .font(.caption.weight(.medium))
+                            .font(.appCaption.weight(.medium))
                             .foregroundStyle(Color.appSuccess)
                     } else {
                         Text("Done")
-                            .font(.caption.weight(.medium))
+                            .font(.appCaption.weight(.medium))
                             .foregroundStyle(Color.appSuccess)
                     }
                 } else {
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.caption2.weight(.bold))
+                        .font(.appCaption.weight(.bold))
                         .foregroundStyle(Color.appTextSecondary)
                 }
             }
@@ -98,9 +98,9 @@ struct ActionCheckinCard: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.appBody.weight(.bold))
                     Text("Complete")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.appBody.weight(.bold))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -117,11 +117,11 @@ struct ActionCheckinCard: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text("Amount")
-                    .font(.caption.weight(.semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(volumeDisplay)
-                    .font(.caption.weight(.bold))
+                    .font(.appNumericDisplay)
                     .foregroundStyle(Color.appText)
             }
 
@@ -135,11 +135,11 @@ struct ActionCheckinCard: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text("Duration")
-                    .font(.caption.weight(.semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(durationDisplay)
-                    .font(.caption.weight(.bold))
+                    .font(.appNumericDisplay)
                     .foregroundStyle(Color.appText)
             }
 

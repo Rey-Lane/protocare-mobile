@@ -49,7 +49,7 @@ private struct ProtocolJournalRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: `protocol`.category?.tagIcon ?? "list.clipboard.fill")
-                .font(.title3)
+                .font(.appSectionTitle)
                 .foregroundStyle(`protocol`.category?.tagColor ?? Color.appPrimary)
                 .frame(width: 36, height: 36)
                 .background((`protocol`.category?.tagColor ?? Color.appPrimary).opacity(0.12))
@@ -57,10 +57,10 @@ private struct ProtocolJournalRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(`protocol`.name)
-                    .font(.body.weight(.medium))
+                    .font(.appCardTitle)
                 if let category = `protocol`.category {
                     Text(category.displayName)
-                        .font(.caption)
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
             }
@@ -70,10 +70,10 @@ private struct ProtocolJournalRow: View {
             if `protocol`.streak > 0 {
                 HStack(spacing: 2) {
                     Image(systemName: "flame.fill")
-                        .font(.caption)
+                        .font(.appCaption)
                         .foregroundStyle(Color.appWarning)
                     Text("\(`protocol`.streak)")
-                        .font(.caption.weight(.semibold))
+                        .font(.appNumericDisplay)
                         .foregroundStyle(Color.appWarning)
                 }
             }

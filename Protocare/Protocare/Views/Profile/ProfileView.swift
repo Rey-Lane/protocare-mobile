@@ -19,7 +19,6 @@ struct ProfileView: View {
                 .padding(.bottom, 40)
             }
             .background(Color.appBackground)
-            .navigationTitle("")
             .toolbar(.hidden, for: .navigationBar)
             .task {
                 await vm.loadProfile()

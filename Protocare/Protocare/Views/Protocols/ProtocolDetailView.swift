@@ -47,7 +47,8 @@ struct ProtocolDetailView: View {
         .refreshable {
             await viewModel.refresh()
         }
-        .navigationTitle("")
+        .navigationTitle(viewModel.currentProtocol.name)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -190,10 +191,6 @@ struct ProtocolDetailView: View {
                         .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent.opacity(0.7))
                         .tracking(1.5)
                 }
-
-                Text(viewModel.currentProtocol.name)
-                    .font(.appScreenTitle)
-                    .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
 
                 HStack(spacing: 8) {
                     statusPill

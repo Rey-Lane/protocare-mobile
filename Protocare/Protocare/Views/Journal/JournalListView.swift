@@ -7,25 +7,29 @@ struct JournalListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if vm.isLoading {
-                    ProgressView()
-                } else if vm.protocols.isEmpty {
-                    ContentUnavailableView(
-                        "No Protocols",
-                        systemImage: "book.closed.fill",
-                        description: Text("Create a protocol to start journaling your outcomes")
-                    )
-                } else {
-                    List(vm.protocols) { item in
-                        NavigationLink(value: item) {
-                            ProtocolJournalRow(protocol: item)
+            VStack(spacing: 0) {
+                header
+
+                Group {
+                    if vm.isLoading {
+                        ProgressView()
+                    } else if vm.protocols.isEmpty {
+                        ContentUnavailableView(
+                            "No Protocols",
+                            systemImage: "book.closed.fill",
+                            description: Text("Create a protocol to start journaling your outcomes")
+                        )
+                    } else {
+                        List(vm.protocols) { item in
+                            NavigationLink(value: item) {
+                                ProtocolJournalRow(protocol: item)
+                            }
                         }
+                        .listStyle(.insetGrouped)
                     }
-                    .listStyle(.insetGrouped)
                 }
             }
-            .navigationTitle("Journal")
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: ProtocolItem.self) { item in
                 OutcomeJournalView(
                     vm: OutcomeJournalViewModel(protocol: item, api: api, authStore: authStore)
@@ -40,6 +44,16 @@ struct JournalListView: View {
                 Text(vm.errorMessage ?? "")
             }
         }
+    }
+
+    /// Custom in-screen header (D6), mirroring the other tab roots:
+    /// header block above the content with its own page padding,
+    /// nav bar hidden.
+    private var header: some View {
+        ScreenHeader(title: "Journal")
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, AppSpacing.pagePadding)
+            .padding(.vertical, 12)
     }
 }
 

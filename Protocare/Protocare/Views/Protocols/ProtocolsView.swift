@@ -33,28 +33,17 @@ struct ProtocolsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         .padding(.top, 40)
                     } else if vm.filteredProtocols.isEmpty {
-                        VStack(spacing: 16) {
-                            Image(systemName: "leaf")
-                                .font(.appEmptyStateIconLarge)
-                                .foregroundStyle(Color.appPrimary)
-                            Text("No protocols yet")
-                                .font(.appCardTitle)
+                        ContentUnavailableView {
+                            Label("No protocols yet", systemImage: "leaf")
+                        } description: {
                             Text("Start building your first self-care routine...")
-                                .foregroundStyle(Color.appTextSecondary)
-                                .multilineTextAlignment(.center)
-                            Button {
+                        } actions: {
+                            Button("Create Protocol") {
                                 showingBuilder = true
-                            } label: {
-                                Text("Create Protocol")
-                                    .font(.appBody.weight(.semibold))
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
-                                    .background(Color.appPrimary)
-                                    .foregroundStyle(Color.appOnAccent)
-                                    .clipShape(Capsule())
                             }
+                            .buttonStyle(.borderedProminent)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.top, 40)
                     } else {
                         List {
@@ -91,7 +80,6 @@ struct ProtocolsView: View {
 
                 fab
             }
-            .navigationTitle("")
             .toolbar(.hidden, for: .navigationBar)
             .task { await vm.load() }
             .navigationDestination(item: $selectedProtocol) { item in
@@ -236,8 +224,7 @@ struct ProtocolsView: View {
                 .background(Color(.systemGray6))
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.input))
             } else {
-                Text("Protocol Library")
-                    .font(.appScreenTitle)
+                ScreenHeader(title: "Protocol Library")
             }
 
             Spacer()

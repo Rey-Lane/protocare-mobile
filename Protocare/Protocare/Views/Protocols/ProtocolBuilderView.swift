@@ -336,13 +336,9 @@ struct ProtocolBuilderView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Define Protocol")
-                .font(.appScreenTitle)
-            Text("Set the foundation for your new routine")
-                .foregroundStyle(Color.appTextSecondary)
-        }
-        .padding(.top, 8)
-        .padding(.bottom, 4)
+        Text("Set the foundation for your new routine")
+            .foregroundStyle(Color.appTextSecondary)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
     }
 }

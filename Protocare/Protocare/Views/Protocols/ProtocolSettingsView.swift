@@ -112,11 +112,6 @@ struct ProtocolSettingsView: View {
                         .tracking(1.5)
                 }
 
-                Text(vm.editName.isEmpty ? "Untitled Protocol" : vm.editName)
-                    .font(.appScreenTitle)
-                    .foregroundStyle(vm.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
-                    .lineLimit(2)
-
                 HStack(spacing: 8) {
                     statusPill
                     stepsPill

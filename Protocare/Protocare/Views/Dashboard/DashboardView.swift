@@ -48,7 +48,6 @@ struct DailyDashboardView: View {
             .padding(.top, 12)
             .padding(.bottom, 100)
         }
-        .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await profileVM.loadProfile()
@@ -77,16 +76,8 @@ struct DailyDashboardView: View {
     }
 
     private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(greeting)
-                    .font(.appCaption)
-                    .foregroundStyle(Color.appTextSecondary)
-                Text(userName)
-                    .font(.appScreenTitle)
-            }
-            Spacer()
-        }
+        ScreenHeader(eyebrow: greeting, title: userName)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var greeting: String {
@@ -125,30 +116,17 @@ struct DailyDashboardView: View {
     }
 
     private var emptyProtocolsView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "list.clipboard")
-                .font(.appEmptyStateIcon)
-                .foregroundStyle(Color.appTextSecondary.opacity(0.5))
-            Text("No active protocols yet")
-                .font(.appCardTitle)
+        ContentUnavailableView {
+            Label("No active protocols yet", systemImage: "list.clipboard")
+        } description: {
             Text("Create your first protocol to start tracking your routine.")
-                .font(.appBody)
-                .foregroundStyle(Color.appTextSecondary)
-                .multilineTextAlignment(.center)
+        } actions: {
             NavigationLink {
                 ProtocolBuilderView(api: api, authStore: authStore)
             } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "plus.circle.fill")
-                    Text("Create Protocol")
-                }
-                .font(.appBody.weight(.semibold))
-                .foregroundStyle(Color.appOnAccent)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(accent)
-                .clipShape(Capsule())
+                Text("Create Protocol")
             }
+            .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)

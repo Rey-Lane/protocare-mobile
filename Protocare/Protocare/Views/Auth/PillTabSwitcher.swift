@@ -33,9 +33,9 @@ struct PillTabSwitcher: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.appBody.weight(.semibold))
                 Text(title)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.appCaptionBold)
                     .tracking(0.5)
             }
             .frame(maxWidth: .infinity)

@@ -12,13 +12,13 @@ struct RegistrationFormView: View {
 
             if vm.password.count > 0 && vm.password.count < 8 {
                 Text("Password must be at least 8 characters.")
-                    .font(.footnote)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appError)
             }
 
             if vm.passwordConfirmation.count > 0 && vm.passwordConfirmation != vm.password {
                 Text("Passwords do not match.")
-                    .font(.footnote)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appError)
             }
 
@@ -26,7 +26,7 @@ struct RegistrationFormView: View {
 
             if let error = vm.errorMessage {
                 Text(error)
-                    .font(.footnote)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appError)
             }
 
@@ -97,7 +97,7 @@ struct RegistrationFormView: View {
                     ProgressView().tint(Color.appOnAccent)
                 } else {
                     Text("Create Account")
-                        .font(.system(size: 17, weight: .bold))
+                        .font(.appBody.weight(.bold))
                         .foregroundStyle(Color.appOnAccent)
                 }
                 Spacer()
@@ -121,7 +121,7 @@ struct RegistrationFormView: View {
             + Text("Privacy Policy").fontWeight(.semibold).foregroundStyle(Color.appPrimary)
             + Text(".")
         )
-        .font(.system(size: 13))
+        .font(.appCaption)
         .foregroundStyle(Color.appTextSecondary)
         .multilineTextAlignment(.center)
     }
@@ -136,19 +136,19 @@ struct RegistrationFormView: View {
     ) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 20))
+                .font(.appSectionTitle)
                 .foregroundStyle(focusedField == field ? Color.appPrimaryDark : Color.appTextSecondary)
                 .frame(width: 24)
 
             if isSecure {
                 SecureField(placeholder, text: text)
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: field)
             } else {
                 TextField(placeholder, text: text)
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .keyboardType(keyboardType)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()

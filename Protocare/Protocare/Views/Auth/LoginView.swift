@@ -13,7 +13,7 @@ struct LoginFormView: View {
             HStack {
                 Spacer()
                 Button("Forgot Password?") {}
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appBody.weight(.semibold))
                     .foregroundStyle(Color.appPrimary)
             }
 
@@ -21,7 +21,7 @@ struct LoginFormView: View {
 
             if let error = vm.errorMessage {
                 Text(error)
-                    .font(.footnote)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appError)
             }
         }
@@ -71,7 +71,7 @@ struct LoginFormView: View {
                     ProgressView().tint(Color.appOnAccent)
                 } else {
                     Text("Sign In")
-                        .font(.system(size: 17, weight: .bold))
+                        .font(.appBody.weight(.bold))
                         .foregroundStyle(Color.appOnAccent)
                 }
                 Spacer()
@@ -97,19 +97,19 @@ struct LoginFormView: View {
     ) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 20))
+                .font(.appSectionTitle)
                 .foregroundStyle(focusedField == field ? Color.appPrimaryDark : Color.appTextSecondary)
                 .frame(width: 24)
 
             if isSecure {
                 SecureField(placeholder, text: text)
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: field)
             } else {
                 TextField(placeholder, text: text)
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .keyboardType(keyboardType)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()

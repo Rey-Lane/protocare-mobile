@@ -35,10 +35,10 @@ struct ProtocolsView: View {
                     } else if vm.filteredProtocols.isEmpty {
                         VStack(spacing: 14) {
                             Image(systemName: "leaf")
-                                .font(.system(size: 48))
+                                .font(.appEmptyStateIconLarge)
                                 .foregroundStyle(Color.appPrimary)
                             Text("No protocols yet")
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.appCardTitle)
                             Text("Start building your first self-care routine...")
                                 .foregroundStyle(Color.appTextSecondary)
                                 .multilineTextAlignment(.center)
@@ -46,7 +46,7 @@ struct ProtocolsView: View {
                                 showingBuilder = true
                             } label: {
                                 Text("Create Protocol")
-                                    .fontWeight(.semibold)
+                                    .font(.appBody.weight(.semibold))
                                     .padding(.horizontal, 24)
                                     .padding(.vertical, 12)
                                     .background(Color.appPrimary)
@@ -142,14 +142,14 @@ struct ProtocolsView: View {
                         VStack(spacing: 0) {
                             HStack(spacing: 10) {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 18))
+                                    .font(.appBody)
                                     .foregroundStyle(Color.appError)
                                     .frame(width: 32, height: 32)
                                     .background(Color.appError.opacity(0.12))
                                     .clipShape(Circle())
 
                                 Text("Delete Protocol?")
-                                    .font(.system(size: 16, weight: .semibold))
+                                    .font(.appCardTitle)
                                     .foregroundStyle(Color.appText)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -158,7 +158,7 @@ struct ProtocolsView: View {
                             .padding(.bottom, 8)
 
                             Text("This action cannot be undone. The protocol and all its data will be permanently removed.")
-                                .font(.subheadline)
+                                .font(.appBody)
                                 .foregroundStyle(Color.appTextSecondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
@@ -174,7 +174,7 @@ struct ProtocolsView: View {
                                     }
                                 } label: {
                                     Text("Cancel")
-                                        .font(.system(size: 15, weight: .semibold))
+                                        .font(.appBody.weight(.semibold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color(.secondarySystemBackground))
@@ -192,7 +192,7 @@ struct ProtocolsView: View {
                                     }
                                 } label: {
                                     Text("Delete")
-                                        .font(.system(size: 15, weight: .semibold))
+                                        .font(.appBody.weight(.semibold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color.appError)
@@ -221,7 +221,7 @@ struct ProtocolsView: View {
                 HStack {
                     TextField("Search protocols...", text: $vm.searchQuery)
                         .textFieldStyle(.plain)
-                        .font(.body)
+                        .font(.appBody)
 
                     Button {
                         vm.searchQuery = ""
@@ -237,7 +237,7 @@ struct ProtocolsView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             } else {
                 Text("Protocol Library")
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.appScreenTitle)
             }
 
             Spacer()
@@ -247,7 +247,7 @@ struct ProtocolsView: View {
                     isSearching = true
                 } label: {
                     Image(systemName: "magnifyingglass")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.appBody.weight(.semibold))
                         .foregroundStyle(Color.appText)
                 }
             }
@@ -291,7 +291,7 @@ struct ProtocolsView: View {
                     showingBuilder = true
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .medium))
+                        .font(.appSectionTitle)
                         .foregroundStyle(Color.appOnAccent)
                         .frame(width: 52, height: 52)
                         .background(Color.appPrimary)
@@ -325,7 +325,7 @@ private struct CategoryChip: View {
     var body: some View {
         Button(action: action) {
             Text(label)
-                .font(.subheadline.weight(.semibold))
+                .font(.appBody.weight(.semibold))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .background(isSelected ? color : Color(.systemBackground))
@@ -350,7 +350,7 @@ private struct ProtocolCardView: View {
             VStack(alignment: .leading, spacing: 12) {
                 if let category = item.category {
                     Text(category.displayName.uppercased())
-                        .font(.caption2.weight(.bold))
+                        .font(.appCaptionBold)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
                         .background(category.tagColor.opacity(0.18))
@@ -359,26 +359,26 @@ private struct ProtocolCardView: View {
                 }
 
                 Text(item.name)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.appCardTitle)
                     .foregroundStyle(Color.appText)
                     .lineLimit(2)
 
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Image(systemName: "list.bullet")
-                            .font(.system(size: 11))
+                            .font(.appCaption)
                         Text(item.stepsLabel)
-                            .font(.caption)
+                            .font(.appCaption)
                     }
                     .foregroundStyle(Color.appTextSecondary)
 
                     if item.streak > 0 {
                         HStack(spacing: 4) {
                             Image(systemName: "flame.fill")
-                                .font(.system(size: 11))
+                                .font(.appCaption)
                                 .foregroundStyle(Color.appWarning)
                             Text(item.streakLabel)
-                                .font(.caption)
+                                .font(.appCaption)
                                 .foregroundStyle(Color.appWarning)
                         }
                     }
@@ -387,7 +387,7 @@ private struct ProtocolCardView: View {
                 Button {
                 } label: {
                     Text(item.isActive == true ? "Active" : "Paused")
-                        .font(.caption.weight(.bold))
+                        .font(.appCaptionBold)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(item.isActive == true ? Color.appPrimaryLight : Color(.systemGray5))
@@ -413,9 +413,9 @@ private struct ProtocolCardView: View {
                     if item.streak > 0 {
                         HStack(spacing: 3) {
                             Image(systemName: "flame.fill")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.appCaptionBold)
                             Text("\(item.streak)d")
-                                .font(.caption2.weight(.bold))
+                                .font(.appCaptionBold)
                         }
                         .padding(.horizontal, 6)
                         .padding(.vertical, 3)

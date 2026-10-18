@@ -52,7 +52,7 @@ struct ProtocolBuilderView: View {
                                 .foregroundStyle(vm.draft.category == nil ? Color.appTextSecondary : Color.appText)
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.appCaptionBold)
                                 .foregroundStyle(.tertiary)
                         }
                     }
@@ -78,7 +78,7 @@ struct ProtocolBuilderView: View {
                              ? "Select a goal to see recommended metrics"
                              : "No metrics selected — add the ones you want to track")
                             .foregroundStyle(Color.appTextSecondary)
-                            .font(.subheadline)
+                            .font(.appBody)
                     } else {
                         ForEach(displayedMetrics) { metric in
                             Button {
@@ -112,7 +112,7 @@ struct ProtocolBuilderView: View {
                         showingAllMetrics = true
                     } label: {
                         Label("Add more metrics", systemImage: "plus.circle")
-                            .font(.subheadline)
+                            .font(.appBody)
                             .foregroundStyle(Color.appPrimary)
                     }
                 } header: {
@@ -123,13 +123,13 @@ struct ProtocolBuilderView: View {
                     if vm.draft.actions.isEmpty {
                         VStack(spacing: 10) {
                             Image(systemName: "square.stack.3d.up.slash")
-                                .font(.system(size: 26))
+                                .font(.appScreenTitle)
                                 .foregroundStyle(Color.appTextSecondary)
                             Text("No actions yet")
-                                .font(.subheadline.weight(.semibold))
+                                .font(.appCardTitle)
                                 .foregroundStyle(Color.appTextSecondary)
                             Text("Add actions from the unified library to build your protocol.")
-                                .font(.caption)
+                                .font(.appCaption)
                                 .foregroundStyle(.tertiary)
                                 .multilineTextAlignment(.center)
                         }
@@ -153,7 +153,7 @@ struct ProtocolBuilderView: View {
                         Text("Atomic Actions")
                         Spacer()
                         Text("\(vm.draft.actions.count) STEPS")
-                            .font(.footnote)
+                            .font(.appCaption)
                             .foregroundStyle(Color.appTextSecondary)
                     }
                 }
@@ -163,7 +163,7 @@ struct ProtocolBuilderView: View {
                         isShowingActionPicker = true
                     } label: {
                         Label("Add Action", systemImage: "plus.circle.fill")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.appBody.weight(.semibold))
                             .foregroundStyle(Color.appPrimary)
                             .frame(maxWidth: .infinity)
                     }
@@ -187,7 +187,7 @@ struct ProtocolBuilderView: View {
                     }
                     .disabled(!vm.canSave)
                     .foregroundStyle(vm.canSave ? Color.appPrimary : Color.appTextSecondary)
-                    .fontWeight(.semibold)
+                    .font(.appBody.weight(.semibold))
                 }
             }
             .alert("Error", isPresented: Binding(
@@ -256,7 +256,7 @@ struct ProtocolBuilderView: View {
                                     VStack(alignment: .leading) {
                                         Text(metric.label)
                                         Text(metric.description)
-                                            .font(.caption)
+                                            .font(.appCaption)
                                             .foregroundStyle(Color.appTextSecondary)
                                     }
                                     Spacer()
@@ -298,7 +298,7 @@ struct ProtocolBuilderView: View {
                         vm.removeSelectedImage()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 24))
+                            .font(.appScreenTitle)
                             .foregroundStyle(Color.appOnAccent)
                             .background(Color.appText.opacity(0.45))
                             .clipShape(Circle())
@@ -309,7 +309,7 @@ struct ProtocolBuilderView: View {
                 Button("Change Cover") {
                     isShowingImagePicker = true
                 }
-                .font(.footnote.weight(.semibold))
+                .font(.appCaptionBold)
                 .foregroundStyle(Color.appPrimary)
                 .padding(.top, 8)
             } else {
@@ -318,10 +318,10 @@ struct ProtocolBuilderView: View {
                 } label: {
                     VStack(spacing: 10) {
                         Image(systemName: "add_a_photo")
-                            .font(.system(size: 22, weight: .semibold))
+                            .font(.appSectionTitle)
                             .foregroundStyle(Color.appTextSecondary)
                         Text("Add Protocol Cover")
-                            .font(.subheadline.weight(.semibold))
+                            .font(.appBody.weight(.semibold))
                             .foregroundStyle(Color.appTextSecondary)
                     }
                     .frame(maxWidth: .infinity, minHeight: 160)
@@ -338,7 +338,7 @@ struct ProtocolBuilderView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Define Protocol")
-                .font(.system(size: 30, weight: .bold))
+                .font(.appScreenTitle)
             Text("Set the foundation for your new routine")
                 .foregroundStyle(Color.appTextSecondary)
         }

@@ -88,7 +88,7 @@ struct ActionCheckinView: View {
             Spacer()
 
             Text(action?.displayName ?? "Check-in")
-                .font(.system(size: 18, weight: .semibold))
+                .font(.appSectionTitle)
 
             Spacer()
 
@@ -101,7 +101,7 @@ struct ActionCheckinView: View {
     private var timeSection: some View {
         HStack {
             Label("Execution Time", systemImage: "clock.fill")
-                .font(.caption)
+                .font(.appCaption)
                 .foregroundStyle(Color.appTextSecondary)
 
             Spacer()
@@ -125,14 +125,14 @@ struct ActionCheckinView: View {
     private var quantitySection: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Amount")
-                .font(.subheadline.weight(.semibold))
+                .font(.appBody.weight(.semibold))
 
             HStack {
                 Button {
                     quantity = max(0, quantity - stepIncrement)
                 } label: {
                     Image(systemName: "minus.circle.fill")
-                        .font(.title2)
+                        .font(.appSectionTitle)
                         .foregroundStyle(Color.appTextSecondary)
                 }
                 .buttonStyle(.plain)
@@ -140,11 +140,11 @@ struct ActionCheckinView: View {
                 Spacer()
 
                 Text(quantity.roundedString(maxFractionDigits: 2))
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.appNumericDisplay)
                     .foregroundStyle(accent)
 
                 Text(unitLabel)
-                    .font(.subheadline)
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
 
                 Spacer()
@@ -153,7 +153,7 @@ struct ActionCheckinView: View {
                     quantity += stepIncrement
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.title2)
+                        .font(.appSectionTitle)
                         .foregroundStyle(accent)
                 }
                 .buttonStyle(.plain)
@@ -161,7 +161,7 @@ struct ActionCheckinView: View {
 
             if let hint = quantityHint {
                 Text(hint)
-                    .font(.caption)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
             }
         }
@@ -193,16 +193,16 @@ struct ActionCheckinView: View {
     private var durationSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Adjust Duration")
-                .font(.subheadline.weight(.semibold))
+                .font(.appBody.weight(.semibold))
             Slider(value: $durationSeconds, in: 0...7200, step: 5)
                 .tint(accent)
             HStack {
-                Text("0s").font(.caption).foregroundStyle(Color.appTextSecondary)
+                Text("0s").font(.appCaption).foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(durationDisplay)
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .font(.appNumericDisplay)
                 Spacer()
-                Text("120 min").font(.caption).foregroundStyle(Color.appTextSecondary)
+                Text("120 min").font(.appCaption).foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
@@ -230,9 +230,9 @@ struct ActionCheckinView: View {
             Toggle(isOn: $didDoIt) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Did you do it?")
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.appBody.weight(.semibold))
                     Text("Just mark this action as done for today.")
-                        .font(.footnote)
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
             }
@@ -290,9 +290,9 @@ struct ActionCheckinView: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.appBody.weight(.bold))
                 Text(completeButtonTitle)
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.appBody.weight(.bold))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)

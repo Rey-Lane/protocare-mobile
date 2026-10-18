@@ -55,7 +55,7 @@ struct ProtocolDetailView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.appBody.weight(.semibold))
                         .foregroundStyle(Color.appPrimaryDark)
                 }
             }
@@ -82,7 +82,7 @@ struct ProtocolDetailView: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle.fill")
-                        .font(.system(size: 24))
+                        .font(.appScreenTitle)
                         .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
                 }
             }
@@ -186,13 +186,13 @@ struct ProtocolDetailView: View {
             VStack(alignment: .leading, spacing: 8) {
                 if let category = viewModel.currentProtocol.category {
                     Text(category.displayName.uppercased())
-                        .font(.caption2.weight(.bold))
+                        .font(.appCaptionBold)
                         .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent.opacity(0.7))
                         .tracking(1.5)
                 }
 
                 Text(viewModel.currentProtocol.name)
-                    .font(.system(size: 26, weight: .bold))
+                    .font(.appScreenTitle)
                     .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
 
                 HStack(spacing: 10) {
@@ -259,7 +259,7 @@ struct ProtocolDetailView: View {
     private var stepsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Protocol Steps")
-                .font(.headline)
+                .font(.appSectionTitle)
                 .padding(.horizontal, 4)
 
             if viewModel.isLoadingStatus {
@@ -319,7 +319,7 @@ struct ProtocolDetailView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "plus.circle.fill")
                             Text("Add Action")
-                                .fontWeight(.semibold)
+                                .font(.appBody.weight(.semibold))
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
@@ -332,7 +332,7 @@ struct ProtocolDetailView: View {
             } else if let error = viewModel.statusError {
                 Text("Error loading status: \(error)")
                     .foregroundStyle(Color.appError)
-                    .font(.caption)
+                    .font(.appCaption)
             }
         }
     }
@@ -340,14 +340,14 @@ struct ProtocolDetailView: View {
     private func metricTile(title: String, value: String, system: String, highlight: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title.uppercased())
-                .font(.caption2.weight(.bold))
+                .font(.appCaptionBold)
                 .foregroundStyle(Color.appTextSecondary)
             HStack(spacing: 6) {
                 Image(systemName: system)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(highlight ? accent : Color.appTextSecondary)
                 Text(value)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.appBody.weight(.semibold))
                     .foregroundStyle(highlight ? accent : Color.appText)
             }
         }
@@ -363,7 +363,7 @@ struct ProtocolDetailView: View {
 
     private var statusPill: some View {
         Text(viewModel.currentProtocol.statusLabel.uppercased())
-            .font(.caption2.weight(.bold))
+            .font(.appCaptionBold)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
@@ -378,9 +378,9 @@ struct ProtocolDetailView: View {
     private var stepsPill: some View {
         HStack(spacing: 6) {
             Image(systemName: "list.bullet")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.appCaptionBold)
             Text(viewModel.currentProtocol.stepsLabel)
-                .font(.caption.weight(.semibold))
+                .font(.appCaptionBold)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -449,14 +449,14 @@ private struct StepRow: View {
         HStack(spacing: 14) {
             if isCompleted {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 28))
+                    .font(.appScreenTitle)
                     .foregroundStyle(accent)
             } else {
                 ZStack {
                     Circle()
                         .fill((category?.tagColor ?? Color(.systemGray5)).opacity(0.16))
                     Image(systemName: categoryIcon)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.appCaptionBold)
                         .foregroundStyle(category?.tagColor ?? Color.appTextSecondary)
                 }
                 .frame(width: 36, height: 36)
@@ -464,10 +464,10 @@ private struct StepRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.appCardTitle)
                     .strikethrough(isCompleted)
                 Text(subtitle)
-                    .font(.caption)
+                    .font(.appCaption)
                     .foregroundStyle(isCompleted ? accent : Color.appTextSecondary)
                 // Unified model (Step 23): show category/modality instead of
                 // the old "Library"/"Custom" provenance labels.
@@ -475,9 +475,9 @@ private struct StepRow: View {
                     HStack(spacing: 6) {
                         HStack(spacing: 4) {
                             Image(systemName: category.tagIcon)
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.appCaptionBold)
                             Text(category.displayName)
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.appCaptionBold)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -487,7 +487,7 @@ private struct StepRow: View {
 
                         if let modality {
                             Text(modality.displayName)
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.appCaption.weight(.medium))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
                                 .foregroundStyle(Color.appTextSecondary)
@@ -504,7 +504,7 @@ private struct StepRow: View {
                 onSettings()
             } label: {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
             }
             .buttonStyle(.plain)
@@ -533,13 +533,13 @@ private struct StepRowDragPreview: View {
             Circle()
                 .fill(Color(.systemGray5))
                 .frame(width: 36, height: 36)
-                .overlay(Image(systemName: "star.fill").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.appTextSecondary))
+                .overlay(Image(systemName: "star.fill").font(.appCaptionBold).foregroundStyle(Color.appTextSecondary))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.appCardTitle)
                 Text(subtitle)
-                    .font(.caption)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
             }
 

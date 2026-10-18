@@ -14,19 +14,19 @@ struct CustomActionRow: View {
             ZStack {
                 Circle().fill(iconColor.opacity(0.15))
                 Image(systemName: action.categoryIcon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.appBody.weight(.semibold))
                     .foregroundStyle(iconColor)
             }
             .frame(width: 40, height: 40)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(action.displayName)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.appCardTitle)
                     .foregroundStyle(Color.appText)
 
                 if !action.descriptionLabel.isEmpty {
                     Text(action.descriptionLabel)
-                        .font(.footnote)
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                         .lineLimit(1)
                 }
@@ -36,7 +36,7 @@ struct CustomActionRow: View {
 
             Button(action: onAdd) {
                 Text("+ Add")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.appCaptionBold)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
                     .background(accent.opacity(0.12))

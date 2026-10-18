@@ -38,7 +38,7 @@ struct ProtocolSettingsView: View {
                     }
                 }
                 .disabled(!vm.canSave)
-                .fontWeight(.semibold)
+                .font(.appBody.weight(.semibold))
                 .foregroundStyle(vm.canSave ? accent : Color.appTextSecondary)
             }
         }
@@ -107,13 +107,13 @@ struct ProtocolSettingsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 if let category = vm.editCategory {
                     Text(category.displayName.uppercased())
-                        .font(.caption2.weight(.bold))
+                        .font(.appCaptionBold)
                         .foregroundStyle(vm.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent.opacity(0.7))
                         .tracking(1.5)
                 }
 
                 Text(vm.editName.isEmpty ? "Untitled Protocol" : vm.editName)
-                    .font(.system(size: 26, weight: .bold))
+                    .font(.appScreenTitle)
                     .foregroundStyle(vm.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
                     .lineLimit(2)
 
@@ -166,7 +166,7 @@ struct ProtocolSettingsView: View {
 
     private var statusPill: some View {
         Text(vm.editIsActive ? "ACTIVE" : "PAUSED")
-            .font(.caption2.weight(.bold))
+            .font(.appCaptionBold)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
@@ -181,9 +181,9 @@ struct ProtocolSettingsView: View {
     private var stepsPill: some View {
         HStack(spacing: 6) {
             Image(systemName: "list.bullet")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.appCaptionBold)
             Text("\(vm.editActions.count) steps")
-                .font(.caption.weight(.semibold))
+                .font(.appCaptionBold)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -201,7 +201,7 @@ struct ProtocolSettingsView: View {
             // Protocol Name
             SettingsRow(icon: "textformat", label: "Name") {
                 TextField("e.g. Morning Glow", text: $vm.editName)
-                    .font(.body)
+                    .font(.appBody)
                     .multilineTextAlignment(.trailing)
                     .textInputAutocapitalization(.words)
             }
@@ -225,7 +225,7 @@ struct ProtocolSettingsView: View {
                             .foregroundStyle(Color.appTextSecondary)
                     }
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.appCaptionBold)
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -247,7 +247,7 @@ struct ProtocolSettingsView: View {
                     Text(vm.editCategory?.displayName ?? "Select")
                         .foregroundStyle(vm.editCategory == nil ? Color.appTextSecondary : Color.appText)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.appCaptionBold)
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -280,7 +280,7 @@ struct ProtocolSettingsView: View {
                         Text("Remove Cover")
                             .foregroundStyle(Color.appError)
                     }
-                    .font(.subheadline)
+                    .font(.appBody)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
@@ -366,7 +366,7 @@ struct ProtocolSettingsView: View {
                      ? "Select a goal to see recommended metrics"
                      : "No metrics selected — add the ones you want to track")
                     .foregroundStyle(Color.appTextSecondary)
-                    .font(.subheadline)
+                    .font(.appBody)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -415,7 +415,7 @@ struct ProtocolSettingsView: View {
                         .foregroundStyle(accent)
                     Text("Add more metrics")
                         .foregroundStyle(accent)
-                        .font(.subheadline)
+                        .font(.appBody)
                     Spacer()
                 }
                 .contentShape(Rectangle())
@@ -441,7 +441,7 @@ struct ProtocolSettingsView: View {
             if vm.editActions.isEmpty {
                 Text("No actions yet. Add some below.")
                     .foregroundStyle(Color.appTextSecondary)
-                    .font(.subheadline)
+                    .font(.appBody)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -450,19 +450,19 @@ struct ProtocolSettingsView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "line.3.horizontal")
                             .foregroundStyle(.tertiary)
-                            .font(.system(size: 14))
+                            .font(.appCaption)
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(action.displayName)
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.appCardTitle)
                             // Unified model (Step 23): category + modality badges
                             // replace provenance ("Library"/"Custom") labels.
                             HStack(spacing: 6) {
                                 HStack(spacing: 4) {
                                     Image(systemName: action.category.tagIcon)
-                                        .font(.system(size: 10, weight: .semibold))
+                                        .font(.appCaptionBold)
                                     Text(action.category.displayName)
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .font(.appCaptionBold)
                                 }
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
@@ -472,7 +472,7 @@ struct ProtocolSettingsView: View {
 
                                 if let modality = action.modality {
                                     Text(modality.displayName)
-                                        .font(.system(size: 11, weight: .medium))
+                                        .font(.appCaption.weight(.medium))
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 3)
                                         .foregroundStyle(Color.appTextSecondary)
@@ -482,17 +482,17 @@ struct ProtocolSettingsView: View {
                             }
                             if !action.scheduleSummaryText.isEmpty {
                                 Text(action.scheduleSummaryText)
-                                    .font(.caption)
+                                    .font(.appCaption)
                                     .foregroundStyle(Color.appTextSecondary)
                             } else if !action.tagLabel.isEmpty {
                                 Text(action.tagLabel)
-                                    .font(.caption)
+                                    .font(.appCaption)
                                     .foregroundStyle(Color.appTextSecondary)
                             }
                             let reminderCount = action.slots.filter { $0.isReminderOn }.count
                             if reminderCount > 0 {
                                 Text("🔔 \(reminderCount) reminder\(reminderCount > 1 ? "s" : "")")
-                                    .font(.caption2)
+                                    .font(.appCaption)
                                     .foregroundStyle(accent)
                             }
                         }
@@ -503,7 +503,7 @@ struct ProtocolSettingsView: View {
                             vm.scheduleAction = action
                         } label: {
                             Image(systemName: "clock")
-                                .font(.system(size: 16))
+                                .font(.appBody)
                                 .foregroundStyle(Color.appTextSecondary)
                         }
                         .buttonStyle(.plain)
@@ -512,7 +512,7 @@ struct ProtocolSettingsView: View {
                             vm.removeAction(action)
                         } label: {
                             Image(systemName: "minus.circle.fill")
-                                .font(.system(size: 20))
+                                .font(.appSectionTitle)
                                 .foregroundStyle(Color.appError.opacity(0.6))
                         }
                         .buttonStyle(.plain)
@@ -555,7 +555,7 @@ struct ProtocolSettingsView: View {
                     Image(systemName: "plus.circle.fill")
                         .foregroundStyle(accent)
                     Text("Add Action")
-                        .fontWeight(.semibold)
+                        .font(.appBody.weight(.semibold))
                         .foregroundStyle(accent)
                     Spacer()
                 }
@@ -583,7 +583,7 @@ struct ProtocolSettingsView: View {
                 Image(systemName: "trash")
                 Text("Delete Protocol")
             }
-            .font(.subheadline.weight(.semibold))
+            .font(.appBody.weight(.semibold))
             .foregroundStyle(Color.appError)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
@@ -618,7 +618,7 @@ struct ProtocolSettingsView: View {
                             VStack(alignment: .leading) {
                                 Text(metric.label)
                                 Text(metric.description)
-                                    .font(.caption)
+                                    .font(.appCaption)
                                     .foregroundStyle(Color.appTextSecondary)
                             }
                             Spacer()
@@ -652,11 +652,11 @@ private struct SectionHeader: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.headline)
+                .font(.appSectionTitle)
             Spacer()
             if let count {
                 Text("\(count)")
-                    .font(.footnote)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
             }
         }
@@ -674,12 +674,12 @@ private struct SettingsRow<Content: View>: View {
     var body: some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
-                .font(.system(size: 16))
+                .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary)
                 .frame(width: 24)
 
             Text(label)
-                .font(.body)
+                .font(.appBody)
 
             Spacer()
 

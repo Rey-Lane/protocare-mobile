@@ -12,27 +12,27 @@ struct LibraryCardView: View {
         VStack(spacing: 10) {
             ZStack {
                 Circle().fill(Color(.systemGray6))
-                Text(initial).font(.system(size: 18, weight: .bold))
+                Text(initial).font(.appBody.weight(.bold))
             }
             .frame(width: 52, height: 52)
 
             Text(action.displayName)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.appCardTitle)
                 .multilineTextAlignment(.center)
 
             Text(action.tagLabel)
-                .font(.caption)
+                .font(.appCaption)
                 .foregroundStyle(Color.appTextSecondary)
 
             if !action.detailLabel.isEmpty {
                 Text(action.detailLabel)
-                    .font(.footnote)
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
             }
 
             Button(action: onAdd) {
                 Text("+ Add")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.appCaptionBold)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
                     .background(Color(.systemGray6))

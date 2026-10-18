@@ -14,11 +14,11 @@ struct ActionRow: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
                     Text(action.displayName)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.appCardTitle)
 
                     if reminderCount > 0 {
                         Text("🔔 \(reminderCount)")
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.appCaptionBold)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.appPrimary.opacity(0.12))
@@ -29,7 +29,7 @@ struct ActionRow: View {
 
                 if !action.scheduleSummaryText.isEmpty {
                     Text(action.scheduleSummaryText)
-                        .font(.footnote)
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 } else {
                     HStack(spacing: 8) {
@@ -38,7 +38,7 @@ struct ActionRow: View {
                         CapsuleTag(text: action.tagLabel, style: scheduleStyle)
                         if !action.detailLabel.isEmpty {
                             Text(action.detailLabel)
-                                .font(.footnote)
+                                .font(.appCaption)
                                 .foregroundStyle(Color.appTextSecondary)
                         }
 
@@ -86,7 +86,7 @@ struct CapsuleTag: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 11, weight: .bold))
+            .font(.appCaptionBold)
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .background(

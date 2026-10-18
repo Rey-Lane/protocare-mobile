@@ -127,6 +127,8 @@ struct ProfileView: View {
             editProfileRow
             divider
             notificationsRow
+            divider
+            replayOnboardingRow
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -286,6 +288,41 @@ struct ProfileView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(Color.appText)
                     Text("Reminders & schedules")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.appTextSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.appBorder)
+            }
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Replay Onboarding Row
+
+    private var replayOnboardingRow: some View {
+        Button {
+            Task { await vm.replayOnboarding() }
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "arrow.counterclockwise")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.appPrimary)
+                    .frame(width: 34, height: 34)
+                    .background(Color.appPrimary.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Replay onboarding")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(Color.appText)
+                    Text("Run the setup wizard again")
                         .font(.system(size: 13))
                         .foregroundStyle(Color.appTextSecondary)
                 }

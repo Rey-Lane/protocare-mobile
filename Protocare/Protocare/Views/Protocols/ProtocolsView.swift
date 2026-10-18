@@ -472,7 +472,7 @@ struct ProtocolsView_Previews: PreviewProvider {
                 )
             ]
         }
-        func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil) async throws -> [Action] { [] }
+        func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil, libraryOnly: Bool? = nil) async throws -> [Action] { [] }
         func createAction(token: String, payload: ActionCreate) async throws -> Action {
             Action(id: UUID().uuidString, name: payload.name, description: payload.description, category: payload.category, modality: payload.modality)
         }
@@ -642,6 +642,9 @@ struct ProtocolsView_Previews: PreviewProvider {
         func fetchMetricsTrend(token: String, protocolId: String, days: Int?) async throws -> MetricTrendResponse {
             MetricTrendResponse(protocolId: protocolId, days: 14, series: [])
         }
+        func fetchOnboarding(token: String) async throws -> OnboardingState { OnboardingState() }
+        func patchOnboarding(token: String, payload: OnboardingUpdateRequest) async throws -> OnboardingState { OnboardingState() }
+        func resetOnboarding(token: String) async throws -> OnboardingState { OnboardingState() }
     }
 
     static var previews: some View {

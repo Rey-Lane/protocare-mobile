@@ -36,7 +36,7 @@ final class NotificationSettingsViewModel: ObservableObject {
         do {
             async let schedules = api.fetchNotificationSchedules(token: token, protocolActionId: nil)
             async let protocols = api.fetchProtocols(token: token, category: nil)
-            async let actions = api.fetchActions(token: token, category: nil, modality: nil, query: nil)
+            async let actions = api.fetchActions(token: token, category: nil, modality: nil, query: nil, libraryOnly: nil)
 
             let (schedulesResponse, protocolsResponse, actionsResponse) = try await (
                 schedules, protocols, actions

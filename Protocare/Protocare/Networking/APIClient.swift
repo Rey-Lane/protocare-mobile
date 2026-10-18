@@ -40,7 +40,7 @@ protocol AuthAPI {
     func refresh(request: RefreshTokenRequest) async throws -> TokenPair
     func logout(refreshToken: String) async throws
     func fetchProtocols(token: String, category: ActionCategory?) async throws -> [ProtocolItem]
-    func fetchActions(token: String, category: ActionCategory?, modality: ActionModality?, query: String?) async throws -> [Action]
+    func fetchActions(token: String, category: ActionCategory?, modality: ActionModality?, query: String?, libraryOnly: Bool?) async throws -> [Action]
     func createAction(token: String, payload: ActionCreate) async throws -> Action
     func updateAction(token: String, actionId: String, payload: ActionUpdate) async throws -> Action
     func createProtocol(token: String, payload: ProtocolCreateRequest) async throws -> ProtocolItem
@@ -89,6 +89,11 @@ protocol AuthAPI {
     func updateProfile(token: String, payload: ProfileUpdateRequest) async throws -> UserMeResponse
     func uploadProfileImage(token: String, imageData: Data) async throws -> UserMeResponse
     func deleteAccount(token: String) async throws
+
+    // MARK: - Onboarding
+    func fetchOnboarding(token: String) async throws -> OnboardingState
+    func patchOnboarding(token: String, payload: OnboardingUpdateRequest) async throws -> OnboardingState
+    func resetOnboarding(token: String) async throws -> OnboardingState
 }
 
 // MARK: - API Client Implementation
@@ -227,8 +232,8 @@ final class APIClient: AuthAPI, @unchecked Sendable {
     }
 
     /// `GET /v1/actions` — unified actions (library + user-created).
-    /// Query params mirror the backend contract: `category`, `modality`, `q`.
-    func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil) async throws -> [Action] {
+    /// Query params mirror the backend contract: `category`, `modality`, `q`, `library_only`.
+    func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil, libraryOnly: Bool? = nil) async throws -> [Action] {
         var path = "/actions"
         var queryItems: [String] = []
         if let category {
@@ -239,6 +244,9 @@ final class APIClient: AuthAPI, @unchecked Sendable {
         }
         if let query, !query.isEmpty {
             queryItems.append("q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)")
+        }
+        if let libraryOnly {
+            queryItems.append("library_only=\(libraryOnly)")
         }
         if !queryItems.isEmpty {
             path += "?" + queryItems.joined(separator: "&")
@@ -570,6 +578,26 @@ final class APIClient: AuthAPI, @unchecked Sendable {
 
     func deleteAccount(token: String) async throws {
         try await delete(path: "/profile", token: token)
+    }
+
+    // MARK: - Onboarding
+
+    /// `GET /v1/onboarding` — returns the user's onboarding state; the server
+    /// synthesizes a zero-UUID `not_started` default when no row exists yet.
+    func fetchOnboarding(token: String) async throws -> OnboardingState {
+        try await get(path: "/onboarding", token: token)
+    }
+
+    /// `PATCH /v1/onboarding` — advance step / merge context / skip. Upserts the row.
+    func patchOnboarding(token: String, payload: OnboardingUpdateRequest) async throws -> OnboardingState {
+        let request = try makeRequest(path: "/onboarding", method: "PATCH", body: payload, token: token)
+        return try await perform(request: request)
+    }
+
+    /// `POST /v1/onboarding/reset` — back to `welcome` / `not_started`, context cleared.
+    func resetOnboarding(token: String) async throws -> OnboardingState {
+        let request = try makeRequest(path: "/onboarding/reset", method: "POST", token: token)
+        return try await perform(request: request)
     }
 
     // MARK: - Generic Image Upload

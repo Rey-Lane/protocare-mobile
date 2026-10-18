@@ -19,6 +19,7 @@ class MockAuthAPI: AuthAPI {
     var fetchProtocolsResult: Result<[ProtocolItem], Error> = .success([])
     var fetchActionsResult: Result<[Action], Error> = .success([])
     var lastFetchActionsFilters: (category: ActionCategory?, modality: ActionModality?, query: String?)?
+    var lastFetchActionsLibraryOnly: Bool?
     var createActionResult: Result<Action, Error> = .success(
         Action(id: "test-action-id", name: "Cold Plunge", category: .mindfulness)
     )
@@ -46,6 +47,7 @@ class MockAuthAPI: AuthAPI {
             isActive: true
         )
     )
+    var createProtocolWithImageCallCount = 0
     var lastCreateProtocolPayload: ProtocolCreateRequest?
     var updateProtocolResult: Result<ProtocolItem, Error> = .success(
         ProtocolItem(
@@ -125,6 +127,8 @@ class MockAuthAPI: AuthAPI {
         )
     )
     var deleteNotificationScheduleResult: Result<Void, Error> = .success(())
+    var lastAddActionToProtocolPayload: ProtocolActionCreate?
+    var lastAddActionToProtocolProtocolId: String?
     var upsertNotificationScheduleResult: Result<NotificationScheduleResponse, Error> = .success(
         NotificationScheduleResponse(
             id: "test-schedule-id",
@@ -221,8 +225,9 @@ class MockAuthAPI: AuthAPI {
         }
     }
 
-    func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil) async throws -> [Action] {
+    func fetchActions(token: String, category: ActionCategory? = nil, modality: ActionModality? = nil, query: String? = nil, libraryOnly: Bool? = nil) async throws -> [Action] {
         lastFetchActionsFilters = (category, modality, query)
+        lastFetchActionsLibraryOnly = libraryOnly
         switch fetchActionsResult {
         case .success(let actions):
             return actions
@@ -272,6 +277,7 @@ class MockAuthAPI: AuthAPI {
     }
 
     func createProtocolWithImage(token: String, payload: ProtocolCreateRequest, imageData: Data?) async throws -> ProtocolItem {
+        createProtocolWithImageCallCount += 1
         lastCreateProtocolPayload = payload
         switch createProtocolWithImageResult {
         case .success(let protocolItem):
@@ -476,6 +482,8 @@ class MockAuthAPI: AuthAPI {
     }
 
     func addActionToProtocol(token: String, protocolId: String, payload: ProtocolActionCreate) async throws -> ProtocolItem {
+        lastAddActionToProtocolPayload = payload
+        lastAddActionToProtocolProtocolId = protocolId
         switch addActionToProtocolResult {
         case .success(let protocolItem):
             return protocolItem
@@ -510,6 +518,45 @@ class MockAuthAPI: AuthAPI {
 
     func fetchMetricsTrend(token: String, protocolId: String, days: Int?) async throws -> MetricTrendResponse {
         MetricTrendResponse(protocolId: protocolId, days: 14, series: [])
+    }
+
+    // MARK: - Onboarding
+
+    var fetchOnboardingResult: Result<OnboardingState, Error> = .success(OnboardingState())
+    var patchOnboardingResult: Result<OnboardingState, Error> = .success(OnboardingState())
+    var resetOnboardingResult: Result<OnboardingState, Error> = .success(OnboardingState())
+    var patchOnboardingCallCount = 0
+    var lastPatchOnboardingPayload: OnboardingUpdateRequest?
+    var resetOnboardingCallCount = 0
+
+    func fetchOnboarding(token: String) async throws -> OnboardingState {
+        switch fetchOnboardingResult {
+        case .success(let state):
+            return state
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    func patchOnboarding(token: String, payload: OnboardingUpdateRequest) async throws -> OnboardingState {
+        patchOnboardingCallCount += 1
+        lastPatchOnboardingPayload = payload
+        switch patchOnboardingResult {
+        case .success(let state):
+            return state
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    func resetOnboarding(token: String) async throws -> OnboardingState {
+        resetOnboardingCallCount += 1
+        switch resetOnboardingResult {
+        case .success(let state):
+            return state
+        case .failure(let error):
+            throw error
+        }
     }
 
     // MARK: - Reorder

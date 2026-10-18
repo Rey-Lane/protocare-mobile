@@ -127,6 +127,7 @@ struct DailyDashboardView: View {
                 Text("Create Protocol")
             }
             .buttonStyle(.borderedProminent)
+            .tint(Color.appPrimary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)

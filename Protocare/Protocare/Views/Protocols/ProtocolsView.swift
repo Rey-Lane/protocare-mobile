@@ -42,6 +42,7 @@ struct ProtocolsView: View {
                                 showingBuilder = true
                             }
                             .buttonStyle(.borderedProminent)
+                            .tint(Color.appPrimary)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.top, 40)

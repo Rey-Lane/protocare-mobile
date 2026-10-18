@@ -173,7 +173,7 @@ struct ProtocolBuilderView: View {
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Protocol Builder")
+            .navigationTitle("Define Protocol")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {

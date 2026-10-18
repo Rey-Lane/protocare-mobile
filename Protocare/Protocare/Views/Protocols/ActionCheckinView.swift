@@ -37,7 +37,7 @@ struct ActionCheckinView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 18) {
+            VStack(spacing: 16) {
                 header
 
                 timeSection
@@ -51,7 +51,7 @@ struct ActionCheckinView: View {
                     binarySection
                 }
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, AppSpacing.pagePadding)
             .padding(.top, 12)
             .padding(.bottom, 120)
         }
@@ -123,7 +123,7 @@ struct ActionCheckinView: View {
     // MARK: - Substance form (quantity + unit)
 
     private var quantitySection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Amount")
                 .font(.appBody.weight(.semibold))
 
@@ -226,7 +226,7 @@ struct ActionCheckinView: View {
     // MARK: - Binary form ("Did you do it?")
 
     private var binarySection: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 16) {
             Toggle(isOn: $didDoIt) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Did you do it?")
@@ -288,7 +288,7 @@ struct ActionCheckinView: View {
                 }
             }
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.appBody.weight(.bold))
                 Text(completeButtonTitle)
@@ -301,8 +301,8 @@ struct ActionCheckinView: View {
             .clipShape(Capsule())
             .shadow(color: accent.opacity(0.25), radius: 8, y: 3)
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 14)
+        .padding(.horizontal, AppSpacing.pagePadding)
+        .padding(.vertical, 16)
         .background(.ultraThinMaterial)
     }
 

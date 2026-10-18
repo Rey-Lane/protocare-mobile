@@ -123,7 +123,7 @@ struct ActionPickerView: View {
                     }
                 }
                 .padding(.horizontal, 4)
-                .padding(.vertical, 2)
+                .padding(.vertical, 4)
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
@@ -151,7 +151,7 @@ struct ActionPickerView: View {
                     }
                 }
                 .padding(.horizontal, 4)
-                .padding(.vertical, 2)
+                .padding(.vertical, 4)
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
@@ -280,13 +280,13 @@ private struct UnifiedActionRow: View {
     var body: some View {
         Button(action: onAdd) {
             HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(action.displayName)
                         .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                         .multilineTextAlignment(.leading)
 
-                    HStack(spacing: 6) {
+                    HStack(spacing: 4) {
                         HStack(spacing: 4) {
                             Image(systemName: action.category.tagIcon)
                                 .font(.appCaptionBold)
@@ -315,7 +315,7 @@ private struct UnifiedActionRow: View {
 
                 Text("+ Add")
                     .font(.appCaptionBold)
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(Color.appPrimary.opacity(0.12))
                     .foregroundStyle(Color.appPrimary)

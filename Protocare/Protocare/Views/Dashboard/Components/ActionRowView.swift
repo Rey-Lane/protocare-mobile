@@ -36,7 +36,7 @@ struct ActionRowView: View {
             }
             .buttonStyle(.plain)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(action.actionName)
                     .font(.appCardTitle)
                     .foregroundStyle(action.isCompleted ? Color.appTextSecondary : Color.appText)

@@ -55,12 +55,12 @@ struct ScheduleActionSheet: View {
                     slotsSection
                     summaryCard
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.top, 4)
                 .padding(.bottom, 24)
             }
             saveButton
-                .padding(.horizontal, 24)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.bottom, 16)
         }
         .background(Color(.systemBackground))
@@ -73,7 +73,7 @@ struct ScheduleActionSheet: View {
         Capsule()
             .fill(Color(.systemGray4))
             .frame(width: 48, height: 5)
-            .padding(.top, 10)
+            .padding(.top, 8)
             .padding(.bottom, 16)
     }
 
@@ -94,7 +94,7 @@ struct ScheduleActionSheet: View {
                         .clipShape(Circle())
                 }
             }
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Image(systemName: "calendar")
                     .font(.appBody.weight(.semibold))
                     .foregroundStyle(primary)
@@ -102,7 +102,7 @@ struct ScheduleActionSheet: View {
                     .font(.appCardTitle)
             }
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, AppSpacing.pagePadding)
         .padding(.bottom, 20)
     }
 
@@ -170,7 +170,7 @@ struct ScheduleActionSheet: View {
                 }
                 .background(Color(.systemGray6))
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
-                .padding(.top, 2)
+                .padding(.top, 4)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
@@ -181,7 +181,7 @@ struct ScheduleActionSheet: View {
     private var daysSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionLabel("On Days")
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 ForEach(ScheduleDay.allCases) { day in
                     dayButton(day)
                 }
@@ -236,7 +236,7 @@ struct ScheduleActionSheet: View {
                     expandedSlotId = isExpanded ? nil : slot.id
                 }
             } label: {
-                HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     // Time display
                     Text(slot.timeLabel)
                         .font(.appNumericDisplay)
@@ -281,7 +281,7 @@ struct ScheduleActionSheet: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
@@ -289,7 +289,7 @@ struct ScheduleActionSheet: View {
 
             // Expanded content
             if isExpanded {
-                VStack(spacing: 14) {
+                VStack(spacing: 16) {
                     // Time drum picker (single UIPickerView with 2 components)
                     TimeDrumPicker(
                         hour: Binding(
@@ -326,8 +326,8 @@ struct ScheduleActionSheet: View {
                         offsetPicker(slot: slot)
                     }
                 }
-                .padding(.horizontal, 14)
-                .padding(.bottom, 14)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
@@ -351,8 +351,8 @@ struct ScheduleActionSheet: View {
                         Text(offsetLabel(for: offset))
                             .font(.appCaption.weight(isSelected ? .bold : .medium))
                             .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
                             .background {
                                 if isSelected {
                                     Capsule().fill(primary)
@@ -382,7 +382,7 @@ struct ScheduleActionSheet: View {
         Button {
             addSlot()
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Image(systemName: "plus.circle.fill")
                     .font(.appBody)
                 Text("Add another time")
@@ -390,7 +390,7 @@ struct ScheduleActionSheet: View {
             }
             .foregroundStyle(primary)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
             .background(primary.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         }
@@ -400,7 +400,7 @@ struct ScheduleActionSheet: View {
     // MARK: - Summary Card
 
     private var summaryCard: some View {
-        HStack(alignment: .top, spacing: 10) {
+        HStack(alignment: .top, spacing: 8) {
             Image(systemName: "info.circle")
                 .font(.appBody.weight(.semibold))
                 .foregroundStyle(primary)

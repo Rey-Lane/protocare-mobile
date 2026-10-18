@@ -84,7 +84,7 @@ private struct CategoryChip: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 5) {
+            HStack(spacing: 4) {
                 if let icon {
                     Image(systemName: icon)
                         .font(.appCaptionBold)
@@ -93,7 +93,7 @@ private struct CategoryChip: View {
                     .font(isSelected ? .appCaptionBold : .appCaption)
             }
             .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(
                 Capsule()

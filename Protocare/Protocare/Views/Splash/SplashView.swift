@@ -48,7 +48,7 @@ struct SplashView: View {
                     Spacer()
 
                     // Bottom signature
-                    VStack(spacing: 6) {
+                    VStack(spacing: 8) {
                         Text("Powered by Auren Terrix")
                             .font(.appCaptionBold)
                             .kerning(1.5)

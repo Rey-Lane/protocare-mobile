@@ -37,7 +37,7 @@ struct LoginFormView: View {
                 keyboardType: .emailAddress
             )
 
-            Divider().padding(.leading, 44).padding(.vertical, 6)
+            Divider().padding(.leading, 44).padding(.vertical, 4)
 
             fieldRow(
                 icon: "lock",
@@ -76,7 +76,7 @@ struct LoginFormView: View {
                 }
                 Spacer()
             }
-            .padding(.vertical, 18)
+            .padding(.vertical, 16)
             .background(
                 RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                     .fill(Color.appPrimary)
@@ -116,6 +116,6 @@ struct LoginFormView: View {
                     .focused($focusedField, equals: field)
             }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
     }
 }

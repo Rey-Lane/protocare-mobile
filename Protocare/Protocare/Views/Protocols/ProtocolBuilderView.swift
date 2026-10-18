@@ -121,7 +121,7 @@ struct ProtocolBuilderView: View {
 
                 Section {
                     if vm.draft.actions.isEmpty {
-                        VStack(spacing: 10) {
+                        VStack(spacing: 12) {
                             Image(systemName: "square.stack.3d.up.slash")
                                 .font(.appScreenTitle)
                                 .foregroundStyle(Color.appTextSecondary)
@@ -134,7 +134,7 @@ struct ProtocolBuilderView: View {
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .padding(.vertical, 16)
                     } else {
                         ForEach(vm.draft.actions) { action in
                             ActionRow(
@@ -316,7 +316,7 @@ struct ProtocolBuilderView: View {
                 Button {
                     isShowingImagePicker = true
                 } label: {
-                    VStack(spacing: 10) {
+                    VStack(spacing: 12) {
                         Image(systemName: "add_a_photo")
                             .font(.appSectionTitle)
                             .foregroundStyle(Color.appTextSecondary)
@@ -331,12 +331,12 @@ struct ProtocolBuilderView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, AppSpacing.pagePadding)
         .padding(.top, 4)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
             Text("Define Protocol")
                 .font(.appScreenTitle)
             Text("Set the foundation for your new routine")

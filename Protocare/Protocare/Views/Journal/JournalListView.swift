@@ -55,7 +55,7 @@ private struct ProtocolJournalRow: View {
                 .background((`protocol`.category?.tagColor ?? Color.appPrimary).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip))
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(`protocol`.name)
                     .font(.appCardTitle)
                 if let category = `protocol`.category {
@@ -68,7 +68,7 @@ private struct ProtocolJournalRow: View {
             Spacer()
 
             if `protocol`.streak > 0 {
-                HStack(spacing: 2) {
+                HStack(spacing: 4) {
                     Image(systemName: "flame.fill")
                         .font(.appCaption)
                         .foregroundStyle(Color.appWarning)

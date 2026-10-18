@@ -11,15 +11,15 @@ struct ActionRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 4) {
                     Text(action.displayName)
                         .font(.appCardTitle)
 
                     if reminderCount > 0 {
                         Text("🔔 \(reminderCount)")
                             .font(.appCaptionBold)
-                            .padding(.horizontal, 6)
+                            .padding(.horizontal, 4)
                             .padding(.vertical, 2)
                             .background(Color.appPrimary.opacity(0.12))
                             .foregroundStyle(Color.appPrimary)
@@ -58,7 +58,7 @@ struct ActionRow: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
@@ -87,7 +87,7 @@ struct CapsuleTag: View {
     var body: some View {
         Text(text)
             .font(.appCaptionBold)
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 12)
             .padding(.vertical, 5)
             .background(
                 Capsule().fill(backgroundColor)
@@ -111,7 +111,7 @@ struct CapsuleTag: View {
 }
 
 #Preview {
-    VStack(spacing: 14) {
+    VStack(spacing: 16) {
         ActionRow(
             action: ActionItem(
                 name: "Vitamin C Serum",

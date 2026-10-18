@@ -14,7 +14,7 @@ struct ProtocolSettingsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 18) {
+            VStack(spacing: 16) {
                 hero
                 appearanceSection
                 scheduleSection
@@ -22,7 +22,7 @@ struct ProtocolSettingsView: View {
                 actionsSection
                 deleteSection
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, AppSpacing.pagePadding)
             .padding(.bottom, 32)
         }
         .scrollContentBackground(.hidden)
@@ -117,12 +117,12 @@ struct ProtocolSettingsView: View {
                     .foregroundStyle(vm.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
                     .lineLimit(2)
 
-                HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     statusPill
                     stepsPill
                 }
             }
-            .padding(18)
+            .padding(16)
         }
     }
 
@@ -167,8 +167,8 @@ struct ProtocolSettingsView: View {
     private var statusPill: some View {
         Text(vm.editIsActive ? "ACTIVE" : "PAUSED")
             .font(.appCaptionBold)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(
                 vm.protocolImageURL == nil
                 ? (vm.editIsActive ? accent.opacity(0.18) : Color(.systemGray5))
@@ -179,14 +179,14 @@ struct ProtocolSettingsView: View {
     }
 
     private var stepsPill: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 4) {
             Image(systemName: "list.bullet")
                 .font(.appCaptionBold)
             Text("\(vm.editActions.count) steps")
                 .font(.appCaptionBold)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .background(vm.protocolImageURL == nil ? Color(.systemGray5) : Color.appText.opacity(0.35))
         .foregroundStyle(vm.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent)
         .clipShape(Capsule())
@@ -368,7 +368,7 @@ struct ProtocolSettingsView: View {
                     .foregroundStyle(Color.appTextSecondary)
                     .font(.appBody)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 14)
+                    .padding(.vertical, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 ForEach(displayedMetrics) { metric in
@@ -443,7 +443,7 @@ struct ProtocolSettingsView: View {
                     .foregroundStyle(Color.appTextSecondary)
                     .font(.appBody)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 14)
+                    .padding(.vertical, 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 ForEach(vm.editActions) { action in
@@ -457,7 +457,7 @@ struct ProtocolSettingsView: View {
                                 .font(.appCardTitle)
                             // Unified model (Step 23): category + modality badges
                             // replace provenance ("Library"/"Custom") labels.
-                            HStack(spacing: 6) {
+                            HStack(spacing: 4) {
                                 HStack(spacing: 4) {
                                     Image(systemName: action.category.tagIcon)
                                         .font(.appCaptionBold)
@@ -563,7 +563,7 @@ struct ProtocolSettingsView: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
         }
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
@@ -586,7 +586,7 @@ struct ProtocolSettingsView: View {
             .font(.appBody.weight(.semibold))
             .foregroundStyle(Color.appError)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
             .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
             .overlay(
@@ -661,8 +661,8 @@ private struct SectionHeader: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 14)
-        .padding(.bottom, 6)
+        .padding(.top, 16)
+        .padding(.bottom, 4)
     }
 }
 
@@ -672,7 +672,7 @@ private struct SettingsRow<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary)

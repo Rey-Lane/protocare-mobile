@@ -24,7 +24,7 @@ struct EditProfileView: View {
                     infoCard
                     dangerCard
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.bottom, 40)
             }
             .background(Color.appBackground)
@@ -190,7 +190,7 @@ struct EditProfileView: View {
             Button {
                 showDeleteConfirmation = true
             } label: {
-                HStack(spacing: 14) {
+                HStack(spacing: 12) {
                     Image(systemName: "trash.fill")
                         .font(.appBody)
                         .foregroundStyle(Color.appOnAccent)
@@ -198,7 +198,7 @@ struct EditProfileView: View {
                         .background(Color.appError)
                         .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("Delete Account")
                             .font(.appCardTitle)
                             .foregroundStyle(Color.appError)
@@ -213,7 +213,7 @@ struct EditProfileView: View {
                         .font(.appCaptionBold)
                         .foregroundStyle(Color.appBorder)
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -241,7 +241,7 @@ struct EditProfileView: View {
         iconBg: Color,
         iconFg: Color
     ) -> some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.appBody)
                 .foregroundStyle(iconFg)
@@ -254,11 +254,11 @@ struct EditProfileView: View {
 
             Spacer()
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
     }
 
     private func readOnlyFieldRow(icon: String, label: String, value: String) -> some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary.opacity(0.5))
@@ -266,7 +266,7 @@ struct EditProfileView: View {
                 .background(Color.appTextSecondary.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(label)
                     .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
@@ -281,7 +281,7 @@ struct EditProfileView: View {
                 .font(.appCaption)
                 .foregroundStyle(Color.appTextSecondary.opacity(0.4))
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
     }
 
     private var divider: some View {

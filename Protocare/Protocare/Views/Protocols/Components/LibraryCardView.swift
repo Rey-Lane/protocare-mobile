@@ -9,7 +9,7 @@ struct LibraryCardView: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             ZStack {
                 Circle().fill(Color(.systemGray6))
                 Text(initial).font(.appBody.weight(.bold))
@@ -34,13 +34,13 @@ struct LibraryCardView: View {
                 Text("+ Add")
                     .font(.appCaptionBold)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 12)
                     .background(Color(.systemGray6))
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
             }
             .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }

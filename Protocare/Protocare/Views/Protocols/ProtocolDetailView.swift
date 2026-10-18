@@ -30,16 +30,16 @@ struct ProtocolDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 18) {
+            VStack(spacing: 16) {
                 hero
 
                 metrics
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, AppSpacing.pagePadding)
             .padding(.bottom, 8)
 
             stepsSection
-                .padding(.horizontal, 18)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.bottom, 32)
         }
         .scrollContentBackground(.hidden)
@@ -195,12 +195,12 @@ struct ProtocolDetailView: View {
                     .font(.appScreenTitle)
                     .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
 
-                HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     statusPill
                     stepsPill
                 }
             }
-            .padding(18)
+            .padding(16)
         }
     }
 
@@ -268,7 +268,7 @@ struct ProtocolDetailView: View {
                     .padding()
             } else if let status = viewModel.dailyStatus {
                 let sorted = status.actions.sorted(by: { $0.position < $1.position })
-                VStack(spacing: 10) {
+                VStack(spacing: 12) {
                     ForEach(sorted) { actionStatus in
                         let protocolAction = viewModel.currentProtocol.actions.first { $0.id == actionStatus.protocolActionId }
                         // Unified model (Step 23): single action_id resolution —
@@ -322,7 +322,7 @@ struct ProtocolDetailView: View {
                                 .font(.appBody.weight(.semibold))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .padding(.vertical, 16)
                         .background(Color(.secondarySystemBackground))
                         .foregroundStyle(accent)
                         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
@@ -338,11 +338,11 @@ struct ProtocolDetailView: View {
     }
 
     private func metricTile(title: String, value: String, system: String, highlight: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(title.uppercased())
                 .font(.appCaptionBold)
                 .foregroundStyle(Color.appTextSecondary)
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Image(systemName: system)
                     .font(.appCaptionBold)
                     .foregroundStyle(highlight ? accent : Color.appTextSecondary)
@@ -351,7 +351,7 @@ struct ProtocolDetailView: View {
                     .foregroundStyle(highlight ? accent : Color.appText)
             }
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
@@ -364,8 +364,8 @@ struct ProtocolDetailView: View {
     private var statusPill: some View {
         Text(viewModel.currentProtocol.statusLabel.uppercased())
             .font(.appCaptionBold)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(
                 viewModel.protocolImageURL == nil
                 ? (viewModel.currentProtocol.isActive == true ? accent.opacity(0.18) : Color(.systemGray5))
@@ -376,14 +376,14 @@ struct ProtocolDetailView: View {
     }
 
     private var stepsPill: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 4) {
             Image(systemName: "list.bullet")
                 .font(.appCaptionBold)
             Text(viewModel.currentProtocol.stepsLabel)
                 .font(.appCaptionBold)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .background(viewModel.protocolImageURL == nil ? Color(.systemGray5) : Color.appText.opacity(0.35))
         .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent)
         .clipShape(Capsule())
@@ -446,7 +446,7 @@ private struct StepRow: View {
     private let accent = Color.appPrimary
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             if isCompleted {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.appScreenTitle)
@@ -472,7 +472,7 @@ private struct StepRow: View {
                 // Unified model (Step 23): show category/modality instead of
                 // the old "Library"/"Custom" provenance labels.
                 if !isCompleted, let category {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 4) {
                         HStack(spacing: 4) {
                             Image(systemName: category.tagIcon)
                                 .font(.appCaptionBold)
@@ -509,7 +509,7 @@ private struct StepRow: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
@@ -529,7 +529,7 @@ private struct StepRowDragPreview: View {
     let subtitle: String
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             Circle()
                 .fill(Color(.systemGray5))
                 .frame(width: 36, height: 36)
@@ -545,7 +545,7 @@ private struct StepRowDragPreview: View {
 
             Spacer()
         }
-        .padding(14)
+        .padding(16)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .shadow(color: .black.opacity(0.1), radius: 4, y: 2)

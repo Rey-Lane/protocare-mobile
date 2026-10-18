@@ -31,7 +31,7 @@ struct SearchBar: View {
                 .font(.appBody)
                 .foregroundStyle(Color.appText)
                 .padding(.horizontal, 8)
-                .padding(.vertical, 10)
+                .padding(.vertical, 8)
                 .onChange(of: text) { _, _ in
                     onTextChanged()
                 }

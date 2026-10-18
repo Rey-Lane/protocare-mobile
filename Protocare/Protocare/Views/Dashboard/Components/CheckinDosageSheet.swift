@@ -40,7 +40,7 @@ struct CheckinDosageSheet: View {
 
             confirmButton
         }
-        .padding(20)
+        .padding(AppSpacing.pagePadding)
         .presentationDetents([.medium])
     }
 
@@ -158,7 +158,7 @@ struct CheckinDosageSheet: View {
                     .font(.appBody.weight(.bold))
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
             .background(accent)
             .foregroundStyle(Color.appOnAccent)
             .clipShape(Capsule())

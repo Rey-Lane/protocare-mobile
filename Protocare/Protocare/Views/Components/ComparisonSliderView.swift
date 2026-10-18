@@ -66,8 +66,8 @@ struct ComparisonSliderView: View {
                             Text(beforeLabel)
                                 .font(.appCaptionBold)
                                 .foregroundStyle(Color.appOnAccent)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
                                 .background(Capsule().fill(Color.appText.opacity(0.6)))
 
                             Spacer()
@@ -75,8 +75,8 @@ struct ComparisonSliderView: View {
                             Text(afterLabel)
                                 .font(.appCaptionBold)
                                 .foregroundStyle(Color.appOnAccent)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
                                 .background(Capsule().fill(Color.appText.opacity(0.6)))
                         }
                         .padding(.horizontal, 16)

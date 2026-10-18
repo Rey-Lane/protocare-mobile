@@ -42,7 +42,7 @@ struct ActionCheckinCard: View {
                 }
             }
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 Image(systemName: checkin.isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.appSectionTitle)
                     .foregroundStyle(checkin.isCompleted ? Color.appPrimary : Color.appTextSecondary)
@@ -70,16 +70,16 @@ struct ActionCheckinCard: View {
                         .foregroundStyle(Color.appTextSecondary)
                 }
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
         .disabled(checkin.isCompleted)
     }
 
     private var miniForm: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             Divider()
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 16)
 
             if checkin.hasVolume {
                 volumeSlider
@@ -108,13 +108,13 @@ struct ActionCheckinCard: View {
                 .foregroundStyle(Color.appOnAccent)
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.input))
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 16)
             .padding(.bottom, 12)
         }
     }
 
     private var volumeSlider: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Amount")
                     .font(.appCaptionBold)
@@ -128,11 +128,11 @@ struct ActionCheckinCard: View {
             Slider(value: $volumeAmount, in: 0...checkin.volumeUpperBound, step: 0.5)
                 .tint(Color.appPrimary)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
     }
 
     private var durationSlider: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Duration")
                     .font(.appCaptionBold)
@@ -146,7 +146,7 @@ struct ActionCheckinCard: View {
             Slider(value: $durationSeconds, in: 0...checkin.durationUpperBound, step: 5)
                 .tint(Color.appPrimary)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
     }
 
     private var volumeDisplay: String {

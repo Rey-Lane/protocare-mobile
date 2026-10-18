@@ -32,7 +32,7 @@ struct WeekCalendarView: View {
     }
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             ForEach(weekDates, id: \.self) { day in
                 let isSelected = calendar.isDate(day, inSameDayAs: selectedDate)
                 let isToday = calendar.isDateInToday(day)

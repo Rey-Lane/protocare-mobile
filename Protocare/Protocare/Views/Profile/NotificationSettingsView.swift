@@ -25,7 +25,7 @@ struct NotificationSettingsView: View {
                     timelineList
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, AppSpacing.pagePadding)
             .padding(.top, 12)
             .padding(.bottom, 40)
         }
@@ -47,7 +47,7 @@ struct NotificationSettingsView: View {
                 .background(accent.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("\(vm.activeCount) of \(vm.totalCount) active")
                     .font(.appCardTitle)
                     .foregroundStyle(Color.appText)
@@ -58,7 +58,7 @@ struct NotificationSettingsView: View {
 
             Spacer()
         }
-        .padding(14)
+        .padding(16)
         .background(Color.appSurface)
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
@@ -81,7 +81,7 @@ struct NotificationSettingsView: View {
         let dotDiameter: CGFloat = 10
         let rowHeight: CGFloat = 56 // consistent row height for dot positioning
 
-        return HStack(spacing: 14) {
+        return HStack(spacing: 12) {
             // Time column (24h format)
             Text(item.preferredTime)
                 .font(.appCaptionBold)
@@ -104,7 +104,7 @@ struct NotificationSettingsView: View {
             .frame(minWidth: dotDiameter, idealWidth: dotDiameter, maxWidth: dotDiameter, minHeight: rowHeight, idealHeight: rowHeight)
 
             // Content
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(item.actionName)
                     .font(.appCardTitle)
                     .foregroundStyle(Color.appText)
@@ -122,7 +122,7 @@ struct NotificationSettingsView: View {
             .tint(accent)
             .labelsHidden()
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
         .padding(.vertical, 12)
     }
 

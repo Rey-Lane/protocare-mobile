@@ -43,7 +43,7 @@ struct RegistrationFormView: View {
                 field: .name
             )
 
-            Divider().padding(.leading, 44).padding(.vertical, 6)
+            Divider().padding(.leading, 44).padding(.vertical, 4)
 
             fieldRow(
                 icon: "envelope",
@@ -53,7 +53,7 @@ struct RegistrationFormView: View {
                 keyboardType: .emailAddress
             )
 
-            Divider().padding(.leading, 44).padding(.vertical, 6)
+            Divider().padding(.leading, 44).padding(.vertical, 4)
 
             fieldRow(
                 icon: "lock",
@@ -63,7 +63,7 @@ struct RegistrationFormView: View {
                 isSecure: true
             )
 
-            Divider().padding(.leading, 44).padding(.vertical, 6)
+            Divider().padding(.leading, 44).padding(.vertical, 4)
 
             fieldRow(
                 icon: "lock.rotation",
@@ -102,7 +102,7 @@ struct RegistrationFormView: View {
                 }
                 Spacer()
             }
-            .padding(.vertical, 18)
+            .padding(.vertical, 16)
             .background(
                 RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                     .fill(Color.appPrimary)
@@ -155,6 +155,6 @@ struct RegistrationFormView: View {
                     .focused($focusedField, equals: field)
             }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
     }
 }

@@ -15,7 +15,7 @@ struct ProfileView: View {
                     logoutButton
                     versionLabel
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.bottom, 40)
             }
             .background(Color.appBackground)
@@ -94,7 +94,7 @@ struct ProfileView: View {
             statItem(value: "\(vm.profile.stats.streak)", label: "STREAK", icon: "flame.fill")
             statItem(value: "\(vm.profile.stats.checkinsCount)", label: "CHECK-INS")
         }
-        .padding(10)
+        .padding(12)
         .background(Color.appOnAccent.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
@@ -197,7 +197,7 @@ struct ProfileView: View {
             Text(title)
                 .navigationTitle(title)
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.appBody)
                     .foregroundStyle(iconColor)
@@ -205,7 +205,7 @@ struct ProfileView: View {
                     .background(iconBg)
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
@@ -222,7 +222,7 @@ struct ProfileView: View {
                     .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -240,7 +240,7 @@ struct ProfileView: View {
         NavigationLink {
             EditProfileView(vm: vm, api: api, authStore: authStore)
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: "person.fill")
                     .font(.appBody)
                     .foregroundStyle(Color.appPrimaryDark)
@@ -248,7 +248,7 @@ struct ProfileView: View {
                     .background(Color.appPrimary.opacity(0.15))
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Edit Profile")
                         .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
@@ -263,7 +263,7 @@ struct ProfileView: View {
                     .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -275,7 +275,7 @@ struct ProfileView: View {
         NavigationLink {
             NotificationSettingsView(api: api, authStore: authStore)
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: "bell.fill")
                     .font(.appBody)
                     .foregroundStyle(Color.appPrimary)
@@ -283,7 +283,7 @@ struct ProfileView: View {
                     .background(Color.appPrimary.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Notifications")
                         .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
@@ -298,7 +298,7 @@ struct ProfileView: View {
                     .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -310,7 +310,7 @@ struct ProfileView: View {
         Button {
             Task { await vm.replayOnboarding() }
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: "arrow.counterclockwise")
                     .font(.appBody)
                     .foregroundStyle(Color.appPrimary)
@@ -318,7 +318,7 @@ struct ProfileView: View {
                     .background(Color.appPrimary.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Replay onboarding")
                         .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
@@ -333,7 +333,7 @@ struct ProfileView: View {
                     .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

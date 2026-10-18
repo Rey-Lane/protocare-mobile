@@ -30,7 +30,7 @@ struct DailyDashboardView: View {
                         Text(error)
                             .font(.appBody)
                             .foregroundStyle(Color.appError)
-                            .padding(.vertical, 6)
+                            .padding(.vertical, 8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
@@ -44,7 +44,7 @@ struct DailyDashboardView: View {
                     protocolsSection(status.protocols)
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, AppSpacing.pagePadding)
             .padding(.top, 12)
             .padding(.bottom, 100)
         }

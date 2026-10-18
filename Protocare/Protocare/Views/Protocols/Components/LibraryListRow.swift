@@ -32,7 +32,7 @@ struct LibraryListRow: View {
             Button(action: onAdd) {
                 Text("+ Add")
                     .font(.appCaptionBold)
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(accent.opacity(0.12))
                     .foregroundStyle(accent)
@@ -40,7 +40,7 @@ struct LibraryListRow: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))

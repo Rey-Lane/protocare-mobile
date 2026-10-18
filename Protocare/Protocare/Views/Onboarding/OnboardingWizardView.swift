@@ -80,7 +80,7 @@ struct OnboardingWizardView: View {
             }
         }
         .frame(height: 44)
-        .padding(.horizontal, 12)
+        .padding(.horizontal, AppSpacing.pagePadding)
     }
 
     private var pillIndicator: some View {
@@ -132,7 +132,7 @@ struct OnboardingWizardView: View {
                 }
             }
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, AppSpacing.pagePadding)
         .padding(.bottom, 28)
     }
 
@@ -215,7 +215,7 @@ struct OnboardingWizardView: View {
                         .multilineTextAlignment(.center)
                 }
 
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 12) {
                     welcomeBullet("Pick what you work on — skincare, fitness, sleep")
                     welcomeBullet("Schedule actions & gentle reminders")
                     welcomeBullet("See the daily check-in work for you")
@@ -233,7 +233,7 @@ struct OnboardingWizardView: View {
     }
 
     private func welcomeBullet(_ text: String) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.appBody)
                 .foregroundStyle(primary)
@@ -255,7 +255,7 @@ struct OnboardingWizardView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 108), spacing: 10)], spacing: 10) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 108), spacing: 12)], spacing: 12) {
                     ForEach(ActionCategory.allCases) { category in
                         categoryPill(category)
                     }
@@ -286,7 +286,7 @@ struct OnboardingWizardView: View {
             }
             showGateHint = false
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Image(systemName: category.tagIcon)
                     .font(.appCaptionBold)
                 Text(category.displayName)
@@ -318,7 +318,7 @@ struct OnboardingWizardView: View {
                 stepTitle("Name your first protocol")
 
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 10) {
+                    HStack(spacing: 8) {
                         Image(systemName: "square.and.pencil")
                             .font(.appBody)
                             .foregroundStyle(Color.appTextSecondary)
@@ -350,7 +350,7 @@ struct OnboardingWizardView: View {
 
     private var firstActionStep: some View {
         ScrollView {
-            VStack(spacing: 18) {
+            VStack(spacing: 16) {
                 stepTitle("Add your first action")
                     .padding(.top, 12)
 
@@ -381,7 +381,7 @@ struct OnboardingWizardView: View {
                     .padding(.horizontal, 24)
                 }
 
-                VStack(spacing: 6) {
+                VStack(spacing: 8) {
                     TimeDrumPicker(
                         hour: Binding(
                             get: { vm.timeSlot.hour },
@@ -404,7 +404,7 @@ struct OnboardingWizardView: View {
                         Image(systemName: "bell.fill")
                             .font(.appBody)
                             .foregroundStyle(vm.reminderEnabled ? primary : Color.appTextSecondary)
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("Remind me")
                                 .font(.appBody.weight(.medium))
                                 .foregroundStyle(Color.appText)
@@ -450,7 +450,7 @@ struct OnboardingWizardView: View {
                     .background(action.category.tagColor)
                     .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(action.name)
                         .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
@@ -467,7 +467,7 @@ struct OnboardingWizardView: View {
                         .foregroundStyle(primary)
                 }
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(selected ? Color.appPrimaryLight : Color.appSurface)
             .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))

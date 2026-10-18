@@ -39,7 +39,7 @@ struct ProgressCardView: View {
                         .offset(x: 14, y: -6)
                 }
                 .frame(width: 48, height: 48)
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Image(systemName: "trending_up")
                         .font(.appCaption)
                         .foregroundStyle(accent)

@@ -33,7 +33,7 @@ struct ProtocolsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         .padding(.top, 40)
                     } else if vm.filteredProtocols.isEmpty {
-                        VStack(spacing: 14) {
+                        VStack(spacing: 16) {
                             Image(systemName: "leaf")
                                 .font(.appEmptyStateIconLarge)
                                 .foregroundStyle(Color.appPrimary)
@@ -60,7 +60,7 @@ struct ProtocolsView: View {
                         List {
                             ForEach(vm.filteredProtocols) { item in
                                 ProtocolCardView(item: item, imageURL: vm.protocolImageURLs[item.id])
-                                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
+                                    .listRowInsets(EdgeInsets(top: 8, leading: AppSpacing.pagePadding, bottom: 8, trailing: AppSpacing.pagePadding))
                                     .listRowSeparator(.hidden)
                                     .listRowBackground(Color.clear)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -140,7 +140,7 @@ struct ProtocolsView: View {
                             }
 
                         VStack(spacing: 0) {
-                            HStack(spacing: 10) {
+                            HStack(spacing: 8) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .font(.appBody)
                                     .foregroundStyle(Color.appError)
@@ -252,7 +252,7 @@ struct ProtocolsView: View {
                 }
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, AppSpacing.pagePadding)
         .padding(.vertical, 12)
     }
 
@@ -277,7 +277,7 @@ struct ProtocolsView: View {
                     }
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, AppSpacing.pagePadding)
         }
         .padding(.bottom, 4)
     }
@@ -326,7 +326,7 @@ private struct CategoryChip: View {
         Button(action: action) {
             Text(label)
                 .font(.appBody.weight(.semibold))
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(isSelected ? color : Color(.systemBackground))
                 .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
@@ -351,7 +351,7 @@ private struct ProtocolCardView: View {
                 if let category = item.category {
                     Text(category.displayName.uppercased())
                         .font(.appCaptionBold)
-                        .padding(.horizontal, 10)
+                        .padding(.horizontal, 12)
                         .padding(.vertical, 4)
                         .background(category.tagColor.opacity(0.18))
                         .foregroundStyle(category.tagColor)
@@ -389,7 +389,7 @@ private struct ProtocolCardView: View {
                     Text(item.isActive == true ? "Active" : "Paused")
                         .font(.appCaptionBold)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.vertical, 8)
                         .background(item.isActive == true ? Color.appPrimaryLight : Color(.systemGray5))
                         .foregroundStyle(item.isActive == true ? Color.appPrimaryDark : Color.appTextSecondary)
                         .clipShape(Capsule())
@@ -417,7 +417,7 @@ private struct ProtocolCardView: View {
                             Text("\(item.streak)d")
                                 .font(.appCaptionBold)
                         }
-                        .padding(.horizontal, 6)
+                        .padding(.horizontal, 4)
                         .padding(.vertical, 3)
                         .background(Color.appWarning)
                         .foregroundStyle(Color.appOnAccent)

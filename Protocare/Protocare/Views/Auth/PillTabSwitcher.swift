@@ -10,7 +10,7 @@ struct PillTabSwitcher: View {
             tabButton(title: "Login", icon: "arrow.right.to.line", tab: .login)
             tabButton(title: "Register", icon: "person.badge.plus", tab: .register)
         }
-        .padding(6)
+        .padding(8)
         .background(
             Capsule()
                 .fill(Color.appSurface.opacity(0.7))
@@ -31,7 +31,7 @@ struct PillTabSwitcher: View {
                 selectedTab = tab
             }
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.appBody.weight(.semibold))
                 Text(title)

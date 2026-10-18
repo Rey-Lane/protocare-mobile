@@ -26,7 +26,7 @@ struct OutcomeJournalView: View {
 
                 LogHistorySection(dayNumber: vm.dayNumber)
             }
-            .padding()
+            .padding(AppSpacing.pagePadding)
         }
         .navigationTitle(vm.protocol.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -136,8 +136,8 @@ private struct VisualProgressSection: View {
                 .overlay(alignment: .bottom) {
                     Text("Day 1")
                         .font(.appCaption)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
                         .background(Color.appText.opacity(0.5))
                         .foregroundStyle(Color.appOnAccent)
                         .clipShape(.rect(cornerRadius: AppRadius.chip))
@@ -156,8 +156,8 @@ private struct VisualProgressSection: View {
                 .overlay(alignment: .bottom) {
                     Text("Day \(vm.dayNumber)")
                         .font(.appCaption)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
                         .background(Color.appText.opacity(0.5))
                         .foregroundStyle(Color.appOnAccent)
                         .clipShape(.rect(cornerRadius: AppRadius.chip))
@@ -214,7 +214,7 @@ private struct MetricTrendSection: View {
                     .padding(.vertical, 8)
             }
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Image(systemName: "chart.line.uptrend.xyaxis")
                     .font(.appSectionTitle)
                     .foregroundStyle(Color.appPrimary)

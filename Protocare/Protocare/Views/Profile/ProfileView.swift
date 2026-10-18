@@ -38,10 +38,10 @@ struct ProfileView: View {
 
             VStack(spacing: 4) {
                 Text(vm.profile.name)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.appScreenTitle)
                     .foregroundStyle(Color.appOnAccent)
                 Text(vm.profile.email)
-                    .font(.system(size: 13))
+                    .font(.appCaption)
                     .foregroundStyle(Color.appOnAccent.opacity(0.8))
             }
 
@@ -83,7 +83,7 @@ struct ProfileView: View {
             )
             .overlay {
                 Text(vm.profile.initials)
-                    .font(.system(size: 26, weight: .semibold))
+                    .font(.appSectionTitle)
                     .foregroundStyle(Color.appOnAccent)
             }
     }
@@ -103,16 +103,16 @@ struct ProfileView: View {
         VStack(spacing: 4) {
             HStack(spacing: 3) {
                 Text(value)
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.appNumericDisplay)
                     .foregroundStyle(Color.appOnAccent)
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 12))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appOnAccent.opacity(0.7))
                 }
             }
             Text(label)
-                .font(.system(size: 11))
+                .font(.appCaption)
                 .foregroundStyle(Color.appOnAccent.opacity(0.7))
         }
         .frame(maxWidth: .infinity)
@@ -180,7 +180,7 @@ struct ProfileView: View {
 
     private func sectionTitle(_ title: String) -> some View {
         Text(title)
-            .font(.system(size: 13, weight: .semibold))
+            .font(.appCaptionBold)
             .foregroundStyle(Color.appTextSecondary)
             .textCase(.uppercase)
             .padding(.bottom, 8)
@@ -199,7 +199,7 @@ struct ProfileView: View {
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: icon)
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(iconColor)
                     .frame(width: 34, height: 34)
                     .background(iconBg)
@@ -207,11 +207,11 @@ struct ProfileView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     if let subtitle {
                         Text(subtitle)
-                            .font(.system(size: 13))
+                            .font(.appCaption)
                             .foregroundStyle(Color.appTextSecondary)
                     }
                 }
@@ -219,7 +219,7 @@ struct ProfileView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
             .padding(.vertical, 10)
@@ -242,7 +242,7 @@ struct ProfileView: View {
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: "person.fill")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appPrimaryDark)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.15))
@@ -250,17 +250,17 @@ struct ProfileView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Edit Profile")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     Text("Name, photo")
-                        .font(.system(size: 13))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
             .padding(.vertical, 10)
@@ -277,7 +277,7 @@ struct ProfileView: View {
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: "bell.fill")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appPrimary)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.12))
@@ -285,17 +285,17 @@ struct ProfileView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Notifications")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     Text("Reminders & schedules")
-                        .font(.system(size: 13))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
             .padding(.vertical, 10)
@@ -312,7 +312,7 @@ struct ProfileView: View {
         } label: {
             HStack(spacing: 14) {
                 Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appPrimary)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.12))
@@ -320,17 +320,17 @@ struct ProfileView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Replay onboarding")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     Text("Run the setup wizard again")
-                        .font(.system(size: 13))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
             .padding(.vertical, 10)
@@ -344,7 +344,7 @@ struct ProfileView: View {
             vm.logout()
         } label: {
             Text("Log Out")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.appBody.weight(.semibold))
                 .foregroundStyle(Color.appError)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
@@ -356,7 +356,7 @@ struct ProfileView: View {
 
     private var versionLabel: some View {
         Text("Protocare 1.0.0 (42)")
-            .font(.system(size: 12))
+            .font(.appCaption)
             .foregroundStyle(Color.appTextSecondary)
             .frame(maxWidth: .infinity)
     }

@@ -121,7 +121,7 @@ struct EditProfileView: View {
                     .frame(width: 28, height: 28)
                     .overlay {
                         Image(systemName: "camera.fill")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.appCaption.weight(.medium))
                             .foregroundStyle(Color.appOnAccent)
                     }
                     .offset(x: 4, y: 4)
@@ -129,7 +129,7 @@ struct EditProfileView: View {
             .onTapGesture { showImagePicker = true }
 
             Text("Change Photo")
-                .font(.system(size: 14, weight: .medium))
+                .font(.appBody.weight(.medium))
                 .foregroundStyle(Color.appPrimaryDark)
         }
         .frame(maxWidth: .infinity)
@@ -148,7 +148,7 @@ struct EditProfileView: View {
             )
             .overlay {
                 Text(vm.profile.initials)
-                    .font(.system(size: size * 0.4, weight: .semibold))
+                    .font(.appScreenTitle)
                     .foregroundStyle(Color.appPrimaryDark)
             }
     }
@@ -192,7 +192,7 @@ struct EditProfileView: View {
             } label: {
                 HStack(spacing: 14) {
                     Image(systemName: "trash.fill")
-                        .font(.system(size: 15))
+                        .font(.appBody)
                         .foregroundStyle(Color.appOnAccent)
                         .frame(width: 34, height: 34)
                         .background(Color.appError)
@@ -200,17 +200,17 @@ struct EditProfileView: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Delete Account")
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.appCardTitle)
                             .foregroundStyle(Color.appError)
                         Text("Permanently remove all data")
-                            .font(.system(size: 13))
+                            .font(.appCaption)
                             .foregroundStyle(Color.appTextSecondary)
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.appCaptionBold)
                         .foregroundStyle(Color.appBorder)
                 }
                 .padding(.vertical, 10)
@@ -228,7 +228,7 @@ struct EditProfileView: View {
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(.system(size: 13, weight: .semibold))
+            .font(.appCaptionBold)
             .foregroundStyle(Color.appTextSecondary)
             .textCase(.uppercase)
             .padding(.bottom, 8)
@@ -243,14 +243,14 @@ struct EditProfileView: View {
     ) -> some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
-                .font(.system(size: 15))
+                .font(.appBody)
                 .foregroundStyle(iconFg)
                 .frame(width: 34, height: 34)
                 .background(iconBg)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
             TextField(label, text: text)
-                .font(.system(size: 16))
+                .font(.appBody)
 
             Spacer()
         }
@@ -260,7 +260,7 @@ struct EditProfileView: View {
     private func readOnlyFieldRow(icon: String, label: String, value: String) -> some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
-                .font(.system(size: 15))
+                .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary.opacity(0.5))
                 .frame(width: 34, height: 34)
                 .background(Color.appTextSecondary.opacity(0.08))
@@ -268,17 +268,17 @@ struct EditProfileView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
-                    .font(.system(size: 12))
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
                 Text(value)
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
             }
 
             Spacer()
 
             Image(systemName: "lock.fill")
-                .font(.system(size: 11))
+                .font(.appCaption)
                 .foregroundStyle(Color.appTextSecondary.opacity(0.4))
         }
         .padding(.vertical, 10)

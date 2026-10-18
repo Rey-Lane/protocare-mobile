@@ -71,7 +71,7 @@ struct OnboardingWizardView: View {
                     Task { await vm.skipWizard() }
                 } label: {
                     Text("Skip")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.appBody.weight(.medium))
                         .foregroundStyle(Color.appTextSecondary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
@@ -104,7 +104,7 @@ struct OnboardingWizardView: View {
         VStack(spacing: 12) {
             if let errorMessage = vm.errorMessage {
                 Text(errorMessage)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.appCaption.weight(.medium))
                     .foregroundStyle(Color.appError)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 8)
@@ -119,7 +119,7 @@ struct OnboardingWizardView: View {
                     Task { await vm.skipNotifications() }
                 } label: {
                     Text("Skip for now")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.appBody.weight(.semibold))
                         .foregroundStyle(Color.appTextSecondary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
@@ -168,7 +168,7 @@ struct OnboardingWizardView: View {
     private func primaryButton(title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 18, weight: .heavy))
+                .font(.appBody.weight(.heavy))
                 .foregroundStyle(Color.appOnAccent)
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
@@ -197,20 +197,20 @@ struct OnboardingWizardView: View {
                 Spacer(minLength: 24)
 
                 ZStack {
-                    illustrationCircle(systemName: "checklist", size: 180, symbolSize: 64)
-                    smallSatellite(systemName: "target", size: 56, symbolSize: 22)
+                    illustrationCircle(systemName: "checklist", size: 180)
+                    smallSatellite(systemName: "target", size: 56)
                         .offset(x: 96, y: -64)
-                    smallSatellite(systemName: "bell.fill", size: 56, symbolSize: 22, tint: primary)
+                    smallSatellite(systemName: "bell.fill", size: 56, tint: primary)
                         .offset(x: -92, y: 68)
                 }
                 .padding(.bottom, 8)
 
                 VStack(spacing: 8) {
                     Text("Protocare")
-                        .font(.system(size: 32, weight: .heavy, design: .rounded))
+                        .font(.appScreenTitle)
                         .foregroundStyle(Color.appText)
                     Text("Track your routines, see the results.")
-                        .font(.system(size: 17, weight: .medium))
+                        .font(.appBody.weight(.medium))
                         .foregroundStyle(Color.appTextSecondary)
                         .multilineTextAlignment(.center)
                 }
@@ -223,7 +223,7 @@ struct OnboardingWizardView: View {
                 .padding(.horizontal, 8)
 
                 Text("You'll be set up in under 3 minutes.")
-                    .font(.system(size: 13))
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
 
                 Spacer(minLength: 8)
@@ -235,10 +235,10 @@ struct OnboardingWizardView: View {
     private func welcomeBullet(_ text: String) -> some View {
         HStack(spacing: 10) {
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 18))
+                .font(.appBody)
                 .foregroundStyle(primary)
             Text(text)
-                .font(.system(size: 15, weight: .medium))
+                .font(.appBody.weight(.medium))
                 .foregroundStyle(Color.appText)
         }
     }
@@ -250,7 +250,7 @@ struct OnboardingWizardView: View {
             VStack(spacing: 20) {
                 stepTitle("What are you working on?")
                 Text("Select 1 or more. This tunes your suggestions.")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
@@ -264,7 +264,7 @@ struct OnboardingWizardView: View {
 
                 if showGateHint, let hint = vm.gateHint {
                     Text(hint)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.appCaptionBold)
                         .foregroundStyle(Color.appError)
                         .transition(.opacity)
                 }
@@ -288,9 +288,9 @@ struct OnboardingWizardView: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: category.tagIcon)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.appCaptionBold)
                 Text(category.displayName)
-                    .font(.system(size: 14, weight: selected ? .bold : .semibold))
+                    .font(.appCaption.weight(selected ? .bold : .semibold))
             }
             .foregroundStyle(selected ? Color.appOnAccent : Color.appText)
             .frame(maxWidth: .infinity)
@@ -312,7 +312,7 @@ struct OnboardingWizardView: View {
     private var firstProtocolStep: some View {
         ScrollView {
             VStack(spacing: 24) {
-                illustrationCircle(systemName: "list.clipboard.fill", size: 140, symbolSize: 48)
+                illustrationCircle(systemName: "list.clipboard.fill", size: 140)
                     .padding(.top, 24)
 
                 stepTitle("Name your first protocol")
@@ -320,10 +320,10 @@ struct OnboardingWizardView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 10) {
                         Image(systemName: "square.and.pencil")
-                            .font(.system(size: 16))
+                            .font(.appBody)
                             .foregroundStyle(Color.appTextSecondary)
                         TextField("e.g. Skincare routine", text: $vm.protocolName)
-                            .font(.system(size: 17, weight: .medium))
+                            .font(.appBody)
                             .foregroundStyle(Color.appText)
                             .textInputAutocapitalization(.sentences)
                     }
@@ -337,7 +337,7 @@ struct OnboardingWizardView: View {
                     )
 
                     Text("This becomes a tab in your app. You can add actions right after.")
-                        .font(.system(size: 13))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                         .padding(.horizontal, 4)
                 }
@@ -359,7 +359,7 @@ struct OnboardingWizardView: View {
                         .padding(.vertical, 24)
                 } else if vm.availableActions.isEmpty {
                     Text("No ready-made actions yet. Create your own.")
-                        .font(.system(size: 14))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                         .padding(.vertical, 20)
                 } else {
@@ -368,7 +368,7 @@ struct OnboardingWizardView: View {
                         if !actions.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(category.displayName.uppercased())
-                                    .font(.system(size: 12, weight: .bold))
+                                    .font(.appCaptionBold)
                                     .foregroundStyle(Color.appTextSecondary)
                                     .tracking(1.2)
                                     .padding(.leading, 4)
@@ -402,14 +402,14 @@ struct OnboardingWizardView: View {
 
                     HStack {
                         Image(systemName: "bell.fill")
-                            .font(.system(size: 16))
+                            .font(.appBody)
                             .foregroundStyle(vm.reminderEnabled ? primary : Color.appTextSecondary)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Remind me")
-                                .font(.system(size: 15, weight: .medium))
+                                .font(.appBody.weight(.medium))
                                 .foregroundStyle(Color.appText)
                             Text("Daily local push at the action's time.")
-                                .font(.system(size: 12))
+                                .font(.appCaption)
                                 .foregroundStyle(Color.appTextSecondary)
                         }
                         Spacer()
@@ -444,7 +444,7 @@ struct OnboardingWizardView: View {
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: action.category.tagIcon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.appBody.weight(.semibold))
                     .foregroundStyle(Color.appOnAccent)
                     .frame(width: 36, height: 36)
                     .background(action.category.tagColor)
@@ -452,10 +452,10 @@ struct OnboardingWizardView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(action.name)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     Text(actionSubtitle(action))
-                        .font(.system(size: 12))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
@@ -463,7 +463,7 @@ struct OnboardingWizardView: View {
 
                 if selected {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 20))
+                        .font(.appSectionTitle)
                         .foregroundStyle(primary)
                 }
             }
@@ -499,12 +499,12 @@ struct OnboardingWizardView: View {
             VStack(spacing: 24) {
                 Spacer(minLength: 24)
 
-                illustrationCircle(systemName: "bell.badge.fill", size: 200, symbolSize: 72)
+                illustrationCircle(systemName: "bell.badge.fill", size: 200)
                     .padding(.bottom, 8)
 
                 stepTitle("Stay on track")
                 Text("One gentle reminder per action, just when you're meant to do it.")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
@@ -522,14 +522,13 @@ struct OnboardingWizardView: View {
                 illustrationCircle(
                     systemName: "checkmark",
                     size: 160,
-                    symbolSize: 56,
                     colors: [Color.appSuccess.opacity(0.6), Color.appSuccess]
                 )
                 .padding(.top, 24)
 
                 stepTitle("You're all set!")
                 Text("Your first check-in appears on the Daily tab.")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
@@ -559,11 +558,11 @@ struct OnboardingWizardView: View {
     private func summaryRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.system(size: 14))
+                .font(.appCaption)
                 .foregroundStyle(Color.appTextSecondary)
             Spacer()
             Text(value.isEmpty ? "—" : value)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.appCaptionBold)
                 .foregroundStyle(Color.appText)
                 .multilineTextAlignment(.trailing)
         }
@@ -581,7 +580,7 @@ struct OnboardingWizardView: View {
 
     private func stepTitle(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 26, weight: .heavy, design: .rounded))
+            .font(.appScreenTitle)
             .foregroundStyle(Color.appText)
             .multilineTextAlignment(.center)
     }
@@ -589,7 +588,6 @@ struct OnboardingWizardView: View {
     private func illustrationCircle(
         systemName: String,
         size: CGFloat,
-        symbolSize: CGFloat,
         colors: [Color] = [Color.appPrimaryLight, Color.appPrimary]
     ) -> some View {
         Circle()
@@ -603,19 +601,19 @@ struct OnboardingWizardView: View {
             .frame(width: size, height: size)
             .overlay {
                 Image(systemName: systemName)
-                    .font(.system(size: symbolSize, weight: .semibold))
+                    .font(.appEmptyStateIconLarge.weight(.semibold))
                     .foregroundStyle(Color.appOnAccent)
             }
             .shadow(color: Color.appPrimary.opacity(0.3), radius: 16, y: 8)
     }
 
-    private func smallSatellite(systemName: String, size: CGFloat, symbolSize: CGFloat, tint: Color = Color.appTextSecondary) -> some View {
+    private func smallSatellite(systemName: String, size: CGFloat, tint: Color = Color.appTextSecondary) -> some View {
         Circle()
             .fill(Color.appSurface)
             .frame(width: size, height: size)
             .overlay {
                 Image(systemName: systemName)
-                    .font(.system(size: symbolSize, weight: .semibold))
+                    .font(.appSectionTitle)
                     .foregroundStyle(tint)
             }
             .shadow(color: Color.appText.opacity(0.08), radius: 6, y: 3)

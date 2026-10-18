@@ -41,7 +41,7 @@ struct NotificationSettingsView: View {
     private var counterCard: some View {
         HStack(spacing: 12) {
             Image(systemName: "bell.fill")
-                .font(.system(size: 18))
+                .font(.appBody)
                 .foregroundStyle(accent)
                 .frame(width: 40, height: 40)
                 .background(accent.opacity(0.12))
@@ -49,10 +49,10 @@ struct NotificationSettingsView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(vm.activeCount) of \(vm.totalCount) active")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.appCardTitle)
                     .foregroundStyle(Color.appText)
                 Text("Toggle reminders on or off")
-                    .font(.system(size: 13))
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
             }
 
@@ -84,7 +84,7 @@ struct NotificationSettingsView: View {
         return HStack(spacing: 14) {
             // Time column (24h format)
             Text(item.preferredTime)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.appCaptionBold)
                 .foregroundStyle(Color.appText)
                 .frame(width: 52, alignment: .trailing)
 
@@ -106,10 +106,10 @@ struct NotificationSettingsView: View {
             // Content
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.actionName)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.appCardTitle)
                     .foregroundStyle(Color.appText)
                 Text(item.protocolName)
-                    .font(.system(size: 12))
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -131,13 +131,13 @@ struct NotificationSettingsView: View {
     private var emptyView: some View {
         VStack(spacing: 16) {
             Image(systemName: "bell.slash")
-                .font(.system(size: 44))
+                .font(.appEmptyStateIcon)
                 .foregroundStyle(Color.appBorder)
             Text("No Reminders Set")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.appCardTitle)
                 .foregroundStyle(Color.appText)
             Text("When you schedule reminders for your protocol actions, they'll appear here.")
-                .font(.system(size: 14))
+                .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
@@ -151,7 +151,7 @@ struct NotificationSettingsView: View {
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 12) {
             Text(message)
-                .font(.system(size: 15))
+                .font(.appBody)
                 .foregroundStyle(Color.appError)
             Button("Retry") {
                 Task { await vm.load() }

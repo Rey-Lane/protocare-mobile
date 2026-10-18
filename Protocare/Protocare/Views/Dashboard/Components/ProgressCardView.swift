@@ -31,7 +31,7 @@ struct ProgressCardView: View {
                         .rotation(Angle.degrees(-90))
                         .stroke(accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     Text("\(percentage)")
-                        .font(.appNumericDisplay)
+                        .font(.appBody.weight(.bold))
                         .foregroundStyle(accent)
                     Text("%")
                         .font(.appCaptionBold)

@@ -73,7 +73,7 @@ private struct ProtocolJournalRow: View {
                         .font(.appCaption)
                         .foregroundStyle(Color.appWarning)
                     Text("\(`protocol`.streak)")
-                        .font(.appNumericDisplay)
+                        .font(.appCaptionBold)
                         .foregroundStyle(Color.appWarning)
                 }
             }

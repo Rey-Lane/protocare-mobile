@@ -121,7 +121,7 @@ struct ActionCheckinCard: View {
                     .foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(volumeDisplay)
-                    .font(.appNumericDisplay)
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appText)
             }
 
@@ -139,7 +139,7 @@ struct ActionCheckinCard: View {
                     .foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(durationDisplay)
-                    .font(.appNumericDisplay)
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appText)
             }
 

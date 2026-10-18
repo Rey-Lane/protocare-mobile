@@ -24,7 +24,7 @@ struct MetricSliderView: View {
                 Spacer()
 
                 Text("\(value)")
-                    .font(.appNumericDisplay)
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appPrimary)
                     .monospacedDigit()
                     .frame(width: 28)

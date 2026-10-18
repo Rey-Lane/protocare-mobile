@@ -7,17 +7,17 @@ struct StreakCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 4) {
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 14))
+                    .font(.appCaption)
                     .foregroundStyle(streak.currentStreak > 0 ? Color.appWarning : Color.appTextSecondary)
                 Text("STREAK")
-                    .font(.caption2.weight(.bold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appTextSecondary)
             }
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text("\(streak.currentStreak)")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.appNumericDisplayLarge)
                 Text(streak.currentStreak == 1 ? "day" : "days")
-                    .font(.subheadline)
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
             }
         }

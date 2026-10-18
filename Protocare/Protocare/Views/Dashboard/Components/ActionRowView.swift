@@ -31,18 +31,18 @@ struct ActionRowView: View {
                 }
             } label: {
                 Image(systemName: action.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 24))
+                    .font(.appScreenTitle)
                     .foregroundStyle(action.isCompleted ? accent : Color(.systemGray4))
             }
             .buttonStyle(.plain)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(action.actionName)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.appCardTitle)
                     .foregroundStyle(action.isCompleted ? Color.appTextSecondary : Color.appText)
                 if let desc = action.description {
                     Text(desc)
-                        .font(.system(size: 13))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                         .lineLimit(1)
                 }
@@ -52,7 +52,7 @@ struct ActionRowView: View {
 
             if let time = action.scheduledTime {
                 Text(formatTime(time))
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.appCaption.weight(.medium))
                     .foregroundStyle(Color.appTextSecondary)
             }
         }

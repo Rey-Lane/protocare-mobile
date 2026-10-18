@@ -39,10 +39,10 @@ struct WeekCalendarView: View {
                 let isFuture = calendar.compare(day, to: Date(), toGranularity: .day) == .orderedDescending
                 VStack(spacing: 4) {
                     Text(dayFormatter.string(from: day).uppercased())
-                        .font(.caption2.weight(.medium))
+                        .font(.appCaption.weight(.medium))
                         .foregroundStyle(isSelected ? Color.appOnAccent : isFuture ? Color.appTextSecondary.opacity(0.4) : Color.appTextSecondary)
                     Text(numberFormatter.string(from: day))
-                        .font(.system(size: 16, weight: isSelected ? .bold : .regular, design: .rounded))
+                        .font(.appBody.weight(isSelected ? .bold : .regular))
                         .foregroundStyle(isSelected ? Color.appOnAccent : isFuture ? Color.appText.opacity(0.4) : Color.appText)
                 }
                 .frame(maxWidth: .infinity)

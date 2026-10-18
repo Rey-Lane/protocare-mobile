@@ -16,10 +16,10 @@ struct ProgressCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 4) {
                 Image(systemName: "chart.pie.fill")
-                    .font(.system(size: 14))
+                    .font(.appCaption)
                     .foregroundStyle(accent)
                 Text("PROGRESS")
-                    .font(.caption2.weight(.bold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appTextSecondary)
             }
             HStack(spacing: 12) {
@@ -31,20 +31,20 @@ struct ProgressCardView: View {
                         .rotation(Angle.degrees(-90))
                         .stroke(accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     Text("\(percentage)")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.appNumericDisplay)
                         .foregroundStyle(accent)
                     Text("%")
-                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .font(.appCaptionBold)
                         .foregroundStyle(accent)
                         .offset(x: 14, y: -6)
                 }
                 .frame(width: 48, height: 48)
                 VStack(alignment: .leading, spacing: 2) {
                     Image(systemName: "trending_up")
-                        .font(.system(size: 12))
+                        .font(.appCaption)
                         .foregroundStyle(accent)
                     Text(motivationalText)
-                        .font(.caption.weight(.medium))
+                        .font(.appCaption.weight(.medium))
                         .foregroundStyle(Color.appTextSecondary)
                 }
             }

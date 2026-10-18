@@ -28,7 +28,7 @@ struct DailyDashboardView: View {
                 } else if let status = vm.dailyStatus {
                     if let error = vm.errorMessage {
                         Text(error)
-                            .font(.subheadline)
+                            .font(.appBody)
                             .foregroundStyle(Color.appError)
                             .padding(.vertical, 6)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -63,10 +63,10 @@ struct DailyDashboardView: View {
     private var pastDayBanner: some View {
         HStack(spacing: 8) {
             Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 14))
+                .font(.appCaption)
                 .foregroundStyle(Color.appTextSecondary)
             Text("Viewing past day — check-ins are read-only")
-                .font(.caption)
+                .font(.appCaption)
                 .foregroundStyle(Color.appTextSecondary)
             Spacer()
         }
@@ -80,10 +80,10 @@ struct DailyDashboardView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(greeting)
-                    .font(.system(size: 14))
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
                 Text(userName)
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.appScreenTitle)
             }
             Spacer()
         }
@@ -127,12 +127,12 @@ struct DailyDashboardView: View {
     private var emptyProtocolsView: some View {
         VStack(spacing: 16) {
             Image(systemName: "list.clipboard")
-                .font(.system(size: 40))
+                .font(.appEmptyStateIcon)
                 .foregroundStyle(Color.appTextSecondary.opacity(0.5))
             Text("No active protocols yet")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.appCardTitle)
             Text("Create your first protocol to start tracking your routine.")
-                .font(.subheadline)
+                .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary)
                 .multilineTextAlignment(.center)
             NavigationLink {
@@ -142,7 +142,7 @@ struct DailyDashboardView: View {
                     Image(systemName: "plus.circle.fill")
                     Text("Create Protocol")
                 }
-                .font(.system(size: 16, weight: .semibold))
+                .font(.appBody.weight(.semibold))
                 .foregroundStyle(Color.appOnAccent)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
@@ -158,10 +158,10 @@ struct DailyDashboardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(proto.protocolName)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.appCardTitle)
                 Spacer()
                 Text("\(proto.completedActions)/\(proto.totalActions) Done")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.appCaption.weight(.medium))
                     .foregroundStyle(proto.completedActions == proto.totalActions && proto.totalActions > 0 ? accent : Color.appTextSecondary)
             }
 

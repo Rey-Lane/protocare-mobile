@@ -51,10 +51,10 @@ struct ComparisonSliderView: View {
                         .overlay(
                             HStack(spacing: 2) {
                                 Image(systemName: "chevron.left")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.appCaption.weight(.bold))
                                     .foregroundStyle(Color.appText)
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.appCaption.weight(.bold))
                                     .foregroundStyle(Color.appText)
                             }
                         )
@@ -64,8 +64,7 @@ struct ComparisonSliderView: View {
                         Spacer()
                         HStack {
                             Text(beforeLabel)
-                                .font(.caption)
-                                .fontWeight(.semibold)
+                                .font(.appCaptionBold)
                                 .foregroundStyle(Color.appOnAccent)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
@@ -74,8 +73,7 @@ struct ComparisonSliderView: View {
                             Spacer()
 
                             Text(afterLabel)
-                                .font(.caption)
-                                .fontWeight(.semibold)
+                                .font(.appCaptionBold)
                                 .foregroundStyle(Color.appOnAccent)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)

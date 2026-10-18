@@ -87,10 +87,10 @@ private struct CategoryChip: View {
             HStack(spacing: 5) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.appCaptionBold)
                 }
                 Text(title)
-                    .font(.system(size: 14, weight: isSelected ? .semibold : .medium))
+                    .font(isSelected ? .appCaptionBold : .appCaption)
             }
             .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
             .padding(.horizontal, 14)

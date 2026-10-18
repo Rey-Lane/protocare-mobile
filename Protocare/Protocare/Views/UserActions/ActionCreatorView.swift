@@ -66,7 +66,7 @@ struct ActionCreatorView: View {
                     switch viewModel.parameterMode {
                     case .none:
                         Text("Just a yes/no check-in each day.")
-                            .font(.footnote)
+                            .font(.appCaption)
                             .foregroundStyle(Color.appTextSecondary)
                     case .amount:
                         HStack {
@@ -129,7 +129,7 @@ struct ActionCreatorView: View {
                         }
                     }
                     .disabled(!viewModel.canSave)
-                    .fontWeight(.semibold)
+                    .font(.appBody.weight(.semibold))
                     .foregroundStyle(viewModel.canSave ? Color.appPrimary : Color.appTextSecondary)
                 }
             }

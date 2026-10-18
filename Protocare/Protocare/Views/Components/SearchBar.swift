@@ -22,14 +22,14 @@ struct SearchBar: View {
     var body: some View {
         HStack(spacing: 0) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 16))
+                .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary)
                 .padding(.leading, 12)
 
             TextField(placeholder, text: $text)
                 .textFieldStyle(.plain)
                 .font(.appBody)
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(Color.appText)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 10)
                 .onChange(of: text) { _, _ in
@@ -50,7 +50,7 @@ struct SearchBar: View {
                     onClear()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16))
+                        .font(.appBody)
                         .foregroundStyle(Color.appTextSecondary)
                 }
                 .padding(.trailing, 12)

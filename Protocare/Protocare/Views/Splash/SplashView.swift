@@ -37,11 +37,11 @@ struct SplashView: View {
                         .offset(y: iconOffset)
 
                     Text("Protocare")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.appScreenTitle)
                         .foregroundStyle(Color.appText)
 
                     Text("Your daily care ritual")
-                        .font(.system(size: 15, weight: .regular))
+                        .font(.appBody)
                         .foregroundStyle(Color.appTextSecondary)
                         .padding(.top, -12)
 
@@ -50,12 +50,12 @@ struct SplashView: View {
                     // Bottom signature
                     VStack(spacing: 6) {
                         Text("Powered by Auren Terrix")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.appCaptionBold)
                             .kerning(1.5)
                             .foregroundStyle(Color.appOnAccent.opacity(0.85))
 
                         Text("Self-care, simplified")
-                            .font(.system(size: 13, weight: .regular))
+                            .font(.appCaption)
                             .foregroundStyle(Color.appOnAccent.opacity(0.6))
                     }
                     .padding(.bottom, 48)

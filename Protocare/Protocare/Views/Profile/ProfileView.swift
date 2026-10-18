@@ -58,7 +58,7 @@ struct ProfileView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous))
     }
 
     private var avatar: some View {
@@ -96,7 +96,7 @@ struct ProfileView: View {
         }
         .padding(10)
         .background(Color.appOnAccent.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private func statItem(value: String, label: String, icon: String? = nil) -> some View {
@@ -133,7 +133,7 @@ struct ProfileView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Support Section
@@ -173,7 +173,7 @@ struct ProfileView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Shared Components
@@ -203,7 +203,7 @@ struct ProfileView: View {
                     .foregroundStyle(iconColor)
                     .frame(width: 34, height: 34)
                     .background(iconBg)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
@@ -246,7 +246,7 @@ struct ProfileView: View {
                     .foregroundStyle(Color.appPrimaryDark)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Edit Profile")
@@ -281,7 +281,7 @@ struct ProfileView: View {
                     .foregroundStyle(Color.appPrimary)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Notifications")
@@ -316,7 +316,7 @@ struct ProfileView: View {
                     .foregroundStyle(Color.appPrimary)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Replay onboarding")
@@ -349,7 +349,7 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(Color.appSurface)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         }
         .buttonStyle(.plain)
     }

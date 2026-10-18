@@ -142,14 +142,14 @@ struct ProtocolSettingsView: View {
                     endPoint: .bottom
                 )
             )
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous))
         } else {
             heroFallbackBackground
         }
     }
 
     private var heroFallbackBackground: some View {
-        RoundedRectangle(cornerRadius: 24, style: .continuous)
+        RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous)
             .fill(
                 LinearGradient(
                     colors: [Color(.systemGray6), Color(.systemGray5)],
@@ -159,7 +159,7 @@ struct ProtocolSettingsView: View {
             )
             .frame(height: 200)
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous)
                     .stroke(Color(.separator).opacity(0.08))
             )
     }
@@ -289,9 +289,9 @@ struct ProtocolSettingsView: View {
             }
         }
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
@@ -336,9 +336,9 @@ struct ProtocolSettingsView: View {
             }
         }
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
@@ -425,9 +425,9 @@ struct ProtocolSettingsView: View {
             .padding(.vertical, 12)
         }
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
@@ -524,7 +524,7 @@ struct ProtocolSettingsView: View {
                         Text(action.displayName)
                             .padding(8)
                             .background(Color(.systemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip))
                             .shadow(radius: 2)
                     }
                     .dropDestination(for: String.self) { items, _ in
@@ -566,9 +566,9 @@ struct ProtocolSettingsView: View {
             .padding(.vertical, 14)
         }
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
@@ -588,9 +588,9 @@ struct ProtocolSettingsView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
             .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                     .stroke(Color.appError.opacity(0.15))
             )
         }

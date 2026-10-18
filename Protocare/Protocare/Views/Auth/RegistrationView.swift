@@ -76,15 +76,15 @@ struct RegistrationFormView: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .fill(Color.appSurface)
                 .shadow(color: Color.appText.opacity(0.04), radius: 16, y: 4)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color.appText.opacity(0.03), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private var submitButton: some View {
@@ -104,7 +104,7 @@ struct RegistrationFormView: View {
             }
             .padding(.vertical, 18)
             .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                     .fill(Color.appPrimary)
             )
             .shadow(color: Color.appPrimary.opacity(0.25), radius: 16, y: 8)

@@ -134,7 +134,7 @@ struct ScheduleActionSheet: View {
                 .padding(.horizontal, 16)
                 .frame(height: 52)
                 .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
             }
             .buttonStyle(.plain)
 
@@ -169,7 +169,7 @@ struct ScheduleActionSheet: View {
                     }
                 }
                 .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
                 .padding(.top, 2)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -332,7 +332,7 @@ struct ScheduleActionSheet: View {
             }
         }
         .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private func offsetPicker(slot: ScheduleSlot) -> some View {
@@ -392,7 +392,7 @@ struct ScheduleActionSheet: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
             .background(primary.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -411,9 +411,9 @@ struct ScheduleActionSheet: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(primary.opacity(0.06))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .strokeBorder(primary.opacity(0.15), lineWidth: 1)
         )
     }

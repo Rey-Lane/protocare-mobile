@@ -48,7 +48,7 @@ struct WeekCalendarView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
                 .background(isSelected ? Color.appPrimary : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous))
                 .contentShape(Rectangle())
                 .onTapGesture {
                     guard !isFuture else { return }

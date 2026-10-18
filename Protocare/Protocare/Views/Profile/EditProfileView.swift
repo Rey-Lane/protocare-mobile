@@ -135,7 +135,7 @@ struct EditProfileView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 28)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private func initialsView(size: CGFloat) -> some View {
@@ -178,7 +178,7 @@ struct EditProfileView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Danger Card
@@ -196,7 +196,7 @@ struct EditProfileView: View {
                         .foregroundStyle(Color.appOnAccent)
                         .frame(width: 34, height: 34)
                         .background(Color.appError)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Delete Account")
@@ -221,7 +221,7 @@ struct EditProfileView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Shared Components
@@ -247,7 +247,7 @@ struct EditProfileView: View {
                 .foregroundStyle(iconFg)
                 .frame(width: 34, height: 34)
                 .background(iconBg)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
             TextField(label, text: text)
                 .font(.appBody)
@@ -264,7 +264,7 @@ struct EditProfileView: View {
                 .foregroundStyle(Color.appTextSecondary.opacity(0.5))
                 .frame(width: 34, height: 34)
                 .background(Color.appTextSecondary.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)

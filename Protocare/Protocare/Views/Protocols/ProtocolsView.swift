@@ -179,7 +179,7 @@ struct ProtocolsView: View {
                                         .padding(.vertical, 12)
                                         .background(Color(.secondarySystemBackground))
                                         .foregroundStyle(Color.appText)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
                                 }
                                 .buttonStyle(.plain)
 
@@ -197,7 +197,7 @@ struct ProtocolsView: View {
                                         .padding(.vertical, 12)
                                         .background(Color.appError)
                                         .foregroundStyle(Color.appOnAccent)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -206,7 +206,7 @@ struct ProtocolsView: View {
                         }
                         .frame(width: 280)
                         .background(Color(.systemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
                         .shadow(color: Color.appText.opacity(0.15), radius: 20, y: 8)
                         .transition(.scale(scale: 0.85).combined(with: .opacity))
                     }
@@ -234,7 +234,7 @@ struct ProtocolsView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.input))
             } else {
                 Text("Protocol Library")
                     .font(.appScreenTitle)
@@ -402,12 +402,12 @@ private struct ProtocolCardView: View {
             if let imageURL, !imageURL.isEmpty {
                 ZStack(alignment: .topTrailing) {
                     ResilientAsyncImage(urlString: imageURL) {
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous)
                             .fill(Color(.systemGray6))
                             .frame(width: 100, height: 100)
                     }
                     .frame(width: 100, height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous))
                     .grayscale(item.isActive == true ? 0 : 0.8)
 
                     if item.streak > 0 {
@@ -430,9 +430,9 @@ private struct ProtocolCardView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
         .shadow(color: Color.appText.opacity(0.04), radius: 10, y: 4)

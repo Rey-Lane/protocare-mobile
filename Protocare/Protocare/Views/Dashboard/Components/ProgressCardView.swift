@@ -52,7 +52,7 @@ struct ProgressCardView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .shadow(color: Color.appText.opacity(0.04), radius: 8, y: 4)
     }
 }

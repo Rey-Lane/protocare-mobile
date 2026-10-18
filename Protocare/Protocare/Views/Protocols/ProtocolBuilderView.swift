@@ -326,7 +326,7 @@ struct ProtocolBuilderView: View {
                     }
                     .frame(maxWidth: .infinity, minHeight: 160)
                     .background(Color(.systemGray6).opacity(0.6))
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
                 }
                 .buttonStyle(.plain)
             }

@@ -87,7 +87,7 @@ struct OnboardingWizardView: View {
         HStack(spacing: 8) {
             ForEach(Array(vm.steps.indices), id: \.self) { index in
                 if index == vm.currentStepIndex {
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous)
                         .fill(primary)
                         .frame(width: 24, height: 8)
                 } else {
@@ -330,9 +330,9 @@ struct OnboardingWizardView: View {
                     .padding(.horizontal, 16)
                     .frame(height: 54)
                     .background(Color.appSurface)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                             .strokeBorder(Color.appBorder, lineWidth: 1)
                     )
 
@@ -423,9 +423,9 @@ struct OnboardingWizardView: View {
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
                     .background(Color.appSurface)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                             .strokeBorder(Color.appBorder, lineWidth: 1)
                     )
                 }
@@ -448,7 +448,7 @@ struct OnboardingWizardView: View {
                     .foregroundStyle(Color.appOnAccent)
                     .frame(width: 36, height: 36)
                     .background(action.category.tagColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(action.name)
@@ -470,9 +470,9 @@ struct OnboardingWizardView: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
             .background(selected ? Color.appPrimaryLight : Color.appSurface)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                     .strokeBorder(selected ? primary : Color.appBorder, lineWidth: selected ? 1.5 : 1)
             )
         }
@@ -545,9 +545,9 @@ struct OnboardingWizardView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 4)
                 .background(Color.appSurface)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                         .strokeBorder(Color.appBorder, lineWidth: 1)
                 )
                 .padding(.horizontal, 24)

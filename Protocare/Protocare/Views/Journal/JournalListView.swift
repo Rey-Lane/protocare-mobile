@@ -53,7 +53,7 @@ private struct ProtocolJournalRow: View {
                 .foregroundStyle(`protocol`.category?.tagColor ?? Color.appPrimary)
                 .frame(width: 36, height: 36)
                 .background((`protocol`.category?.tagColor ?? Color.appPrimary).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(`protocol`.name)

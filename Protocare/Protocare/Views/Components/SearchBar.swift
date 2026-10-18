@@ -62,11 +62,11 @@ struct SearchBar: View {
         }
         .frame(minHeight: 40, maxHeight: 52)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous)
                 .fill(Color.appPrimaryLight)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous)
                 .stroke(Color.appPrimary.opacity(isFocused ? 1 : 0), lineWidth: 1.5)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
         )

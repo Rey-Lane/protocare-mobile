@@ -45,7 +45,7 @@ struct NotificationSettingsView: View {
                 .foregroundStyle(accent)
                 .frame(width: 40, height: 40)
                 .background(accent.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(vm.activeCount) of \(vm.totalCount) active")
@@ -60,7 +60,7 @@ struct NotificationSettingsView: View {
         }
         .padding(14)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Timeline List
@@ -72,7 +72,7 @@ struct NotificationSettingsView: View {
             }
         }
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private func timelineRow(item: NotificationScheduleItem) -> some View {

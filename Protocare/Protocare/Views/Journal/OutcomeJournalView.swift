@@ -132,7 +132,7 @@ private struct VisualProgressSection: View {
                     Rectangle().fill(Color(.systemGray5))
                 }
                 .frame(width: 140, height: 140)
-                .clipShape(.rect(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: AppRadius.input))
                 .overlay(alignment: .bottom) {
                     Text("Day 1")
                         .font(.appCaption)
@@ -140,7 +140,7 @@ private struct VisualProgressSection: View {
                         .padding(.vertical, 2)
                         .background(Color.appText.opacity(0.5))
                         .foregroundStyle(Color.appOnAccent)
-                        .clipShape(.rect(cornerRadius: 4))
+                        .clipShape(.rect(cornerRadius: AppRadius.chip))
                         .padding(4)
                 }
                 .onTapGesture { selectedViewerUrl = ViewerUrl(url: baselineUrl) }
@@ -151,7 +151,7 @@ private struct VisualProgressSection: View {
                     Rectangle().fill(Color(.systemGray5))
                 }
                 .frame(width: 140, height: 140)
-                .clipShape(.rect(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: AppRadius.input))
                 .accessibilityLabel("Day \(vm.dayNumber) progress photo")
                 .overlay(alignment: .bottom) {
                     Text("Day \(vm.dayNumber)")
@@ -160,7 +160,7 @@ private struct VisualProgressSection: View {
                         .padding(.vertical, 2)
                         .background(Color.appText.opacity(0.5))
                         .foregroundStyle(Color.appOnAccent)
-                        .clipShape(.rect(cornerRadius: 4))
+                        .clipShape(.rect(cornerRadius: AppRadius.chip))
                         .padding(4)
                 }
                 .onTapGesture { selectedViewerUrl = ViewerUrl(url: photoUrl) }
@@ -216,6 +216,7 @@ private struct MetricTrendSection: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(.appSectionTitle)
                     .foregroundStyle(Color.appPrimary)
                 Text("Metric Trend")
                     .font(.appSectionTitle)
@@ -380,7 +381,7 @@ private struct NotesSection: View {
                 .lineLimit(3...)
                 .padding(8)
                 .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip))
         }
     }
 }

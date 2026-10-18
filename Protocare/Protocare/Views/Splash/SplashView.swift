@@ -32,7 +32,7 @@ struct SplashView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 112, height: 112)
-                        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous))
                         .shadow(color: Color.appPrimary.opacity(0.4), radius: 18, y: 8)
                         .offset(y: iconOffset)
 

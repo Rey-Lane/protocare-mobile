@@ -31,7 +31,7 @@ struct ActionCheckinCard: View {
             }
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.input))
     }
 
     private var headerRow: some View {
@@ -106,7 +106,7 @@ struct ActionCheckinCard: View {
                 .padding(.vertical, 12)
                 .background(Color.appPrimary)
                 .foregroundStyle(Color.appOnAccent)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.input))
             }
             .padding(.horizontal, 14)
             .padding(.bottom, 12)

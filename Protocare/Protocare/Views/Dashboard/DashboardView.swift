@@ -73,7 +73,7 @@ struct DailyDashboardView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
     }
 
     private var header: some View {
@@ -184,7 +184,7 @@ struct DailyDashboardView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .shadow(color: Color.appText.opacity(0.04), radius: 8, y:4)
     }
 }

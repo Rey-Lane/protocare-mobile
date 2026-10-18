@@ -251,7 +251,7 @@ private struct FilterChip: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 5) {
+            HStack(spacing: 4) {
                 if let icon {
                     Image(systemName: icon)
                         .font(.appCaptionBold)

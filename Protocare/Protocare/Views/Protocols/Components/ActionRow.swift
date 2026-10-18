@@ -88,7 +88,7 @@ struct CapsuleTag: View {
         Text(text)
             .font(.appCaptionBold)
             .padding(.horizontal, 12)
-            .padding(.vertical, 5)
+            .padding(.vertical, 4)
             .background(
                 Capsule().fill(backgroundColor)
             )

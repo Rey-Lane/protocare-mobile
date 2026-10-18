@@ -28,7 +28,7 @@ struct SearchBar: View {
 
             TextField(placeholder, text: $text)
                 .textFieldStyle(.plain)
-                .font(.custom("Inter", size: 15).weight(.regular))
+                .font(.appBody)
                 .foregroundStyle(Color.primary)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 10)

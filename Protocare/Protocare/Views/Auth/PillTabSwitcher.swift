@@ -13,12 +13,12 @@ struct PillTabSwitcher: View {
         .padding(6)
         .background(
             Capsule()
-                .fill(Color.white.opacity(0.7))
-                .shadow(color: Color.black.opacity(0.04), radius: 12, y: 4)
+                .fill(Color.appSurface.opacity(0.7))
+                .shadow(color: Color.appText.opacity(0.04), radius: 12, y: 4)
         )
         .overlay(
             Capsule()
-                .stroke(Color.white.opacity(0.5), lineWidth: 0.5)
+                .stroke(Color.appSurface.opacity(0.5), lineWidth: 0.5)
         )
         .clipShape(Capsule())
     }
@@ -40,12 +40,12 @@ struct PillTabSwitcher: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .foregroundStyle(isSelected ? Color.appPrimary : Color.gray)
+            .foregroundStyle(isSelected ? Color.appPrimary : Color.appTextSecondary)
             .background {
                 if isSelected {
                     Capsule()
-                        .fill(Color.white)
-                        .shadow(color: Color.black.opacity(0.06), radius: 4, y: 2)
+                        .fill(Color.appSurface)
+                        .shadow(color: Color.appText.opacity(0.06), radius: 4, y: 2)
                 }
             }
         }

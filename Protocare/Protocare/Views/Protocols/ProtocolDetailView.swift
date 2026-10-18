@@ -83,7 +83,7 @@ struct ProtocolDetailView: View {
                 } label: {
                     Image(systemName: "ellipsis.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.primary : Color.white)
+                        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
                 }
             }
         }
@@ -187,13 +187,13 @@ struct ProtocolDetailView: View {
                 if let category = viewModel.currentProtocol.category {
                     Text(category.displayName.uppercased())
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(viewModel.protocolImageURL == nil ? .secondary : Color.white.opacity(0.7))
+                        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent.opacity(0.7))
                         .tracking(1.5)
                 }
 
                 Text(viewModel.currentProtocol.name)
                     .font(.system(size: 26, weight: .bold))
-                    .foregroundStyle(viewModel.protocolImageURL == nil ? Color.primary : Color.white)
+                    .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
 
                 HStack(spacing: 10) {
                     statusPill
@@ -215,7 +215,7 @@ struct ProtocolDetailView: View {
             .clipped()
             .overlay(
                 LinearGradient(
-                    colors: [Color.black.opacity(0.15), Color.black.opacity(0.45)],
+                    colors: [Color.appText.opacity(0.15), Color.appText.opacity(0.45)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -331,7 +331,7 @@ struct ProtocolDetailView: View {
                 }
             } else if let error = viewModel.statusError {
                 Text("Error loading status: \(error)")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.appError)
                     .font(.caption)
             }
         }
@@ -341,14 +341,14 @@ struct ProtocolDetailView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title.uppercased())
                 .font(.caption2.weight(.bold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
             HStack(spacing: 6) {
                 Image(systemName: system)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(highlight ? accent : .secondary)
+                    .foregroundStyle(highlight ? accent : Color.appTextSecondary)
                 Text(value)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(highlight ? accent : .primary)
+                    .foregroundStyle(highlight ? accent : Color.appText)
             }
         }
         .padding(14)
@@ -369,9 +369,9 @@ struct ProtocolDetailView: View {
             .background(
                 viewModel.protocolImageURL == nil
                 ? (viewModel.currentProtocol.isActive == true ? accent.opacity(0.18) : Color(.systemGray5))
-                : Color.black.opacity(0.35)
+                : Color.appText.opacity(0.35)
             )
-            .foregroundStyle(viewModel.protocolImageURL == nil ? (viewModel.currentProtocol.isActive == true ? accent : .secondary) : Color.white)
+            .foregroundStyle(viewModel.protocolImageURL == nil ? (viewModel.currentProtocol.isActive == true ? accent : Color.appTextSecondary) : Color.appOnAccent)
             .clipShape(Capsule())
     }
 
@@ -384,8 +384,8 @@ struct ProtocolDetailView: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(viewModel.protocolImageURL == nil ? Color(.systemGray5) : Color.black.opacity(0.35))
-        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.secondary : Color.white)
+        .background(viewModel.protocolImageURL == nil ? Color(.systemGray5) : Color.appText.opacity(0.35))
+        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent)
         .clipShape(Capsule())
     }
 
@@ -457,7 +457,7 @@ private struct StepRow: View {
                         .fill((category?.tagColor ?? Color(.systemGray5)).opacity(0.16))
                     Image(systemName: categoryIcon)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(category?.tagColor ?? .secondary)
+                        .foregroundStyle(category?.tagColor ?? Color.appTextSecondary)
                 }
                 .frame(width: 36, height: 36)
             }
@@ -468,7 +468,7 @@ private struct StepRow: View {
                     .strikethrough(isCompleted)
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(isCompleted ? accent : .secondary)
+                    .foregroundStyle(isCompleted ? accent : Color.appTextSecondary)
                 // Unified model (Step 23): show category/modality instead of
                 // the old "Library"/"Custom" provenance labels.
                 if !isCompleted, let category {
@@ -490,7 +490,7 @@ private struct StepRow: View {
                                 .font(.system(size: 11, weight: .medium))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                                 .background(Color(.systemGray5))
                                 .clipShape(Capsule())
                         }
@@ -505,7 +505,7 @@ private struct StepRow: View {
             } label: {
                 Image(systemName: "gearshape")
                     .font(.system(size: 16))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
             .buttonStyle(.plain)
         }
@@ -533,14 +533,14 @@ private struct StepRowDragPreview: View {
             Circle()
                 .fill(Color(.systemGray5))
                 .frame(width: 36, height: 36)
-                .overlay(Image(systemName: "star.fill").font(.system(size: 14, weight: .semibold)).foregroundStyle(.secondary))
+                .overlay(Image(systemName: "star.fill").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.appTextSecondary))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 15, weight: .semibold))
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
 
             Spacer()

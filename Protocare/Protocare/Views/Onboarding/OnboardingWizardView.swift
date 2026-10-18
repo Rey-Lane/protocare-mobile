@@ -169,7 +169,7 @@ struct OnboardingWizardView: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 18, weight: .heavy))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.appOnAccent)
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
                 .background(vm.canContinue(vm.currentStep) ? primary : Color.appBorder)
@@ -292,7 +292,7 @@ struct OnboardingWizardView: View {
                 Text(category.displayName)
                     .font(.system(size: 14, weight: selected ? .bold : .semibold))
             }
-            .foregroundStyle(selected ? .white : Color.appText)
+            .foregroundStyle(selected ? Color.appOnAccent : Color.appText)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .background(
@@ -445,7 +445,7 @@ struct OnboardingWizardView: View {
             HStack(spacing: 12) {
                 Image(systemName: action.category.tagIcon)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.appOnAccent)
                     .frame(width: 36, height: 36)
                     .background(action.category.tagColor)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -604,7 +604,7 @@ struct OnboardingWizardView: View {
             .overlay {
                 Image(systemName: systemName)
                     .font(.system(size: symbolSize, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.appOnAccent)
             }
             .shadow(color: Color.appPrimary.opacity(0.3), radius: 16, y: 8)
     }
@@ -618,7 +618,7 @@ struct OnboardingWizardView: View {
                     .font(.system(size: symbolSize, weight: .semibold))
                     .foregroundStyle(tint)
             }
-            .shadow(color: Color.black.opacity(0.08), radius: 6, y: 3)
+            .shadow(color: Color.appText.opacity(0.08), radius: 6, y: 3)
     }
 }
 

@@ -92,7 +92,7 @@ private struct CategoryChip: View {
                 Text(title)
                     .font(.system(size: 14, weight: isSelected ? .semibold : .medium))
             }
-            .foregroundStyle(isSelected ? .white : .secondary)
+            .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
             .background(

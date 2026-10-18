@@ -13,13 +13,13 @@ struct RegistrationFormView: View {
             if vm.password.count > 0 && vm.password.count < 8 {
                 Text("Password must be at least 8 characters.")
                     .font(.footnote)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.appError)
             }
 
             if vm.passwordConfirmation.count > 0 && vm.passwordConfirmation != vm.password {
                 Text("Passwords do not match.")
                     .font(.footnote)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.appError)
             }
 
             submitButton
@@ -27,7 +27,7 @@ struct RegistrationFormView: View {
             if let error = vm.errorMessage {
                 Text(error)
                     .font(.footnote)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.appError)
             }
 
             termsText
@@ -77,12 +77,12 @@ struct RegistrationFormView: View {
         .padding(.vertical, 20)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.04), radius: 16, y: 4)
+                .fill(Color.appSurface)
+                .shadow(color: Color.appText.opacity(0.04), radius: 16, y: 4)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.black.opacity(0.03), lineWidth: 0.5)
+                .stroke(Color.appText.opacity(0.03), lineWidth: 0.5)
         )
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
@@ -94,11 +94,11 @@ struct RegistrationFormView: View {
             HStack {
                 Spacer()
                 if vm.isLoading {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(Color.appOnAccent)
                 } else {
                     Text("Create Account")
                         .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appOnAccent)
                 }
                 Spacer()
             }
@@ -122,7 +122,7 @@ struct RegistrationFormView: View {
             + Text(".")
         )
         .font(.system(size: 13))
-        .foregroundStyle(.secondary)
+        .foregroundStyle(Color.appTextSecondary)
         .multilineTextAlignment(.center)
     }
 
@@ -137,7 +137,7 @@ struct RegistrationFormView: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 20))
-                .foregroundStyle(focusedField == field ? Color.appPrimaryDark : .gray)
+                .foregroundStyle(focusedField == field ? Color.appPrimaryDark : Color.appTextSecondary)
                 .frame(width: 24)
 
             if isSecure {

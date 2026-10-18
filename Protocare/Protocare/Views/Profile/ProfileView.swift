@@ -39,10 +39,10 @@ struct ProfileView: View {
             VStack(spacing: 4) {
                 Text(vm.profile.name)
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.appOnAccent)
                 Text(vm.profile.email)
                     .font(.system(size: 13))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(Color.appOnAccent.opacity(0.8))
             }
 
             statsRow
@@ -69,22 +69,22 @@ struct ProfileView: View {
         .clipShape(Circle())
         .overlay(
             Circle()
-                .stroke(.white.opacity(0.4), lineWidth: 2)
+                .stroke(Color.appOnAccent.opacity(0.4), lineWidth: 2)
         )
     }
 
     private var initialsCircle: some View {
         Circle()
-            .fill(.white.opacity(0.25))
+            .fill(Color.appOnAccent.opacity(0.25))
             .frame(width: 64, height: 64)
             .overlay(
                 Circle()
-                    .stroke(.white.opacity(0.4), lineWidth: 2)
+                    .stroke(Color.appOnAccent.opacity(0.4), lineWidth: 2)
             )
             .overlay {
                 Text(vm.profile.initials)
                     .font(.system(size: 26, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.appOnAccent)
             }
     }
 
@@ -95,7 +95,7 @@ struct ProfileView: View {
             statItem(value: "\(vm.profile.stats.checkinsCount)", label: "CHECK-INS")
         }
         .padding(10)
-        .background(.white.opacity(0.08))
+        .background(Color.appOnAccent.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
@@ -104,16 +104,16 @@ struct ProfileView: View {
             HStack(spacing: 3) {
                 Text(value)
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.appOnAccent)
                 if let icon {
                     Image(systemName: icon)
                         .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(Color.appOnAccent.opacity(0.7))
                 }
             }
             Text(label)
                 .font(.system(size: 11))
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(Color.appOnAccent.opacity(0.7))
         }
         .frame(maxWidth: .infinity)
     }

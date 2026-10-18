@@ -138,8 +138,8 @@ private struct VisualProgressSection: View {
                         .font(.caption2)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.black.opacity(0.5))
-                        .foregroundStyle(.white)
+                        .background(Color.appText.opacity(0.5))
+                        .foregroundStyle(Color.appOnAccent)
                         .clipShape(.rect(cornerRadius: 4))
                         .padding(4)
                 }
@@ -158,8 +158,8 @@ private struct VisualProgressSection: View {
                         .font(.caption2)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.black.opacity(0.5))
-                        .foregroundStyle(.white)
+                        .background(Color.appText.opacity(0.5))
+                        .foregroundStyle(Color.appOnAccent)
                         .clipShape(.rect(cornerRadius: 4))
                         .padding(4)
                 }
@@ -210,7 +210,7 @@ private struct MetricTrendSection: View {
             } else {
                 Text("No trend data yet")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .padding(.vertical, 8)
             }
         } label: {
@@ -249,7 +249,7 @@ private struct MetricTrendSection: View {
                         .font(.subheadline.weight(.semibold))
                     Image(systemName: "chevron.down")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
                 .foregroundStyle(Color.appPrimary)
             }
@@ -260,7 +260,7 @@ private struct MetricTrendSection: View {
             } else {
                 Text("Need at least 2 data points")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .padding(.vertical, 8)
             }
 
@@ -329,7 +329,7 @@ private struct MetricTrendSection: View {
             Text(String(format: "%+.1f vs 7d ago", change))
                 .font(.caption.weight(.medium))
         }
-        .foregroundStyle(change >= 0 ? .green : .red)
+        .foregroundStyle(change >= 0 ? Color.appSuccess : Color.appError)
     }
 }
 
@@ -362,7 +362,7 @@ private struct TodayActionsSection: View {
             } else {
                 Text("No actions scheduled for today")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
     }

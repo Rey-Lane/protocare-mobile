@@ -40,7 +40,7 @@ struct ProtocolsView: View {
                             Text("No protocols yet")
                                 .font(.system(size: 20, weight: .bold))
                             Text("Start building your first self-care routine...")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                                 .multilineTextAlignment(.center)
                             Button {
                                 showingBuilder = true
@@ -50,7 +50,7 @@ struct ProtocolsView: View {
                                     .padding(.horizontal, 24)
                                     .padding(.vertical, 12)
                                     .background(Color.appPrimary)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color.appOnAccent)
                                     .clipShape(Capsule())
                             }
                         }
@@ -131,7 +131,7 @@ struct ProtocolsView: View {
             .overlay {
                 if protocolToDelete != nil {
                     ZStack {
-                        Color.black.opacity(0.3)
+                        Color.appText.opacity(0.3)
                             .ignoresSafeArea()
                             .onTapGesture {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -145,12 +145,12 @@ struct ProtocolsView: View {
                                     .font(.system(size: 18))
                                     .foregroundStyle(Color.appError)
                                     .frame(width: 32, height: 32)
-                                    .background(Color.red.opacity(0.12))
+                                    .background(Color.appError.opacity(0.12))
                                     .clipShape(Circle())
 
                                 Text("Delete Protocol?")
                                     .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(Color.appText)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16)
@@ -159,7 +159,7 @@ struct ProtocolsView: View {
 
                             Text("This action cannot be undone. The protocol and all its data will be permanently removed.")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 16)
@@ -178,7 +178,7 @@ struct ProtocolsView: View {
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color(.secondarySystemBackground))
-                                        .foregroundStyle(.primary)
+                                        .foregroundStyle(Color.appText)
                                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                 }
                                 .buttonStyle(.plain)
@@ -196,7 +196,7 @@ struct ProtocolsView: View {
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color.appError)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(Color.appOnAccent)
                                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                 }
                                 .buttonStyle(.plain)
@@ -207,7 +207,7 @@ struct ProtocolsView: View {
                         .frame(width: 280)
                         .background(Color(.systemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .shadow(color: Color.black.opacity(0.15), radius: 20, y: 8)
+                        .shadow(color: Color.appText.opacity(0.15), radius: 20, y: 8)
                         .transition(.scale(scale: 0.85).combined(with: .opacity))
                     }
                 }
@@ -228,7 +228,7 @@ struct ProtocolsView: View {
                         isSearching = false
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     }
                 }
                 .padding(.horizontal, 12)
@@ -248,7 +248,7 @@ struct ProtocolsView: View {
                 } label: {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.appText)
                 }
             }
         }
@@ -292,7 +292,7 @@ struct ProtocolsView: View {
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appOnAccent)
                         .frame(width: 52, height: 52)
                         .background(Color.appPrimary)
                         .clipShape(Circle())
@@ -329,7 +329,7 @@ private struct CategoryChip: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .background(isSelected ? color : Color(.systemBackground))
-                .foregroundStyle(isSelected ? .white : .secondary)
+                .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
                 .clipShape(Capsule())
                 .overlay(
                     Capsule()
@@ -360,7 +360,7 @@ private struct ProtocolCardView: View {
 
                 Text(item.name)
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.appText)
                     .lineLimit(2)
 
                 HStack(spacing: 8) {
@@ -370,7 +370,7 @@ private struct ProtocolCardView: View {
                         Text(item.stepsLabel)
                             .font(.caption)
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
 
                     if item.streak > 0 {
                         HStack(spacing: 4) {
@@ -391,7 +391,7 @@ private struct ProtocolCardView: View {
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(item.isActive == true ? Color.appPrimaryLight : Color(.systemGray5))
-                        .foregroundStyle(item.isActive == true ? Color.appPrimaryDark : .secondary)
+                        .foregroundStyle(item.isActive == true ? Color.appPrimaryDark : Color.appTextSecondary)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -420,7 +420,7 @@ private struct ProtocolCardView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 3)
                         .background(Color.appWarning)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appOnAccent)
                         .clipShape(Capsule())
                         .offset(x: 4, y: -6)
                     }
@@ -435,7 +435,7 @@ private struct ProtocolCardView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
-        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+        .shadow(color: Color.appText.opacity(0.04), radius: 10, y: 4)
         .opacity(item.isActive == true ? 1.0 : 0.6)
     }
 }

@@ -45,12 +45,12 @@ struct ActionCheckinCard: View {
             HStack(spacing: 10) {
                 Image(systemName: checkin.isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
-                    .foregroundStyle(checkin.isCompleted ? Color.appPrimary : .secondary)
+                    .foregroundStyle(checkin.isCompleted ? Color.appPrimary : Color.appTextSecondary)
                     .accessibilityLabel(checkin.isCompleted ? "Completed" : "Not completed")
 
                 Text(checkin.actionName)
                     .font(.subheadline)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.appText)
 
                 Spacer()
 
@@ -58,16 +58,16 @@ struct ActionCheckinCard: View {
                     if let summary = checkin.completedSummary {
                         Text(summary)
                             .font(.caption.weight(.medium))
-                            .foregroundStyle(.green)
+                            .foregroundStyle(Color.appSuccess)
                     } else {
                         Text("Done")
                             .font(.caption.weight(.medium))
-                            .foregroundStyle(.green)
+                            .foregroundStyle(Color.appSuccess)
                     }
                 } else {
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
             }
             .padding(.horizontal, 14)
@@ -105,7 +105,7 @@ struct ActionCheckinCard: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .background(Color.appPrimary)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.appOnAccent)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .padding(.horizontal, 14)
@@ -118,11 +118,11 @@ struct ActionCheckinCard: View {
             HStack {
                 Text("Amount")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(volumeDisplay)
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.appText)
             }
 
             Slider(value: $volumeAmount, in: 0...checkin.volumeUpperBound, step: 0.5)
@@ -136,11 +136,11 @@ struct ActionCheckinCard: View {
             HStack {
                 Text("Duration")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(durationDisplay)
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.appText)
             }
 
             Slider(value: $durationSeconds, in: 0...checkin.durationUpperBound, step: 5)

@@ -67,7 +67,7 @@ struct ActionCreatorView: View {
                     case .none:
                         Text("Just a yes/no check-in each day.")
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     case .amount:
                         HStack {
                             // Bug #3 fix: leading alignment — the old .trailing
@@ -89,7 +89,7 @@ struct ActionCreatorView: View {
                             TextField("Minutes", value: $viewModel.durationMinutes, format: .number)
                                 .keyboardType(.numberPad)
                             Text("min")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                         }
                     }
                 } header: {
@@ -130,7 +130,7 @@ struct ActionCreatorView: View {
                     }
                     .disabled(!viewModel.canSave)
                     .fontWeight(.semibold)
-                    .foregroundStyle(viewModel.canSave ? Color.appPrimary : .secondary)
+                    .foregroundStyle(viewModel.canSave ? Color.appPrimary : Color.appTextSecondary)
                 }
             }
             .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {

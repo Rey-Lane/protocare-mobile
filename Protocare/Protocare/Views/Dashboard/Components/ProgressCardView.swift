@@ -20,7 +20,7 @@ struct ProgressCardView: View {
                     .foregroundStyle(accent)
                 Text("PROGRESS")
                     .font(.caption2.weight(.bold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
             HStack(spacing: 12) {
                 ZStack {
@@ -45,7 +45,7 @@ struct ProgressCardView: View {
                         .foregroundStyle(accent)
                     Text(motivationalText)
                         .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
             }
         }
@@ -53,6 +53,6 @@ struct ProgressCardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+        .shadow(color: Color.appText.opacity(0.04), radius: 8, y: 4)
     }
 }

@@ -22,12 +22,12 @@ struct CustomActionRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(action.displayName)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.appText)
 
                 if !action.descriptionLabel.isEmpty {
                     Text(action.descriptionLabel)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                         .lineLimit(1)
                 }
             }
@@ -53,6 +53,6 @@ struct CustomActionRow: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(Color(.separator).opacity(0.1))
         )
-        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 3)
+        .shadow(color: Color.appText.opacity(0.04), radius: 8, y: 3)
     }
 }

@@ -61,7 +61,7 @@ private struct ProtocolJournalRow: View {
                 if let category = `protocol`.category {
                     Text(category.displayName)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
             }
 

@@ -39,11 +39,11 @@ struct ActionRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(action.actionName)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(action.isCompleted ? .secondary : .primary)
+                    .foregroundStyle(action.isCompleted ? Color.appTextSecondary : Color.appText)
                 if let desc = action.description {
                     Text(desc)
                         .font(.system(size: 13))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                         .lineLimit(1)
                 }
             }
@@ -53,7 +53,7 @@ struct ActionRowView: View {
             if let time = action.scheduledTime {
                 Text(formatTime(time))
                     .font(.system(size: 13, weight: .medium, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(.vertical, 8)

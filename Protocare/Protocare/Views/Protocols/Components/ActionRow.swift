@@ -30,7 +30,7 @@ struct ActionRow: View {
                 if !action.scheduleSummaryText.isEmpty {
                     Text(action.scheduleSummaryText)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 } else {
                     HStack(spacing: 8) {
                         // Unified model (Step 25b): category + modality badges
@@ -39,7 +39,7 @@ struct ActionRow: View {
                         if !action.detailLabel.isEmpty {
                             Text(action.detailLabel)
                                 .font(.footnote)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                         }
 
                         CapsuleTag(text: action.category.displayName, style: .accent)
@@ -54,7 +54,7 @@ struct ActionRow: View {
 
             Button(action: onSettings) {
                 Image(systemName: "line.3.horizontal.decrease.circle")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
             .buttonStyle(.plain)
         }

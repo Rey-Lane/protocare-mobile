@@ -40,10 +40,10 @@ struct WeekCalendarView: View {
                 VStack(spacing: 4) {
                     Text(dayFormatter.string(from: day).uppercased())
                         .font(.caption2.weight(.medium))
-                        .foregroundStyle(isSelected ? .white : isFuture ? Color.secondary.opacity(0.4) : .secondary)
+                        .foregroundStyle(isSelected ? Color.appOnAccent : isFuture ? Color.appTextSecondary.opacity(0.4) : Color.appTextSecondary)
                     Text(numberFormatter.string(from: day))
                         .font(.system(size: 16, weight: isSelected ? .bold : .regular, design: .rounded))
-                        .foregroundStyle(isSelected ? .white : isFuture ? Color.primary.opacity(0.4) : .primary)
+                        .foregroundStyle(isSelected ? Color.appOnAccent : isFuture ? Color.appText.opacity(0.4) : Color.appText)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)

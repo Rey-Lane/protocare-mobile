@@ -22,12 +22,12 @@ struct LibraryCardView: View {
 
             Text(action.tagLabel)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
 
             if !action.detailLabel.isEmpty {
                 Text(action.detailLabel)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
 
             Button(action: onAdd) {

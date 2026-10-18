@@ -170,10 +170,10 @@ struct ActionPickerView: View {
                 VStack(spacing: 12) {
                     Image(systemName: loadFailed ? "wifi.exclamationmark" : "magnifyingglass")
                         .font(.system(size: 32))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                     Text(loadFailed ? "Couldn't load actions." : "No matching actions")
                         .font(.headline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                     if loadFailed {
                         Button("Retry") {
                             Task { await loadActions() }
@@ -196,7 +196,7 @@ struct ActionPickerView: View {
                 Spacer()
                 Text("\(filteredActions.count)")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
     }
@@ -261,7 +261,7 @@ private struct FilterChip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .foregroundStyle(isSelected ? .white : .primary)
+            .foregroundStyle(isSelected ? Color.appOnAccent : Color.appText)
             .background(isSelected ? color : Color(.systemGray5))
             .clipShape(Capsule())
         }
@@ -283,7 +283,7 @@ private struct UnifiedActionRow: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(action.displayName)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.appText)
                         .multilineTextAlignment(.leading)
 
                     HStack(spacing: 6) {
@@ -304,7 +304,7 @@ private struct UnifiedActionRow: View {
                                 .font(.system(size: 11, weight: .medium))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                                 .background(Color(.systemGray5))
                                 .clipShape(Capsule())
                         }

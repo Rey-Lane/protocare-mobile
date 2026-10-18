@@ -8,7 +8,7 @@ struct ImageViewer: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color.appText.ignoresSafeArea()
 
                 Image(uiImage: image)
                     .resizable()
@@ -21,7 +21,7 @@ struct ImageViewer: View {
                     Button("Done") {
                         isPresented = false
                     }
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.appOnAccent)
                 }
             }
         }
@@ -37,7 +37,7 @@ struct AsyncImageViewer: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color.appText.ignoresSafeArea()
 
                 if let image = loader.image {
                     Image(uiImage: image)
@@ -46,7 +46,7 @@ struct AsyncImageViewer: View {
                         .pinchToZoom()
                 } else if loader.image == nil {
                     ProgressView()
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appOnAccent)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -59,12 +59,12 @@ struct AsyncImageViewer: View {
                             } label: {
                                 Image(systemName: "square.split.2x1")
                             }
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.appOnAccent)
                         }
                         Button("Done") {
                             isPresented = false
                         }
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appOnAccent)
                     }
                 }
             }

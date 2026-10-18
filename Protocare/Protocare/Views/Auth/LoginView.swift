@@ -22,7 +22,7 @@ struct LoginFormView: View {
             if let error = vm.errorMessage {
                 Text(error)
                     .font(.footnote)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(Color.appError)
             }
         }
     }
@@ -51,12 +51,12 @@ struct LoginFormView: View {
         .padding(.vertical, 20)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.04), radius: 16, y: 4)
+                .fill(Color.appSurface)
+                .shadow(color: Color.appText.opacity(0.04), radius: 16, y: 4)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.black.opacity(0.03), lineWidth: 0.5)
+                .stroke(Color.appText.opacity(0.03), lineWidth: 0.5)
         )
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
@@ -68,11 +68,11 @@ struct LoginFormView: View {
             HStack {
                 Spacer()
                 if vm.isLoading {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(Color.appOnAccent)
                 } else {
                     Text("Sign In")
                         .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appOnAccent)
                 }
                 Spacer()
             }
@@ -98,7 +98,7 @@ struct LoginFormView: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 20))
-                .foregroundStyle(focusedField == field ? Color.appPrimaryDark : .gray)
+                .foregroundStyle(focusedField == field ? Color.appPrimaryDark : Color.appTextSecondary)
                 .frame(width: 24)
 
             if isSecure {

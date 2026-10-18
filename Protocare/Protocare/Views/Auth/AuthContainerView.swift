@@ -50,13 +50,13 @@ struct AuthContainerView: View {
         VStack(spacing: 8) {
             Text(selectedTab == .login ? "Welcome Back" : "Create Account")
                 .font(.system(size: 34, weight: .bold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color.appText)
                 .contentTransition(.numericText())
                 .animation(.easeInOut(duration: 0.3), value: selectedTab)
 
             Text(selectedTab == .login ? "Log in to your wellness space" : "Start your personalized journey")
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
                 .animation(.easeInOut(duration: 0.3), value: selectedTab)
         }
         .frame(maxWidth: .infinity, alignment: .center)

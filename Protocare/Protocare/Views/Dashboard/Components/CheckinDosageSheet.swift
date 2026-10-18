@@ -33,7 +33,7 @@ struct CheckinDosageSheet: View {
             case .binary:
                 Text("Mark this action as done for today.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 8)
             }
@@ -51,7 +51,7 @@ struct CheckinDosageSheet: View {
             if let desc = action.description {
                 Text(desc)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
     }
@@ -65,7 +65,7 @@ struct CheckinDosageSheet: View {
                 Button { quantity = max(0, quantity - stepIncrement) } label: {
                     Image(systemName: "minus.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
                 .buttonStyle(.plain)
 
@@ -77,7 +77,7 @@ struct CheckinDosageSheet: View {
 
                 Text(unitLabel)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
 
                 Spacer()
 
@@ -92,7 +92,7 @@ struct CheckinDosageSheet: View {
             if let prefill = action.defaultQuantity {
                 Text("Default: \(prefill.amount.roundedString(maxFractionDigits: 2)) \(prefill.unit.displayName)")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
@@ -118,11 +118,11 @@ struct CheckinDosageSheet: View {
                 .tint(accent)
 
             HStack {
-                Text("0s").font(.caption).foregroundStyle(.secondary)
+                Text("0s").font(.caption).foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(durationLabel).font(.system(size: 17, weight: .semibold, design: .rounded))
                 Spacer()
-                Text("120 min").font(.caption).foregroundStyle(.secondary)
+                Text("120 min").font(.caption).foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
@@ -160,7 +160,7 @@ struct CheckinDosageSheet: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
             .background(accent)
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.appOnAccent)
             .clipShape(Capsule())
         }
     }

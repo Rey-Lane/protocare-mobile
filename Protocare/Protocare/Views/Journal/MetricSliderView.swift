@@ -18,7 +18,7 @@ struct MetricSliderView: View {
                         .font(.subheadline.weight(.medium))
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer()
@@ -33,7 +33,7 @@ struct MetricSliderView: View {
             HStack(spacing: 8) {
                 Text("0")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
 
                 Slider(value: Binding(
                     get: { Double(value) },
@@ -45,7 +45,7 @@ struct MetricSliderView: View {
 
                 Text("10")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(.vertical, 4)

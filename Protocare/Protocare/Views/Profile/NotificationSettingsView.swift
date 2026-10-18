@@ -152,7 +152,7 @@ struct NotificationSettingsView: View {
         VStack(spacing: 12) {
             Text(message)
                 .font(.system(size: 15))
-                .foregroundStyle(.red)
+                .foregroundStyle(Color.appError)
             Button("Retry") {
                 Task { await vm.load() }
             }

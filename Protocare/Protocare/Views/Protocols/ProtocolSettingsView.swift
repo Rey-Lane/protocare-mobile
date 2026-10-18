@@ -39,7 +39,7 @@ struct ProtocolSettingsView: View {
                 }
                 .disabled(!vm.canSave)
                 .fontWeight(.semibold)
-                .foregroundStyle(vm.canSave ? accent : .secondary)
+                .foregroundStyle(vm.canSave ? accent : Color.appTextSecondary)
             }
         }
         .alert("Update Failed", isPresented: .constant(vm.editError != nil), actions: {
@@ -108,13 +108,13 @@ struct ProtocolSettingsView: View {
                 if let category = vm.editCategory {
                     Text(category.displayName.uppercased())
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(vm.protocolImageURL == nil ? .secondary : Color.white.opacity(0.7))
+                        .foregroundStyle(vm.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent.opacity(0.7))
                         .tracking(1.5)
                 }
 
                 Text(vm.editName.isEmpty ? "Untitled Protocol" : vm.editName)
                     .font(.system(size: 26, weight: .bold))
-                    .foregroundStyle(vm.protocolImageURL == nil ? Color.primary : Color.white)
+                    .foregroundStyle(vm.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
                     .lineLimit(2)
 
                 HStack(spacing: 10) {
@@ -137,7 +137,7 @@ struct ProtocolSettingsView: View {
             .clipped()
             .overlay(
                 LinearGradient(
-                    colors: [Color.black.opacity(0.15), Color.black.opacity(0.45)],
+                    colors: [Color.appText.opacity(0.15), Color.appText.opacity(0.45)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -172,9 +172,9 @@ struct ProtocolSettingsView: View {
             .background(
                 vm.protocolImageURL == nil
                 ? (vm.editIsActive ? accent.opacity(0.18) : Color(.systemGray5))
-                : Color.black.opacity(0.35)
+                : Color.appText.opacity(0.35)
             )
-            .foregroundStyle(vm.protocolImageURL == nil ? (vm.editIsActive ? accent : .secondary) : Color.white)
+            .foregroundStyle(vm.protocolImageURL == nil ? (vm.editIsActive ? accent : Color.appTextSecondary) : Color.appOnAccent)
             .clipShape(Capsule())
     }
 
@@ -187,8 +187,8 @@ struct ProtocolSettingsView: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(vm.protocolImageURL == nil ? Color(.systemGray5) : Color.black.opacity(0.35))
-        .foregroundStyle(vm.protocolImageURL == nil ? Color.secondary : Color.white)
+        .background(vm.protocolImageURL == nil ? Color(.systemGray5) : Color.appText.opacity(0.35))
+        .foregroundStyle(vm.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent)
         .clipShape(Capsule())
     }
 
@@ -213,16 +213,16 @@ struct ProtocolSettingsView: View {
                 HStack(spacing: 8) {
                     if vm.editImageRemoved {
                         Text("None")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     } else if vm.editSelectedImage != nil {
                         Text("Updated")
                             .foregroundStyle(accent)
                     } else if vm.protocolImageURL != nil {
                         Text("Set")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     } else {
                         Text("Add")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     }
                     Image(systemName: "chevron.right")
                         .font(.system(size: 13, weight: .semibold))
@@ -245,7 +245,7 @@ struct ProtocolSettingsView: View {
             SettingsRow(icon: "target", label: "Goal") {
                 HStack(spacing: 8) {
                     Text(vm.editCategory?.displayName ?? "Select")
-                        .foregroundStyle(vm.editCategory == nil ? .secondary : .primary)
+                        .foregroundStyle(vm.editCategory == nil ? Color.appTextSecondary : Color.appText)
                     Image(systemName: "chevron.right")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.tertiary)
@@ -276,9 +276,9 @@ struct ProtocolSettingsView: View {
                 } label: {
                     HStack {
                         Image(systemName: "trash")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color.appError)
                         Text("Remove Cover")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color.appError)
                     }
                     .font(.subheadline)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -327,7 +327,7 @@ struct ProtocolSettingsView: View {
                         .labelsHidden()
                     } else {
                         Text("Not set")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     }
                     Toggle("", isOn: $vm.hasEditEndedAt)
                         .tint(accent)
@@ -365,7 +365,7 @@ struct ProtocolSettingsView: View {
                 Text(vm.editCategory == nil
                      ? "Select a goal to see recommended metrics"
                      : "No metrics selected — add the ones you want to track")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .font(.subheadline)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
@@ -440,7 +440,7 @@ struct ProtocolSettingsView: View {
 
             if vm.editActions.isEmpty {
                 Text("No actions yet. Add some below.")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .font(.subheadline)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 14)
@@ -475,7 +475,7 @@ struct ProtocolSettingsView: View {
                                         .font(.system(size: 11, weight: .medium))
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 3)
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(Color.appTextSecondary)
                                         .background(Color(.systemGray5))
                                         .clipShape(Capsule())
                                 }
@@ -483,11 +483,11 @@ struct ProtocolSettingsView: View {
                             if !action.scheduleSummaryText.isEmpty {
                                 Text(action.scheduleSummaryText)
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Color.appTextSecondary)
                             } else if !action.tagLabel.isEmpty {
                                 Text(action.tagLabel)
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Color.appTextSecondary)
                             }
                             let reminderCount = action.slots.filter { $0.isReminderOn }.count
                             if reminderCount > 0 {
@@ -504,7 +504,7 @@ struct ProtocolSettingsView: View {
                         } label: {
                             Image(systemName: "clock")
                                 .font(.system(size: 16))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                         }
                         .buttonStyle(.plain)
 
@@ -513,7 +513,7 @@ struct ProtocolSettingsView: View {
                         } label: {
                             Image(systemName: "minus.circle.fill")
                                 .font(.system(size: 20))
-                                .foregroundStyle(.red.opacity(0.6))
+                                .foregroundStyle(Color.appError.opacity(0.6))
                         }
                         .buttonStyle(.plain)
                     }
@@ -584,14 +584,14 @@ struct ProtocolSettingsView: View {
                 Text("Delete Protocol")
             }
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.red)
+            .foregroundStyle(Color.appError)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
             .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(Color.red.opacity(0.15))
+                    .stroke(Color.appError.opacity(0.15))
             )
         }
         .buttonStyle(.plain)
@@ -619,7 +619,7 @@ struct ProtocolSettingsView: View {
                                 Text(metric.label)
                                 Text(metric.description)
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Color.appTextSecondary)
                             }
                             Spacer()
                             if vm.editMetricKeys?.contains(metric) == true {
@@ -657,7 +657,7 @@ private struct SectionHeader: View {
             if let count {
                 Text("\(count)")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(.horizontal, 16)
@@ -675,7 +675,7 @@ private struct SettingsRow<Content: View>: View {
         HStack(spacing: 14) {
             Image(systemName: icon)
                 .font(.system(size: 16))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
                 .frame(width: 24)
 
             Text(label)

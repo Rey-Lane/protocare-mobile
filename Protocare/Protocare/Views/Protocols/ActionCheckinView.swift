@@ -83,7 +83,7 @@ struct ActionCheckinView: View {
     private var header: some View {
         HStack {
             Button("Cancel") { dismiss() }
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
 
             Spacer()
 
@@ -102,7 +102,7 @@ struct ActionCheckinView: View {
         HStack {
             Label("Execution Time", systemImage: "clock.fill")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
 
             Spacer()
 
@@ -133,7 +133,7 @@ struct ActionCheckinView: View {
                 } label: {
                     Image(systemName: "minus.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
                 .buttonStyle(.plain)
 
@@ -145,7 +145,7 @@ struct ActionCheckinView: View {
 
                 Text(unitLabel)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
 
                 Spacer()
 
@@ -162,7 +162,7 @@ struct ActionCheckinView: View {
             if let hint = quantityHint {
                 Text(hint)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
@@ -197,12 +197,12 @@ struct ActionCheckinView: View {
             Slider(value: $durationSeconds, in: 0...7200, step: 5)
                 .tint(accent)
             HStack {
-                Text("0s").font(.caption).foregroundStyle(.secondary)
+                Text("0s").font(.caption).foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(durationDisplay)
                     .font(.system(size: 17, weight: .semibold, design: .rounded))
                 Spacer()
-                Text("120 min").font(.caption).foregroundStyle(.secondary)
+                Text("120 min").font(.caption).foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
@@ -233,7 +233,7 @@ struct ActionCheckinView: View {
                         .font(.system(size: 17, weight: .semibold))
                     Text("Just mark this action as done for today.")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
             }
             .tint(accent)
@@ -297,7 +297,7 @@ struct ActionCheckinView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(accent)
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.appOnAccent)
             .clipShape(Capsule())
             .shadow(color: accent.opacity(0.25), radius: 8, y: 3)
         }

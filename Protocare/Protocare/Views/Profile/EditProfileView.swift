@@ -82,9 +82,9 @@ struct EditProfileView: View {
             .overlay {
                 if vm.isSaving || vm.isDeleting {
                     ProgressView()
-                        .tint(.white)
+                        .tint(Color.appOnAccent)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.3))
+                        .background(Color.appText.opacity(0.3))
                         .ignoresSafeArea()
                 }
             }
@@ -122,7 +122,7 @@ struct EditProfileView: View {
                     .overlay {
                         Image(systemName: "camera.fill")
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.appOnAccent)
                     }
                     .offset(x: 4, y: 4)
             }
@@ -193,7 +193,7 @@ struct EditProfileView: View {
                 HStack(spacing: 14) {
                     Image(systemName: "trash.fill")
                         .font(.system(size: 15))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appOnAccent)
                         .frame(width: 34, height: 34)
                         .background(Color.appError)
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))

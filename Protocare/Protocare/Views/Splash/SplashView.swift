@@ -52,11 +52,11 @@ struct SplashView: View {
                         Text("Powered by Auren Terrix")
                             .font(.system(size: 11, weight: .semibold))
                             .kerning(1.5)
-                            .foregroundStyle(Color.white.opacity(0.85))
+                            .foregroundStyle(Color.appOnAccent.opacity(0.85))
 
                         Text("Self-care, simplified")
                             .font(.system(size: 13, weight: .regular))
-                            .foregroundStyle(Color.white.opacity(0.6))
+                            .foregroundStyle(Color.appOnAccent.opacity(0.6))
                     }
                     .padding(.bottom, 48)
                 }

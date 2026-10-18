@@ -49,7 +49,7 @@ struct ProtocolBuilderView: View {
                     } label: {
                         HStack {
                             Text(vm.draft.category?.displayName ?? "Select a goal")
-                                .foregroundStyle(vm.draft.category == nil ? .secondary : .primary)
+                                .foregroundStyle(vm.draft.category == nil ? Color.appTextSecondary : Color.appText)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 13, weight: .semibold))
@@ -77,7 +77,7 @@ struct ProtocolBuilderView: View {
                         Text(vm.draft.category == nil
                              ? "Select a goal to see recommended metrics"
                              : "No metrics selected — add the ones you want to track")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                             .font(.subheadline)
                     } else {
                         ForEach(displayedMetrics) { metric in
@@ -124,10 +124,10 @@ struct ProtocolBuilderView: View {
                         VStack(spacing: 10) {
                             Image(systemName: "square.stack.3d.up.slash")
                                 .font(.system(size: 26))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                             Text("No actions yet")
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                             Text("Add actions from the unified library to build your protocol.")
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
@@ -154,7 +154,7 @@ struct ProtocolBuilderView: View {
                         Spacer()
                         Text("\(vm.draft.actions.count) STEPS")
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     }
                 }
 
@@ -186,7 +186,7 @@ struct ProtocolBuilderView: View {
                         }
                     }
                     .disabled(!vm.canSave)
-                    .foregroundStyle(vm.canSave ? Color.appPrimary : .secondary)
+                    .foregroundStyle(vm.canSave ? Color.appPrimary : Color.appTextSecondary)
                     .fontWeight(.semibold)
                 }
             }
@@ -257,7 +257,7 @@ struct ProtocolBuilderView: View {
                                         Text(metric.label)
                                         Text(metric.description)
                                             .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                            .foregroundStyle(Color.appTextSecondary)
                                     }
                                     Spacer()
                                     if vm.draft.metricKeys?.contains(metric) == true {
@@ -299,8 +299,8 @@ struct ProtocolBuilderView: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 24))
-                            .foregroundStyle(.white)
-                            .background(Color.black.opacity(0.45))
+                            .foregroundStyle(Color.appOnAccent)
+                            .background(Color.appText.opacity(0.45))
                             .clipShape(Circle())
                     }
                     .padding(12)
@@ -319,10 +319,10 @@ struct ProtocolBuilderView: View {
                     VStack(spacing: 10) {
                         Image(systemName: "add_a_photo")
                             .font(.system(size: 22, weight: .semibold))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                         Text("Add Protocol Cover")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     }
                     .frame(maxWidth: .infinity, minHeight: 160)
                     .background(Color(.systemGray6).opacity(0.6))
@@ -340,7 +340,7 @@ struct ProtocolBuilderView: View {
             Text("Define Protocol")
                 .font(.system(size: 30, weight: .bold))
             Text("Set the foundation for your new routine")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
         }
         .padding(.top, 8)
         .padding(.bottom, 4)

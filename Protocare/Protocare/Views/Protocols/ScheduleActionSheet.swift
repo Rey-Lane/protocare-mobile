@@ -88,7 +88,7 @@ struct ScheduleActionSheet: View {
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                         .frame(width: 32, height: 32)
                         .background(Color(.systemGray5))
                         .clipShape(Circle())
@@ -128,7 +128,7 @@ struct ScheduleActionSheet: View {
                     Spacer()
                     Image(systemName: "chevron.down")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                         .rotationEffect(.degrees(isFrequencyExpanded ? 180 : 0))
                 }
                 .padding(.horizontal, 16)
@@ -150,7 +150,7 @@ struct ScheduleActionSheet: View {
                             HStack {
                                 Text(freq.displayName)
                                     .font(.system(size: 17, weight: freq == frequency ? .bold : .regular))
-                                    .foregroundStyle(freq == frequency ? primary : .primary)
+                                    .foregroundStyle(freq == frequency ? primary : Color.appText)
                                 Spacer()
                                 if freq == frequency {
                                     Image(systemName: "checkmark")
@@ -196,7 +196,7 @@ struct ScheduleActionSheet: View {
         } label: {
             Text(day.singleLetter)
                 .font(.system(size: 15, weight: selected ? .bold : .medium))
-                .foregroundStyle(selected ? .white : .secondary)
+                .foregroundStyle(selected ? Color.appOnAccent : Color.appTextSecondary)
                 .frame(width: 40, height: 40)
                 .background {
                     if selected {
@@ -240,7 +240,7 @@ struct ScheduleActionSheet: View {
                     // Time display
                     Text(slot.timeLabel)
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.appText)
 
                     // Reminder status pill
                     if slot.isReminderOn {
@@ -266,7 +266,7 @@ struct ScheduleActionSheet: View {
                     // Expand chevron
                     Image(systemName: "chevron.down")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appTextSecondary)
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
 
                     // Delete button (only if >1 slot)
@@ -276,7 +276,7 @@ struct ScheduleActionSheet: View {
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 18))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                         }
                         .buttonStyle(.plain)
                     }
@@ -309,7 +309,7 @@ struct ScheduleActionSheet: View {
                     HStack {
                         Image(systemName: "bell.fill")
                             .font(.system(size: 16))
-                            .foregroundStyle(slot.isReminderOn ? primary : .secondary)
+                            .foregroundStyle(slot.isReminderOn ? primary : Color.appTextSecondary)
                         Text("Remind me")
                             .font(.system(size: 15, weight: .medium))
                         Spacer()
@@ -339,7 +339,7 @@ struct ScheduleActionSheet: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("REMIND ME AT")
                 .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
                 .tracking(1)
 
             HStack(spacing: 8) {
@@ -350,7 +350,7 @@ struct ScheduleActionSheet: View {
                     } label: {
                         Text(offsetLabel(for: offset))
                             .font(.system(size: 12, weight: isSelected ? .bold : .medium))
-                            .foregroundStyle(isSelected ? .white : .secondary)
+                            .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
                             .background {
@@ -406,7 +406,7 @@ struct ScheduleActionSheet: View {
                 .foregroundStyle(primary)
             Text(summaryAttributedString)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -445,7 +445,7 @@ struct ScheduleActionSheet: View {
         } label: {
             Text("Save Schedule")
                 .font(.system(size: 18, weight: .heavy))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.appOnAccent)
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
                 .background(primary)
@@ -460,7 +460,7 @@ struct ScheduleActionSheet: View {
     private func sectionLabel(_ text: String) -> some View {
         Text(text.uppercased())
             .font(.system(size: 13, weight: .bold))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Color.appTextSecondary)
             .tracking(1.5)
             .padding(.leading, 4)
     }

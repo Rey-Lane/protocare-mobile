@@ -9,7 +9,6 @@ import Foundation
 
 enum AppEnvironment {
     case local(ip: String)
-    case staging
     case production
 
     var baseURL: URL {
@@ -17,10 +16,8 @@ enum AppEnvironment {
         switch self {
         case .local(let ip):
             url = URL(string: "http://\(ip):8000/v1")!
-        case .staging:
-            url = URL(string: "https://staging-api.protocare.com/v1")!
         case .production:
-            url = URL(string: "https://api.protocare.com/v1")!
+            url = URL(string: "https://api.protocare.dev/v1")!
         }
 
         // S-04: Crash in release builds if an HTTP (non-HTTPS) URL would be
@@ -34,24 +31,20 @@ enum AppEnvironment {
         return url
     }
 
-    /// Current environment - reads from Info.plist which is configured via xcconfig
+    /// Current environment - selected at compile time.
+    ///
+    /// Note: `Config/*.xcconfig` files are NOT wired into the Xcode project
+    /// (no baseConfigurationReference, and GENERATE_INFOPLIST_FILE emits no
+    /// API_BASE_URL key), so the previous Info.plist-based detection never
+    /// worked - it always fell back to the local IP. Keep URL selection here
+    /// until the xcconfig chain is properly wired.
     static var current: AppEnvironment {
-        guard let urlString = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String,
-              let url = URL(string: urlString) else {
-            // Fallback to local development
-            return .local(ip: "192.168.1.71")
-        }
-
-        // Determine environment based on URL
-        if urlString.contains("localhost") || urlString.contains("192.168.") || urlString.contains("127.0.0.1") {
-            let ip = urlString.replacingOccurrences(of: "http://", with: "")
-                .replacingOccurrences(of: ":8000/v1", with: "")
-                .replacingOccurrences(of: ":8000", with: "")
-            return .local(ip: ip)
-        } else if urlString.contains("staging") {
-            return .staging
-        } else {
-            return .production
-        }
+        #if DEBUG
+        // Debug builds target the deployed backend by default.
+        // To run against a local backend on the Mac: .local(ip: "192.168.1.71")
+        return .production
+        #else
+        return .production
+        #endif
     }
 }

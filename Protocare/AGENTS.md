@@ -37,10 +37,9 @@ xcodebuild -scheme Protocare -configuration Debug \
   -destination 'platform=iOS Simulator,name=iPhone 17' test
 ```
 
-API base URL comes from `API_BASE_URL` build setting (`Config/{Debug,Staging,Release}.xcconfig`) → Info.plist → `AppEnvironment`:
-- Debug: `http://192.168.1.71:8000/v1`
-- Staging: `https://staging-api.protocare.com/v1`
-- Release: `https://api.protocare.com/v1`
+API base URL is selected at compile time in `Utilities/AppEnvironment.swift` (the `Config/*.xcconfig` files are NOT wired into the project — no `baseConfigurationReference`, and `GENERATE_INFOPLIST_FILE` emits no `API_BASE_URL` key):
+- Debug & Release: `https://api.protocare.dev/v1` (deployed backend)
+- Local backend on the Mac: flip `AppEnvironment.current` to `.local(ip: "192.168.1.71")`
 
 ## Project Structure
 
@@ -84,7 +83,7 @@ Protocare/
 | snake_case fields | camelCase | manual mapping in models |
 | `datetime` ISO8601 + `Z` | `Date` (.iso8601) | UTC everywhere |
 | UUID strings | `UUID`/`String` | |
-| All routes under `/v1` | `API_BASE_URL` ends with `/v1` | keep in sync |
+| All routes under `/v1` | `AppEnvironment.baseURL` ends with `/v1` | keep in sync |
 
 - Images: presigned URLs from backend; `ResilientAsyncImage` retries against `AppEnvironment.current.baseURL` host when localhost
 - Local dev: MinIO `127.0.0.1:9000`

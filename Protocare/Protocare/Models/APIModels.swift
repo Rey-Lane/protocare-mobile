@@ -1361,7 +1361,20 @@ public struct ActionItem: Decodable, Identifiable, Equatable {
     }
 
     public var scheduleSummaryText: String {
-        guard let schedule else { return "" }
+        guard let schedule else {
+            // Slots without an rrule schedule yet (builder draft rows):
+            // still show the times + reminder state instead of an empty summary.
+            guard !slots.isEmpty else { return "" }
+            let timeLabels = slots.map { $0.timeLabel }
+            let reminderCount = slots.filter { $0.isReminderOn }.count
+            var parts: [String] = [timeLabels.joined(separator: ", ")]
+            if reminderCount > 0 {
+                parts.append("🔔 \(reminderCount) reminder\(reminderCount > 1 ? "s" : "")")
+            } else {
+                parts.append("Log only")
+            }
+            return parts.joined(separator: " • ")
+        }
         var parts: [String] = [schedule.summaryLabel]
         let timeLabels = slots.isEmpty
             ? [schedule.timeLabel]

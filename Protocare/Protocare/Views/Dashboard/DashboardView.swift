@@ -20,7 +20,7 @@ struct DailyDashboardView: View {
                 } else if let error = vm.errorMessage, vm.dailyStatus == nil {
                     VStack(spacing: 12) {
                         Text(error)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color.appError)
                         Button("Retry") { Task { await vm.load() } }
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -28,9 +28,9 @@ struct DailyDashboardView: View {
                 } else if let status = vm.dailyStatus {
                     if let error = vm.errorMessage {
                         Text(error)
-                            .font(.subheadline)
-                            .foregroundStyle(.red)
-                            .padding(.vertical, 6)
+                            .font(.appBody)
+                            .foregroundStyle(Color.appError)
+                            .padding(.vertical, 8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
@@ -44,11 +44,10 @@ struct DailyDashboardView: View {
                     protocolsSection(status.protocols)
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, AppSpacing.pagePadding)
             .padding(.top, 12)
             .padding(.bottom, 100)
         }
-        .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await profileVM.loadProfile()
@@ -63,30 +62,22 @@ struct DailyDashboardView: View {
     private var pastDayBanner: some View {
         HStack(spacing: 8) {
             Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 14))
-                .foregroundStyle(.secondary)
+                .font(.appCaption)
+                .foregroundStyle(Color.appTextSecondary)
             Text("Viewing past day — check-ins are read-only")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.appCaption)
+                .foregroundStyle(Color.appTextSecondary)
             Spacer()
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
     }
 
     private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(greeting)
-                    .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
-                Text(userName)
-                    .font(.system(size: 24, weight: .bold))
-            }
-            Spacer()
-        }
+        ScreenHeader(eyebrow: greeting, title: userName)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var greeting: String {
@@ -125,30 +116,18 @@ struct DailyDashboardView: View {
     }
 
     private var emptyProtocolsView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "list.clipboard")
-                .font(.system(size: 40))
-                .foregroundStyle(.secondary.opacity(0.5))
-            Text("No active protocols yet")
-                .font(.system(size: 17, weight: .semibold))
+        ContentUnavailableView {
+            Label("No active protocols yet", systemImage: "list.clipboard")
+        } description: {
             Text("Create your first protocol to start tracking your routine.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+        } actions: {
             NavigationLink {
                 ProtocolBuilderView(api: api, authStore: authStore)
             } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "plus.circle.fill")
-                    Text("Create Protocol")
-                }
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(accent)
-                .clipShape(Capsule())
+                Text("Create Protocol")
             }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.appPrimary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
@@ -158,11 +137,11 @@ struct DailyDashboardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(proto.protocolName)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.appCardTitle)
                 Spacer()
                 Text("\(proto.completedActions)/\(proto.totalActions) Done")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(proto.completedActions == proto.totalActions && proto.totalActions > 0 ? accent : .secondary)
+                    .font(.appCaption.weight(.medium))
+                    .foregroundStyle(proto.completedActions == proto.totalActions && proto.totalActions > 0 ? accent : Color.appTextSecondary)
             }
 
             ForEach(proto.actions) { action in
@@ -184,7 +163,7 @@ struct DailyDashboardView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: Color.black.opacity(0.04), radius: 8, y:4)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
+        .shadow(color: Color.appText.opacity(0.04), radius: 8, y:4)
     }
 }

@@ -32,26 +32,26 @@ struct CheckinDosageSheet: View {
                 durationSection
             case .binary:
                 Text("Mark this action as done for today.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.appBody)
+                    .foregroundStyle(Color.appTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 8)
             }
 
             confirmButton
         }
-        .padding(20)
+        .padding(AppSpacing.pagePadding)
         .presentationDetents([.medium])
     }
 
     private var header: some View {
         VStack(spacing: 4) {
             Text(action.actionName)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.appCardTitle)
             if let desc = action.description {
                 Text(desc)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.appBody)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
     }
@@ -59,31 +59,31 @@ struct CheckinDosageSheet: View {
     private var quantitySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Amount")
-                .font(.subheadline.weight(.semibold))
+                .font(.appBody.weight(.semibold))
 
             HStack {
                 Button { quantity = max(0, quantity - stepIncrement) } label: {
                     Image(systemName: "minus.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
+                        .font(.appSectionTitle)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
                 .buttonStyle(.plain)
 
                 Spacer()
 
                 Text(quantity.roundedString(maxFractionDigits: 2))
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.appNumericDisplay)
                     .foregroundStyle(accent)
 
                 Text(unitLabel)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.appBody)
+                    .foregroundStyle(Color.appTextSecondary)
 
                 Spacer()
 
                 Button { quantity += stepIncrement } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.title2)
+                        .font(.appSectionTitle)
                         .foregroundStyle(accent)
                 }
                 .buttonStyle(.plain)
@@ -91,13 +91,13 @@ struct CheckinDosageSheet: View {
 
             if let prefill = action.defaultQuantity {
                 Text("Default: \(prefill.amount.roundedString(maxFractionDigits: 2)) \(prefill.unit.displayName)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
         .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous))
     }
 
     private var unitLabel: String {
@@ -112,22 +112,22 @@ struct CheckinDosageSheet: View {
     private var durationSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Duration")
-                .font(.subheadline.weight(.semibold))
+                .font(.appBody.weight(.semibold))
 
             Slider(value: $durationSeconds, in: 0...7200, step: 5)
                 .tint(accent)
 
             HStack {
-                Text("0s").font(.caption).foregroundStyle(.secondary)
+                Text("0s").font(.appCaption).foregroundStyle(Color.appTextSecondary)
                 Spacer()
-                Text(durationLabel).font(.system(size: 17, weight: .semibold, design: .rounded))
+                Text(durationLabel).font(.appNumericDisplay)
                 Spacer()
-                Text("120 min").font(.caption).foregroundStyle(.secondary)
+                Text("120 min").font(.appCaption).foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
         .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous))
     }
 
     private var confirmButton: some View {
@@ -155,12 +155,12 @@ struct CheckinDosageSheet: View {
             HStack(spacing: 8) {
                 Image(systemName: "checkmark.circle.fill")
                 Text("Complete Step")
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.appBody.weight(.bold))
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
             .background(accent)
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.appOnAccent)
             .clipShape(Capsule())
         }
     }

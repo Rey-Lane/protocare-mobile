@@ -9,40 +9,40 @@ struct LibraryCardView: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             ZStack {
                 Circle().fill(Color(.systemGray6))
-                Text(initial).font(.system(size: 18, weight: .bold))
+                Text(initial).font(.appBody.weight(.bold))
             }
             .frame(width: 52, height: 52)
 
             Text(action.displayName)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.appCardTitle)
                 .multilineTextAlignment(.center)
 
             Text(action.tagLabel)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.appCaption)
+                .foregroundStyle(Color.appTextSecondary)
 
             if !action.detailLabel.isEmpty {
                 Text(action.detailLabel)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appTextSecondary)
             }
 
             Button(action: onAdd) {
                 Text("+ Add")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.appCaptionBold)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 12)
                     .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
             }
             .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 }
 

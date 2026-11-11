@@ -32,23 +32,23 @@ struct WeekCalendarView: View {
     }
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             ForEach(weekDates, id: \.self) { day in
                 let isSelected = calendar.isDate(day, inSameDayAs: selectedDate)
                 let isToday = calendar.isDateInToday(day)
                 let isFuture = calendar.compare(day, to: Date(), toGranularity: .day) == .orderedDescending
                 VStack(spacing: 4) {
                     Text(dayFormatter.string(from: day).uppercased())
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(isSelected ? .white : isFuture ? Color.secondary.opacity(0.4) : .secondary)
+                        .font(.appCaption.weight(.medium))
+                        .foregroundStyle(isSelected ? Color.appOnAccent : isFuture ? Color.appTextSecondary.opacity(0.4) : Color.appTextSecondary)
                     Text(numberFormatter.string(from: day))
-                        .font(.system(size: 16, weight: isSelected ? .bold : .regular, design: .rounded))
-                        .foregroundStyle(isSelected ? .white : isFuture ? Color.primary.opacity(0.4) : .primary)
+                        .font(.appBody.weight(isSelected ? .bold : .regular))
+                        .foregroundStyle(isSelected ? Color.appOnAccent : isFuture ? Color.appText.opacity(0.4) : Color.appText)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
                 .background(isSelected ? Color.appPrimary : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous))
                 .contentShape(Rectangle())
                 .onTapGesture {
                     guard !isFuture else { return }

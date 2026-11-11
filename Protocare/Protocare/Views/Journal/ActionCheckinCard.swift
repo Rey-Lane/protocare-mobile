@@ -31,7 +31,7 @@ struct ActionCheckinCard: View {
             }
         }
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(.rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: AppRadius.input))
     }
 
     private var headerRow: some View {
@@ -42,44 +42,44 @@ struct ActionCheckinCard: View {
                 }
             }
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 Image(systemName: checkin.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title3)
-                    .foregroundStyle(checkin.isCompleted ? Color.appPrimary : .secondary)
+                    .font(.appSectionTitle)
+                    .foregroundStyle(checkin.isCompleted ? Color.appPrimary : Color.appTextSecondary)
                     .accessibilityLabel(checkin.isCompleted ? "Completed" : "Not completed")
 
                 Text(checkin.actionName)
-                    .font(.subheadline)
-                    .foregroundStyle(.primary)
+                    .font(.appCardTitle)
+                    .foregroundStyle(Color.appText)
 
                 Spacer()
 
                 if checkin.isCompleted {
                     if let summary = checkin.completedSummary {
                         Text(summary)
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(.green)
+                            .font(.appCaption.weight(.medium))
+                            .foregroundStyle(Color.appSuccess)
                     } else {
                         Text("Done")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(.green)
+                            .font(.appCaption.weight(.medium))
+                            .foregroundStyle(Color.appSuccess)
                     }
                 } else {
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(.secondary)
+                        .font(.appCaption.weight(.bold))
+                        .foregroundStyle(Color.appTextSecondary)
                 }
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
         .disabled(checkin.isCompleted)
     }
 
     private var miniForm: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             Divider()
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 16)
 
             if checkin.hasVolume {
                 volumeSlider
@@ -98,55 +98,55 @@ struct ActionCheckinCard: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.appBody.weight(.bold))
                     Text("Complete")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.appBody.weight(.bold))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .background(Color.appPrimary)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .foregroundStyle(Color.appOnAccent)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.input))
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 16)
             .padding(.bottom, 12)
         }
     }
 
     private var volumeSlider: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Amount")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .font(.appCaptionBold)
+                    .foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(volumeDisplay)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.primary)
+                    .font(.appCaptionBold)
+                    .foregroundStyle(Color.appText)
             }
 
             Slider(value: $volumeAmount, in: 0...checkin.volumeUpperBound, step: 0.5)
                 .tint(Color.appPrimary)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
     }
 
     private var durationSlider: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Duration")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .font(.appCaptionBold)
+                    .foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(durationDisplay)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.primary)
+                    .font(.appCaptionBold)
+                    .foregroundStyle(Color.appText)
             }
 
             Slider(value: $durationSeconds, in: 0...checkin.durationUpperBound, step: 5)
                 .tint(Color.appPrimary)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
     }
 
     private var volumeDisplay: String {

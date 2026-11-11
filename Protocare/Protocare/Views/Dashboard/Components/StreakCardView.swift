@@ -7,24 +7,24 @@ struct StreakCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 4) {
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 14))
-                    .foregroundStyle(streak.currentStreak > 0 ? Color.appWarning : .secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(streak.currentStreak > 0 ? Color.appWarning : Color.appTextSecondary)
                 Text("STREAK")
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(.secondary)
+                    .font(.appCaptionBold)
+                    .foregroundStyle(Color.appTextSecondary)
             }
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text("\(streak.currentStreak)")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.appNumericDisplayLarge)
                 Text(streak.currentStreak == 1 ? "day" : "days")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.appBody)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
+        .shadow(color: Color.appText.opacity(0.04), radius: 8, y: 4)
     }
 }

@@ -13,7 +13,7 @@ struct LoginFormView: View {
             HStack {
                 Spacer()
                 Button("Forgot Password?") {}
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appBody.weight(.semibold))
                     .foregroundStyle(Color.appPrimary)
             }
 
@@ -21,8 +21,8 @@ struct LoginFormView: View {
 
             if let error = vm.errorMessage {
                 Text(error)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appError)
             }
         }
     }
@@ -37,7 +37,7 @@ struct LoginFormView: View {
                 keyboardType: .emailAddress
             )
 
-            Divider().padding(.leading, 44).padding(.vertical, 6)
+            Divider().padding(.leading, 44).padding(.vertical, 4)
 
             fieldRow(
                 icon: "lock",
@@ -50,15 +50,15 @@ struct LoginFormView: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.04), radius: 16, y: 4)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .fill(Color.appSurface)
+                .shadow(color: Color.appText.opacity(0.04), radius: 16, y: 4)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.black.opacity(0.03), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .stroke(Color.appText.opacity(0.03), lineWidth: 0.5)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private var submitButton: some View {
@@ -68,17 +68,17 @@ struct LoginFormView: View {
             HStack {
                 Spacer()
                 if vm.isLoading {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(Color.appOnAccent)
                 } else {
                     Text("Sign In")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(.white)
+                        .font(.appBody.weight(.bold))
+                        .foregroundStyle(Color.appOnAccent)
                 }
                 Spacer()
             }
-            .padding(.vertical, 18)
+            .padding(.vertical, 16)
             .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                     .fill(Color.appPrimary)
             )
             .shadow(color: Color.appPrimary.opacity(0.25), radius: 16, y: 8)
@@ -97,25 +97,25 @@ struct LoginFormView: View {
     ) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 20))
-                .foregroundStyle(focusedField == field ? Color.appPrimaryDark : .gray)
+                .font(.appSectionTitle)
+                .foregroundStyle(focusedField == field ? Color.appPrimaryDark : Color.appTextSecondary)
                 .frame(width: 24)
 
             if isSecure {
                 SecureField(placeholder, text: text)
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: field)
             } else {
                 TextField(placeholder, text: text)
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .keyboardType(keyboardType)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: field)
             }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
     }
 }

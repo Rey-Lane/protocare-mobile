@@ -11,15 +11,15 @@ struct ActionRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 4) {
                     Text(action.displayName)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.appCardTitle)
 
                     if reminderCount > 0 {
                         Text("🔔 \(reminderCount)")
-                            .font(.system(size: 11, weight: .bold))
-                            .padding(.horizontal, 6)
+                            .font(.appCaptionBold)
+                            .padding(.horizontal, 4)
                             .padding(.vertical, 2)
                             .background(Color.appPrimary.opacity(0.12))
                             .foregroundStyle(Color.appPrimary)
@@ -29,8 +29,8 @@ struct ActionRow: View {
 
                 if !action.scheduleSummaryText.isEmpty {
                     Text(action.scheduleSummaryText)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .font(.appCaption)
+                        .foregroundStyle(Color.appTextSecondary)
                 } else {
                     HStack(spacing: 8) {
                         // Unified model (Step 25b): category + modality badges
@@ -38,8 +38,8 @@ struct ActionRow: View {
                         CapsuleTag(text: action.tagLabel, style: scheduleStyle)
                         if !action.detailLabel.isEmpty {
                             Text(action.detailLabel)
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
+                                .font(.appCaption)
+                                .foregroundStyle(Color.appTextSecondary)
                         }
 
                         CapsuleTag(text: action.category.displayName, style: .accent)
@@ -54,16 +54,16 @@ struct ActionRow: View {
 
             Button(action: onSettings) {
                 Image(systemName: "line.3.horizontal.decrease.circle")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
             }
             .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.2))
         )
         .contextMenu {
@@ -86,9 +86,9 @@ struct CapsuleTag: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 11, weight: .bold))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
+            .font(.appCaptionBold)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
             .background(
                 Capsule().fill(backgroundColor)
             )
@@ -111,7 +111,7 @@ struct CapsuleTag: View {
 }
 
 #Preview {
-    VStack(spacing: 14) {
+    VStack(spacing: 16) {
         ActionRow(
             action: ActionItem(
                 name: "Vitamin C Serum",

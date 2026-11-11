@@ -32,31 +32,31 @@ struct SplashView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 112, height: 112)
-                        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous))
                         .shadow(color: Color.appPrimary.opacity(0.4), radius: 18, y: 8)
                         .offset(y: iconOffset)
 
                     Text("Protocare")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.appScreenTitle)
                         .foregroundStyle(Color.appText)
 
                     Text("Your daily care ritual")
-                        .font(.system(size: 15, weight: .regular))
+                        .font(.appBody)
                         .foregroundStyle(Color.appTextSecondary)
                         .padding(.top, -12)
 
                     Spacer()
 
                     // Bottom signature
-                    VStack(spacing: 6) {
+                    VStack(spacing: 8) {
                         Text("Powered by Auren Terrix")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.appCaptionBold)
                             .kerning(1.5)
-                            .foregroundStyle(Color.white.opacity(0.85))
+                            .foregroundStyle(Color.appOnAccent.opacity(0.85))
 
                         Text("Self-care, simplified")
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundStyle(Color.white.opacity(0.6))
+                            .font(.appCaption)
+                            .foregroundStyle(Color.appOnAccent.opacity(0.6))
                     }
                     .padding(.bottom, 48)
                 }

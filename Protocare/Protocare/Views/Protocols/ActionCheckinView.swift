@@ -37,7 +37,7 @@ struct ActionCheckinView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 18) {
+            VStack(spacing: 16) {
                 header
 
                 timeSection
@@ -51,7 +51,7 @@ struct ActionCheckinView: View {
                     binarySection
                 }
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, AppSpacing.pagePadding)
             .padding(.top, 12)
             .padding(.bottom, 120)
         }
@@ -83,12 +83,12 @@ struct ActionCheckinView: View {
     private var header: some View {
         HStack {
             Button("Cancel") { dismiss() }
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appTextSecondary)
 
             Spacer()
 
             Text(action?.displayName ?? "Check-in")
-                .font(.system(size: 18, weight: .semibold))
+                .font(.appSectionTitle)
 
             Spacer()
 
@@ -101,8 +101,8 @@ struct ActionCheckinView: View {
     private var timeSection: some View {
         HStack {
             Label("Execution Time", systemImage: "clock.fill")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.appCaption)
+                .foregroundStyle(Color.appTextSecondary)
 
             Spacer()
 
@@ -113,9 +113,9 @@ struct ActionCheckinView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
@@ -123,29 +123,29 @@ struct ActionCheckinView: View {
     // MARK: - Substance form (quantity + unit)
 
     private var quantitySection: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Amount")
-                .font(.subheadline.weight(.semibold))
+                .font(.appBody.weight(.semibold))
 
             HStack {
                 Button {
                     quantity = max(0, quantity - stepIncrement)
                 } label: {
                     Image(systemName: "minus.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
+                        .font(.appSectionTitle)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
                 .buttonStyle(.plain)
 
                 Spacer()
 
                 Text(quantity.roundedString(maxFractionDigits: 2))
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.appNumericDisplay)
                     .foregroundStyle(accent)
 
                 Text(unitLabel)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.appBody)
+                    .foregroundStyle(Color.appTextSecondary)
 
                 Spacer()
 
@@ -153,7 +153,7 @@ struct ActionCheckinView: View {
                     quantity += stepIncrement
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.title2)
+                        .font(.appSectionTitle)
                         .foregroundStyle(accent)
                 }
                 .buttonStyle(.plain)
@@ -161,15 +161,15 @@ struct ActionCheckinView: View {
 
             if let hint = quantityHint {
                 Text(hint)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
@@ -193,23 +193,23 @@ struct ActionCheckinView: View {
     private var durationSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Adjust Duration")
-                .font(.subheadline.weight(.semibold))
+                .font(.appBody.weight(.semibold))
             Slider(value: $durationSeconds, in: 0...7200, step: 5)
                 .tint(accent)
             HStack {
-                Text("0s").font(.caption).foregroundStyle(.secondary)
+                Text("0s").font(.appCaption).foregroundStyle(Color.appTextSecondary)
                 Spacer()
                 Text(durationDisplay)
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .font(.appNumericDisplay)
                 Spacer()
-                Text("120 min").font(.caption).foregroundStyle(.secondary)
+                Text("120 min").font(.appCaption).foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(16)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
@@ -226,14 +226,14 @@ struct ActionCheckinView: View {
     // MARK: - Binary form ("Did you do it?")
 
     private var binarySection: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 16) {
             Toggle(isOn: $didDoIt) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Did you do it?")
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.appBody.weight(.semibold))
                     Text("Just mark this action as done for today.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .font(.appCaption)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
             }
             .tint(accent)
@@ -241,9 +241,9 @@ struct ActionCheckinView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
@@ -288,21 +288,21 @@ struct ActionCheckinView: View {
                 }
             }
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.appBody.weight(.bold))
                 Text(completeButtonTitle)
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.appBody.weight(.bold))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(accent)
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.appOnAccent)
             .clipShape(Capsule())
             .shadow(color: accent.opacity(0.25), radius: 8, y: 3)
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 14)
+        .padding(.horizontal, AppSpacing.pagePadding)
+        .padding(.vertical, 16)
         .background(.ultraThinMaterial)
     }
 

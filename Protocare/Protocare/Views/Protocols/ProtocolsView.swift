@@ -33,34 +33,24 @@ struct ProtocolsView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         .padding(.top, 40)
                     } else if vm.filteredProtocols.isEmpty {
-                        VStack(spacing: 14) {
-                            Image(systemName: "leaf")
-                                .font(.system(size: 48))
-                                .foregroundStyle(Color.appPrimary)
-                            Text("No protocols yet")
-                                .font(.system(size: 20, weight: .bold))
+                        ContentUnavailableView {
+                            Label("No protocols yet", systemImage: "leaf")
+                        } description: {
                             Text("Start building your first self-care routine...")
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                            Button {
+                        } actions: {
+                            Button("Create Protocol") {
                                 showingBuilder = true
-                            } label: {
-                                Text("Create Protocol")
-                                    .fontWeight(.semibold)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
-                                    .background(Color.appPrimary)
-                                    .foregroundStyle(.white)
-                                    .clipShape(Capsule())
                             }
+                            .buttonStyle(.borderedProminent)
+                            .tint(Color.appPrimary)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.top, 40)
                     } else {
                         List {
                             ForEach(vm.filteredProtocols) { item in
                                 ProtocolCardView(item: item, imageURL: vm.protocolImageURLs[item.id])
-                                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
+                                    .listRowInsets(EdgeInsets(top: 8, leading: AppSpacing.pagePadding, bottom: 8, trailing: AppSpacing.pagePadding))
                                     .listRowSeparator(.hidden)
                                     .listRowBackground(Color.clear)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -91,7 +81,6 @@ struct ProtocolsView: View {
 
                 fab
             }
-            .navigationTitle("")
             .toolbar(.hidden, for: .navigationBar)
             .task { await vm.load() }
             .navigationDestination(item: $selectedProtocol) { item in
@@ -131,7 +120,7 @@ struct ProtocolsView: View {
             .overlay {
                 if protocolToDelete != nil {
                     ZStack {
-                        Color.black.opacity(0.3)
+                        Color.appText.opacity(0.3)
                             .ignoresSafeArea()
                             .onTapGesture {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -140,17 +129,17 @@ struct ProtocolsView: View {
                             }
 
                         VStack(spacing: 0) {
-                            HStack(spacing: 10) {
+                            HStack(spacing: 8) {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 18))
+                                    .font(.appBody)
                                     .foregroundStyle(Color.appError)
                                     .frame(width: 32, height: 32)
-                                    .background(Color.red.opacity(0.12))
+                                    .background(Color.appError.opacity(0.12))
                                     .clipShape(Circle())
 
                                 Text("Delete Protocol?")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(.primary)
+                                    .font(.appCardTitle)
+                                    .foregroundStyle(Color.appText)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16)
@@ -158,8 +147,8 @@ struct ProtocolsView: View {
                             .padding(.bottom, 8)
 
                             Text("This action cannot be undone. The protocol and all its data will be permanently removed.")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .font(.appBody)
+                                .foregroundStyle(Color.appTextSecondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 16)
@@ -174,12 +163,12 @@ struct ProtocolsView: View {
                                     }
                                 } label: {
                                     Text("Cancel")
-                                        .font(.system(size: 15, weight: .semibold))
+                                        .font(.appBody.weight(.semibold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color(.secondarySystemBackground))
-                                        .foregroundStyle(.primary)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                        .foregroundStyle(Color.appText)
+                                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
                                 }
                                 .buttonStyle(.plain)
 
@@ -192,12 +181,12 @@ struct ProtocolsView: View {
                                     }
                                 } label: {
                                     Text("Delete")
-                                        .font(.system(size: 15, weight: .semibold))
+                                        .font(.appBody.weight(.semibold))
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                         .background(Color.appError)
-                                        .foregroundStyle(.white)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                        .foregroundStyle(Color.appOnAccent)
+                                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -206,8 +195,8 @@ struct ProtocolsView: View {
                         }
                         .frame(width: 280)
                         .background(Color(.systemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .shadow(color: Color.black.opacity(0.15), radius: 20, y: 8)
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
+                        .shadow(color: Color.appText.opacity(0.15), radius: 20, y: 8)
                         .transition(.scale(scale: 0.85).combined(with: .opacity))
                     }
                 }
@@ -221,23 +210,22 @@ struct ProtocolsView: View {
                 HStack {
                     TextField("Search protocols...", text: $vm.searchQuery)
                         .textFieldStyle(.plain)
-                        .font(.body)
+                        .font(.appBody)
 
                     Button {
                         vm.searchQuery = ""
                         isSearching = false
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     }
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.input))
             } else {
-                Text("Protocol Library")
-                    .font(.system(size: 24, weight: .bold))
+                ScreenHeader(title: "Protocol Library")
             }
 
             Spacer()
@@ -247,12 +235,12 @@ struct ProtocolsView: View {
                     isSearching = true
                 } label: {
                     Image(systemName: "magnifyingglass")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(.primary)
+                        .font(.appBody.weight(.semibold))
+                        .foregroundStyle(Color.appText)
                 }
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, AppSpacing.pagePadding)
         .padding(.vertical, 12)
     }
 
@@ -277,7 +265,7 @@ struct ProtocolsView: View {
                     }
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, AppSpacing.pagePadding)
         }
         .padding(.bottom, 4)
     }
@@ -291,8 +279,8 @@ struct ProtocolsView: View {
                     showingBuilder = true
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(.white)
+                        .font(.appSectionTitle)
+                        .foregroundStyle(Color.appOnAccent)
                         .frame(width: 52, height: 52)
                         .background(Color.appPrimary)
                         .clipShape(Circle())
@@ -325,11 +313,11 @@ private struct CategoryChip: View {
     var body: some View {
         Button(action: action) {
             Text(label)
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 14)
+                .font(.appBody.weight(.semibold))
+                .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(isSelected ? color : Color(.systemBackground))
-                .foregroundStyle(isSelected ? .white : .secondary)
+                .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
                 .clipShape(Capsule())
                 .overlay(
                     Capsule()
@@ -350,8 +338,8 @@ private struct ProtocolCardView: View {
             VStack(alignment: .leading, spacing: 12) {
                 if let category = item.category {
                     Text(category.displayName.uppercased())
-                        .font(.caption2.weight(.bold))
-                        .padding(.horizontal, 10)
+                        .font(.appCaptionBold)
+                        .padding(.horizontal, 12)
                         .padding(.vertical, 4)
                         .background(category.tagColor.opacity(0.18))
                         .foregroundStyle(category.tagColor)
@@ -359,26 +347,26 @@ private struct ProtocolCardView: View {
                 }
 
                 Text(item.name)
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.primary)
+                    .font(.appCardTitle)
+                    .foregroundStyle(Color.appText)
                     .lineLimit(2)
 
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Image(systemName: "list.bullet")
-                            .font(.system(size: 11))
+                            .font(.appCaption)
                         Text(item.stepsLabel)
-                            .font(.caption)
+                            .font(.appCaption)
                     }
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.appTextSecondary)
 
                     if item.streak > 0 {
                         HStack(spacing: 4) {
                             Image(systemName: "flame.fill")
-                                .font(.system(size: 11))
+                                .font(.appCaption)
                                 .foregroundStyle(Color.appWarning)
                             Text(item.streakLabel)
-                                .font(.caption)
+                                .font(.appCaption)
                                 .foregroundStyle(Color.appWarning)
                         }
                     }
@@ -387,11 +375,11 @@ private struct ProtocolCardView: View {
                 Button {
                 } label: {
                     Text(item.isActive == true ? "Active" : "Paused")
-                        .font(.caption.weight(.bold))
+                        .font(.appCaptionBold)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.vertical, 8)
                         .background(item.isActive == true ? Color.appPrimaryLight : Color(.systemGray5))
-                        .foregroundStyle(item.isActive == true ? Color.appPrimaryDark : .secondary)
+                        .foregroundStyle(item.isActive == true ? Color.appPrimaryDark : Color.appTextSecondary)
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
@@ -402,25 +390,25 @@ private struct ProtocolCardView: View {
             if let imageURL, !imageURL.isEmpty {
                 ZStack(alignment: .topTrailing) {
                     ResilientAsyncImage(urlString: imageURL) {
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous)
                             .fill(Color(.systemGray6))
                             .frame(width: 100, height: 100)
                     }
                     .frame(width: 100, height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous))
                     .grayscale(item.isActive == true ? 0 : 0.8)
 
                     if item.streak > 0 {
                         HStack(spacing: 3) {
                             Image(systemName: "flame.fill")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.appCaptionBold)
                             Text("\(item.streak)d")
-                                .font(.caption2.weight(.bold))
+                                .font(.appCaptionBold)
                         }
-                        .padding(.horizontal, 6)
+                        .padding(.horizontal, 4)
                         .padding(.vertical, 3)
                         .background(Color.appWarning)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.appOnAccent)
                         .clipShape(Capsule())
                         .offset(x: 4, y: -6)
                     }
@@ -430,12 +418,12 @@ private struct ProtocolCardView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
-        .shadow(color: Color.black.opacity(0.04), radius: 10, y: 4)
+        .shadow(color: Color.appText.opacity(0.04), radius: 10, y: 4)
         .opacity(item.isActive == true ? 1.0 : 0.6)
     }
 }

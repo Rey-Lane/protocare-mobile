@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		FA0001002F41000000BD3B85 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		FA0001012F41000000BD3B85 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
-		FA23E5F62F8B84DC0098A835 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = FA0002002F41000000BD3B85 /* OpenAPIRuntime */; };
-		FA23E5F72F8B84DC0098A835 /* HTTPTypes in Frameworks */ = {isa = PBXBuildFile; productRef = FA0002012F41000000BD3B85 /* HTTPTypes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,8 +45,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA23E5F72F8B84DC0098A835 /* HTTPTypes in Frameworks */,
-				FA23E5F62F8B84DC0098A835 /* OpenAPIRuntime in Frameworks */,
 				FA0001002F41000000BD3B85 /* (null) in Frameworks */,
 				FA0001012F41000000BD3B85 /* (null) in Frameworks */,
 			);
@@ -103,8 +99,6 @@
 			);
 			name = Protocare;
 			packageProductDependencies = (
-				FA0002002F41000000BD3B85 /* OpenAPIRuntime */,
-				FA0002012F41000000BD3B85 /* HTTPTypes */,
 			);
 			productName = Protocare;
 			productReference = FA8926F92EECA12300FF42F5 /* Protocare.app */;
@@ -162,8 +156,6 @@
 			mainGroup = FA8926F02EECA12300FF42F5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				FA0003012F41000000BD3B85 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */,
-				FA0003022F41000000BD3B85 /* XCRemoteSwiftPackageReference "swift-http-types" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FA8926FA2EECA12300FF42F5 /* Products */;
@@ -344,21 +336,23 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = HLBQBP2DW5;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = Z7Q3XQV5J6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = self.Protocare;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.protocare.Protocare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -374,23 +368,27 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = HLBQBP2DW5;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = Z7Q3XQV5J6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = self.Protocare;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.protocare.Protocare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Protocare AppStore";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -406,11 +404,13 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = HLBQBP2DW5;
+				DEVELOPMENT_TEAM = Z7Q3XQV5J6;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = self.ProtocareTests;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.protocare.ProtocareTests;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = dev.protocare.ProtocareTests;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = dev.protocare.ProtocareTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -428,11 +428,13 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = HLBQBP2DW5;
+				DEVELOPMENT_TEAM = Z7Q3XQV5J6;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = self.ProtocareTests;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.protocare.ProtocareTests;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = dev.protocare.ProtocareTests;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = dev.protocare.ProtocareTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -476,37 +478,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		FA0003012F41000000BD3B85 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-openapi-runtime";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
-		FA0003022F41000000BD3B85 /* XCRemoteSwiftPackageReference "swift-http-types" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-http-types";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		FA0002002F41000000BD3B85 /* OpenAPIRuntime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA0003012F41000000BD3B85 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
-			productName = OpenAPIRuntime;
-		};
-		FA0002012F41000000BD3B85 /* HTTPTypes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA0003022F41000000BD3B85 /* XCRemoteSwiftPackageReference "swift-http-types" */;
-			productName = HTTPTypes;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FA8926F12EECA12300FF42F5 /* Project object */;
 }

@@ -5,8 +5,11 @@
 //  Debug build configuration - local development
 //
 
+// NOTE: this file is not wired into the Xcode project (no baseConfigurationReference
+// in project.pbxproj). The active API URL is chosen in Utilities/AppEnvironment.swift.
+
 // API Configuration
-API_BASE_URL = http:/$()/192.168.1.71:8000/v1
+API_BASE_URL = https:/$()/api.protocare.dev/v1
 
 // Build settings
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG

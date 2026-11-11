@@ -15,16 +15,16 @@ struct MetricSliderView: View {
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(title)
-                        .font(.subheadline.weight(.medium))
+                        .font(.appCardTitle)
                     Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.appCaption)
+                        .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer()
 
                 Text("\(value)")
-                    .font(.title3.weight(.bold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appPrimary)
                     .monospacedDigit()
                     .frame(width: 28)
@@ -32,8 +32,8 @@ struct MetricSliderView: View {
 
             HStack(spacing: 8) {
                 Text("0")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appTextSecondary)
 
                 Slider(value: Binding(
                     get: { Double(value) },
@@ -44,8 +44,8 @@ struct MetricSliderView: View {
                 .tint(Color.appPrimary)
 
                 Text("10")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
         .padding(.vertical, 4)

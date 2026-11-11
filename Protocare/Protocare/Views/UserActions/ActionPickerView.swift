@@ -40,7 +40,7 @@ struct ActionPickerView: View {
                         isShowingCreator = true
                     } label: {
                         Label("Create custom action", systemImage: "plus.circle.fill")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.appBody.weight(.semibold))
                             .foregroundStyle(Color.appPrimary)
                             .frame(maxWidth: .infinity)
                     }
@@ -123,7 +123,7 @@ struct ActionPickerView: View {
                     }
                 }
                 .padding(.horizontal, 4)
-                .padding(.vertical, 2)
+                .padding(.vertical, 4)
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
@@ -151,7 +151,7 @@ struct ActionPickerView: View {
                     }
                 }
                 .padding(.horizontal, 4)
-                .padding(.vertical, 2)
+                .padding(.vertical, 4)
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
@@ -169,11 +169,11 @@ struct ActionPickerView: View {
             } else if filteredActions.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: loadFailed ? "wifi.exclamationmark" : "magnifyingglass")
-                        .font(.system(size: 32))
-                        .foregroundStyle(.secondary)
+                        .font(.appEmptyStateIcon)
+                        .foregroundStyle(Color.appTextSecondary)
                     Text(loadFailed ? "Couldn't load actions." : "No matching actions")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
+                        .font(.appCardTitle)
+                        .foregroundStyle(Color.appTextSecondary)
                     if loadFailed {
                         Button("Retry") {
                             Task { await loadActions() }
@@ -195,8 +195,8 @@ struct ActionPickerView: View {
                 Text("Actions")
                 Spacer()
                 Text("\(filteredActions.count)")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appTextSecondary)
             }
         }
     }
@@ -251,17 +251,17 @@ private struct FilterChip: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 5) {
+            HStack(spacing: 4) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.appCaptionBold)
                 }
                 Text(label)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.appCaptionBold)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .foregroundStyle(isSelected ? .white : .primary)
+            .foregroundStyle(isSelected ? Color.appOnAccent : Color.appText)
             .background(isSelected ? color : Color(.systemGray5))
             .clipShape(Capsule())
         }
@@ -280,18 +280,18 @@ private struct UnifiedActionRow: View {
     var body: some View {
         Button(action: onAdd) {
             HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(action.displayName)
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.primary)
+                        .font(.appCardTitle)
+                        .foregroundStyle(Color.appText)
                         .multilineTextAlignment(.leading)
 
-                    HStack(spacing: 6) {
+                    HStack(spacing: 4) {
                         HStack(spacing: 4) {
                             Image(systemName: action.category.tagIcon)
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.appCaptionBold)
                             Text(action.category.displayName)
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.appCaptionBold)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -301,10 +301,10 @@ private struct UnifiedActionRow: View {
 
                         if let modality = action.modality {
                             Text(modality.displayName)
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.appCaption)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                                 .background(Color(.systemGray5))
                                 .clipShape(Capsule())
                         }
@@ -314,8 +314,8 @@ private struct UnifiedActionRow: View {
                 Spacer()
 
                 Text("+ Add")
-                    .font(.system(size: 13, weight: .semibold))
-                    .padding(.horizontal, 14)
+                    .font(.appCaptionBold)
+                    .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(Color.appPrimary.opacity(0.12))
                     .foregroundStyle(Color.appPrimary)

@@ -14,20 +14,20 @@ struct CustomActionRow: View {
             ZStack {
                 Circle().fill(iconColor.opacity(0.15))
                 Image(systemName: action.categoryIcon)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.appBody.weight(.semibold))
                     .foregroundStyle(iconColor)
             }
             .frame(width: 40, height: 40)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(action.displayName)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.primary)
+                    .font(.appCardTitle)
+                    .foregroundStyle(Color.appText)
 
                 if !action.descriptionLabel.isEmpty {
                     Text(action.descriptionLabel)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .font(.appCaption)
+                        .foregroundStyle(Color.appTextSecondary)
                         .lineLimit(1)
                 }
             }
@@ -36,8 +36,8 @@ struct CustomActionRow: View {
 
             Button(action: onAdd) {
                 Text("+ Add")
-                    .font(.system(size: 13, weight: .semibold))
-                    .padding(.horizontal, 14)
+                    .font(.appCaptionBold)
+                    .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(accent.opacity(0.12))
                     .foregroundStyle(accent)
@@ -45,14 +45,14 @@ struct CustomActionRow: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.1))
         )
-        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 3)
+        .shadow(color: Color.appText.opacity(0.04), radius: 8, y: 3)
     }
 }

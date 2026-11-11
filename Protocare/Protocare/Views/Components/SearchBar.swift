@@ -22,16 +22,16 @@ struct SearchBar: View {
     var body: some View {
         HStack(spacing: 0) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 16))
+                .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary)
                 .padding(.leading, 12)
 
             TextField(placeholder, text: $text)
                 .textFieldStyle(.plain)
-                .font(.custom("Inter", size: 15).weight(.regular))
-                .foregroundStyle(Color.primary)
+                .font(.appBody)
+                .foregroundStyle(Color.appText)
                 .padding(.horizontal, 8)
-                .padding(.vertical, 10)
+                .padding(.vertical, 8)
                 .onChange(of: text) { _, _ in
                     onTextChanged()
                 }
@@ -50,7 +50,7 @@ struct SearchBar: View {
                     onClear()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16))
+                        .font(.appBody)
                         .foregroundStyle(Color.appTextSecondary)
                 }
                 .padding(.trailing, 12)
@@ -62,11 +62,11 @@ struct SearchBar: View {
         }
         .frame(minHeight: 40, maxHeight: 52)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous)
                 .fill(Color.appPrimaryLight)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.input, style: .continuous)
                 .stroke(Color.appPrimary.opacity(isFocused ? 1 : 0), lineWidth: 1.5)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
         )

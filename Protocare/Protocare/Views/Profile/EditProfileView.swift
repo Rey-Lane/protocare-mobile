@@ -24,7 +24,7 @@ struct EditProfileView: View {
                     infoCard
                     dangerCard
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.bottom, 40)
             }
             .background(Color.appBackground)
@@ -82,9 +82,9 @@ struct EditProfileView: View {
             .overlay {
                 if vm.isSaving || vm.isDeleting {
                     ProgressView()
-                        .tint(.white)
+                        .tint(Color.appOnAccent)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.3))
+                        .background(Color.appText.opacity(0.3))
                         .ignoresSafeArea()
                 }
             }
@@ -121,21 +121,21 @@ struct EditProfileView: View {
                     .frame(width: 28, height: 28)
                     .overlay {
                         Image(systemName: "camera.fill")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(.white)
+                            .font(.appCaption.weight(.medium))
+                            .foregroundStyle(Color.appOnAccent)
                     }
                     .offset(x: 4, y: 4)
             }
             .onTapGesture { showImagePicker = true }
 
             Text("Change Photo")
-                .font(.system(size: 14, weight: .medium))
+                .font(.appBody.weight(.medium))
                 .foregroundStyle(Color.appPrimaryDark)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 28)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private func initialsView(size: CGFloat) -> some View {
@@ -148,7 +148,7 @@ struct EditProfileView: View {
             )
             .overlay {
                 Text(vm.profile.initials)
-                    .font(.system(size: size * 0.4, weight: .semibold))
+                    .font(.appScreenTitle)
                     .foregroundStyle(Color.appPrimaryDark)
             }
     }
@@ -178,7 +178,7 @@ struct EditProfileView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Danger Card
@@ -190,30 +190,30 @@ struct EditProfileView: View {
             Button {
                 showDeleteConfirmation = true
             } label: {
-                HStack(spacing: 14) {
+                HStack(spacing: 12) {
                     Image(systemName: "trash.fill")
-                        .font(.system(size: 15))
-                        .foregroundStyle(.white)
+                        .font(.appBody)
+                        .foregroundStyle(Color.appOnAccent)
                         .frame(width: 34, height: 34)
                         .background(Color.appError)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("Delete Account")
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.appCardTitle)
                             .foregroundStyle(Color.appError)
                         Text("Permanently remove all data")
-                            .font(.system(size: 13))
+                            .font(.appCaption)
                             .foregroundStyle(Color.appTextSecondary)
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.appCaptionBold)
                         .foregroundStyle(Color.appBorder)
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -221,14 +221,14 @@ struct EditProfileView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Shared Components
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(.system(size: 13, weight: .semibold))
+            .font(.appCaptionBold)
             .foregroundStyle(Color.appTextSecondary)
             .textCase(.uppercase)
             .padding(.bottom, 8)
@@ -241,47 +241,47 @@ struct EditProfileView: View {
         iconBg: Color,
         iconFg: Color
     ) -> some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 15))
+                .font(.appBody)
                 .foregroundStyle(iconFg)
                 .frame(width: 34, height: 34)
                 .background(iconBg)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
             TextField(label, text: text)
-                .font(.system(size: 16))
+                .font(.appBody)
 
             Spacer()
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
     }
 
     private func readOnlyFieldRow(icon: String, label: String, value: String) -> some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 15))
+                .font(.appBody)
                 .foregroundStyle(Color.appTextSecondary.opacity(0.5))
                 .frame(width: 34, height: 34)
                 .background(Color.appTextSecondary.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(label)
-                    .font(.system(size: 12))
+                    .font(.appCaption)
                     .foregroundStyle(Color.appTextSecondary)
                 Text(value)
-                    .font(.system(size: 16))
+                    .font(.appBody)
                     .foregroundStyle(Color.appTextSecondary)
             }
 
             Spacer()
 
             Image(systemName: "lock.fill")
-                .font(.system(size: 11))
+                .font(.appCaption)
                 .foregroundStyle(Color.appTextSecondary.opacity(0.4))
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
     }
 
     private var divider: some View {

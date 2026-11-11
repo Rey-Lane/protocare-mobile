@@ -27,35 +27,35 @@ struct ComparisonSliderView: View {
         NavigationStack {
             GeometryReader { geometry in
                 ZStack {
-                    Color.black.ignoresSafeArea()
+                    Color.appText.ignoresSafeArea()
 
                     ResilientAsyncImage(urlString: beforeImageUrl, contentMode: .fit) {
-                        Rectangle().fill(Color.gray)
+                        Rectangle().fill(Color.appTextSecondary)
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height)
 
                     ResilientAsyncImage(urlString: afterImageUrl, contentMode: .fit) {
-                        Rectangle().fill(Color.gray)
+                        Rectangle().fill(Color.appTextSecondary)
                     }
                     .clipShape(HorizontalClipShape(position: sliderPosition))
                     .frame(width: geometry.size.width, height: geometry.size.height)
 
                     Rectangle()
-                        .fill(Color.white)
+                        .fill(Color.appOnAccent)
                         .frame(width: 2)
                         .position(x: geometry.size.width * sliderPosition, y: geometry.size.height / 2)
 
                     Circle()
-                        .fill(Color.white)
+                        .fill(Color.appOnAccent)
                         .frame(width: 32, height: 32)
                         .overlay(
                             HStack(spacing: 2) {
                                 Image(systemName: "chevron.left")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(.black)
+                                    .font(.appCaption.weight(.bold))
+                                    .foregroundStyle(Color.appText)
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundStyle(.black)
+                                    .font(.appCaption.weight(.bold))
+                                    .foregroundStyle(Color.appText)
                             }
                         )
                         .position(x: geometry.size.width * sliderPosition, y: geometry.size.height / 2)
@@ -64,22 +64,20 @@ struct ComparisonSliderView: View {
                         Spacer()
                         HStack {
                             Text(beforeLabel)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .background(Capsule().fill(Color.black.opacity(0.6)))
+                                .font(.appCaptionBold)
+                                .foregroundStyle(Color.appOnAccent)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Capsule().fill(Color.appText.opacity(0.6)))
 
                             Spacer()
 
                             Text(afterLabel)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .background(Capsule().fill(Color.black.opacity(0.6)))
+                                .font(.appCaptionBold)
+                                .foregroundStyle(Color.appOnAccent)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Capsule().fill(Color.appText.opacity(0.6)))
                         }
                         .padding(.horizontal, 16)
                         .padding(.bottom, 20)
@@ -101,7 +99,7 @@ struct ComparisonSliderView: View {
                     Button("Done") {
                         isPresented = false
                     }
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.appOnAccent)
                 }
             }
         }

@@ -55,12 +55,12 @@ struct ScheduleActionSheet: View {
                     slotsSection
                     summaryCard
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.top, 4)
                 .padding(.bottom, 24)
             }
             saveButton
-                .padding(.horizontal, 24)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.bottom, 16)
         }
         .background(Color(.systemBackground))
@@ -73,7 +73,7 @@ struct ScheduleActionSheet: View {
         Capsule()
             .fill(Color(.systemGray4))
             .frame(width: 48, height: 5)
-            .padding(.top, 10)
+            .padding(.top, 8)
             .padding(.bottom, 16)
     }
 
@@ -81,28 +81,28 @@ struct ScheduleActionSheet: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Schedule Action")
-                    .font(.system(size: 22, weight: .heavy, design: .rounded))
+                    .font(.appSectionTitle)
                 Spacer()
                 Button {
                     dismiss()
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.secondary)
+                        .font(.appCaptionBold)
+                        .foregroundStyle(Color.appTextSecondary)
                         .frame(width: 32, height: 32)
                         .background(Color(.systemGray5))
                         .clipShape(Circle())
                 }
             }
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Image(systemName: "calendar")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.appBody.weight(.semibold))
                     .foregroundStyle(primary)
                 Text(actionName)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.appCardTitle)
             }
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, AppSpacing.pagePadding)
         .padding(.bottom, 20)
     }
 
@@ -124,17 +124,17 @@ struct ScheduleActionSheet: View {
             } label: {
                 HStack {
                     Text(frequency.displayName)
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.appBody.weight(.semibold))
                     Spacer()
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                        .font(.appCaptionBold)
+                        .foregroundStyle(Color.appTextSecondary)
                         .rotationEffect(.degrees(isFrequencyExpanded ? 180 : 0))
                 }
                 .padding(.horizontal, 16)
                 .frame(height: 52)
                 .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
             }
             .buttonStyle(.plain)
 
@@ -149,12 +149,12 @@ struct ScheduleActionSheet: View {
                         } label: {
                             HStack {
                                 Text(freq.displayName)
-                                    .font(.system(size: 17, weight: freq == frequency ? .bold : .regular))
-                                    .foregroundStyle(freq == frequency ? primary : .primary)
+                                    .font(.appBody.weight(freq == frequency ? .bold : .regular))
+                                    .foregroundStyle(freq == frequency ? primary : Color.appText)
                                 Spacer()
                                 if freq == frequency {
                                     Image(systemName: "checkmark")
-                                        .font(.system(size: 14, weight: .bold))
+                                        .font(.appCaptionBold)
                                         .foregroundStyle(primary)
                                 }
                             }
@@ -169,8 +169,8 @@ struct ScheduleActionSheet: View {
                     }
                 }
                 .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .padding(.top, 2)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
+                .padding(.top, 4)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
@@ -181,7 +181,7 @@ struct ScheduleActionSheet: View {
     private var daysSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionLabel("On Days")
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 ForEach(ScheduleDay.allCases) { day in
                     dayButton(day)
                 }
@@ -195,8 +195,8 @@ struct ScheduleActionSheet: View {
             toggleDay(day)
         } label: {
             Text(day.singleLetter)
-                .font(.system(size: 15, weight: selected ? .bold : .medium))
-                .foregroundStyle(selected ? .white : .secondary)
+                .font(.appBody.weight(selected ? .bold : .medium))
+                .foregroundStyle(selected ? Color.appOnAccent : Color.appTextSecondary)
                 .frame(width: 40, height: 40)
                 .background {
                     if selected {
@@ -236,19 +236,19 @@ struct ScheduleActionSheet: View {
                     expandedSlotId = isExpanded ? nil : slot.id
                 }
             } label: {
-                HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     // Time display
                     Text(slot.timeLabel)
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .foregroundStyle(.primary)
+                        .font(.appNumericDisplay)
+                        .foregroundStyle(Color.appText)
 
                     // Reminder status pill
                     if slot.isReminderOn {
                         HStack(spacing: 4) {
                             Image(systemName: "bell.fill")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.appCaptionBold)
                             Text(slot.offsetLabel)
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.appCaptionBold)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -257,7 +257,7 @@ struct ScheduleActionSheet: View {
                         .clipShape(Capsule())
                     } else {
                         Text("No reminder")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.appCaption.weight(.medium))
                             .foregroundStyle(.tertiary)
                     }
 
@@ -265,8 +265,8 @@ struct ScheduleActionSheet: View {
 
                     // Expand chevron
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                        .font(.appCaptionBold)
+                        .foregroundStyle(Color.appTextSecondary)
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
 
                     // Delete button (only if >1 slot)
@@ -275,13 +275,13 @@ struct ScheduleActionSheet: View {
                             removeSlot(slot)
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(.secondary)
+                                .font(.appBody)
+                                .foregroundStyle(Color.appTextSecondary)
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
@@ -289,7 +289,7 @@ struct ScheduleActionSheet: View {
 
             // Expanded content
             if isExpanded {
-                VStack(spacing: 14) {
+                VStack(spacing: 16) {
                     // Time drum picker (single UIPickerView with 2 components)
                     TimeDrumPicker(
                         hour: Binding(
@@ -308,10 +308,10 @@ struct ScheduleActionSheet: View {
                     // Reminder toggle
                     HStack {
                         Image(systemName: "bell.fill")
-                            .font(.system(size: 16))
-                            .foregroundStyle(slot.isReminderOn ? primary : .secondary)
+                            .font(.appBody)
+                            .foregroundStyle(slot.isReminderOn ? primary : Color.appTextSecondary)
                         Text("Remind me")
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.appBody.weight(.medium))
                         Spacer()
                         Toggle("", isOn: Binding(
                             get: { slot.isReminderOn },
@@ -326,20 +326,20 @@ struct ScheduleActionSheet: View {
                         offsetPicker(slot: slot)
                     }
                 }
-                .padding(.horizontal, 14)
-                .padding(.bottom, 14)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private func offsetPicker(slot: ScheduleSlot) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("REMIND ME AT")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(.secondary)
+                .font(.appCaptionBold)
+                .foregroundStyle(Color.appTextSecondary)
                 .tracking(1)
 
             HStack(spacing: 8) {
@@ -349,10 +349,10 @@ struct ScheduleActionSheet: View {
                         updateSlot(slot, reminderOffsetMinutes: offset)
                     } label: {
                         Text(offsetLabel(for: offset))
-                            .font(.system(size: 12, weight: isSelected ? .bold : .medium))
-                            .foregroundStyle(isSelected ? .white : .secondary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
+                            .font(.appCaption.weight(isSelected ? .bold : .medium))
+                            .foregroundStyle(isSelected ? Color.appOnAccent : Color.appTextSecondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
                             .background {
                                 if isSelected {
                                     Capsule().fill(primary)
@@ -382,17 +382,17 @@ struct ScheduleActionSheet: View {
         Button {
             addSlot()
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: 4) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 18))
+                    .font(.appBody)
                 Text("Add another time")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.appBody.weight(.semibold))
             }
             .foregroundStyle(primary)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
             .background(primary.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -400,20 +400,20 @@ struct ScheduleActionSheet: View {
     // MARK: - Summary Card
 
     private var summaryCard: some View {
-        HStack(alignment: .top, spacing: 10) {
+        HStack(alignment: .top, spacing: 8) {
             Image(systemName: "info.circle")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.appBody.weight(.semibold))
                 .foregroundStyle(primary)
             Text(summaryAttributedString)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.secondary)
+                .font(.appBody.weight(.medium))
+                .foregroundStyle(Color.appTextSecondary)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(primary.opacity(0.06))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .strokeBorder(primary.opacity(0.15), lineWidth: 1)
         )
     }
@@ -425,11 +425,11 @@ struct ScheduleActionSheet: View {
         let timeText = timeTexts.joined(separator: ", ")
         var result = AttributedString("Repeats \(daysText) at \(timeText).")
         if let daysRange = result.range(of: daysText) {
-            result[daysRange].font = .system(size: 15, weight: .bold)
+            result[daysRange].font = .appBody.weight(.bold)
             result[daysRange].foregroundColor = .primary
         }
         if let timeRange = result.range(of: timeText) {
-            result[timeRange].font = .system(size: 15, weight: .bold)
+            result[timeRange].font = .appBody.weight(.bold)
             result[timeRange].foregroundColor = .primary
         }
         return result
@@ -444,8 +444,8 @@ struct ScheduleActionSheet: View {
             dismiss()
         } label: {
             Text("Save Schedule")
-                .font(.system(size: 18, weight: .heavy))
-                .foregroundStyle(.white)
+                .font(.appBody.weight(.heavy))
+                .foregroundStyle(Color.appOnAccent)
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
                 .background(primary)
@@ -459,8 +459,8 @@ struct ScheduleActionSheet: View {
 
     private func sectionLabel(_ text: String) -> some View {
         Text(text.uppercased())
-            .font(.system(size: 13, weight: .bold))
-            .foregroundStyle(.secondary)
+            .font(.appCaptionBold)
+            .foregroundStyle(Color.appTextSecondary)
             .tracking(1.5)
             .padding(.leading, 4)
     }

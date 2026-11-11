@@ -16,11 +16,11 @@ struct ProgressCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 4) {
                 Image(systemName: "chart.pie.fill")
-                    .font(.system(size: 14))
+                    .font(.appCaption)
                     .foregroundStyle(accent)
                 Text("PROGRESS")
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(.secondary)
+                    .font(.appCaptionBold)
+                    .foregroundStyle(Color.appTextSecondary)
             }
             HStack(spacing: 12) {
                 ZStack {
@@ -31,28 +31,28 @@ struct ProgressCardView: View {
                         .rotation(Angle.degrees(-90))
                         .stroke(accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     Text("\(percentage)")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.appBody.weight(.bold))
                         .foregroundStyle(accent)
                     Text("%")
-                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .font(.appCaptionBold)
                         .foregroundStyle(accent)
                         .offset(x: 14, y: -6)
                 }
                 .frame(width: 48, height: 48)
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Image(systemName: "trending_up")
-                        .font(.system(size: 12))
+                        .font(.appCaption)
                         .foregroundStyle(accent)
                     Text(motivationalText)
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .font(.appCaption.weight(.medium))
+                        .foregroundStyle(Color.appTextSecondary)
                 }
             }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
+        .shadow(color: Color.appText.opacity(0.04), radius: 8, y: 4)
     }
 }

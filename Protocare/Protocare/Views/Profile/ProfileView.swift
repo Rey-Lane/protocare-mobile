@@ -15,11 +15,10 @@ struct ProfileView: View {
                     logoutButton
                     versionLabel
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.bottom, 40)
             }
             .background(Color.appBackground)
-            .navigationTitle("")
             .toolbar(.hidden, for: .navigationBar)
             .task {
                 await vm.loadProfile()
@@ -38,11 +37,11 @@ struct ProfileView: View {
 
             VStack(spacing: 4) {
                 Text(vm.profile.name)
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.white)
+                    .font(.appScreenTitle)
+                    .foregroundStyle(Color.appOnAccent)
                 Text(vm.profile.email)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appOnAccent.opacity(0.8))
             }
 
             statsRow
@@ -58,7 +57,7 @@ struct ProfileView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous))
     }
 
     private var avatar: some View {
@@ -69,22 +68,22 @@ struct ProfileView: View {
         .clipShape(Circle())
         .overlay(
             Circle()
-                .stroke(.white.opacity(0.4), lineWidth: 2)
+                .stroke(Color.appOnAccent.opacity(0.4), lineWidth: 2)
         )
     }
 
     private var initialsCircle: some View {
         Circle()
-            .fill(.white.opacity(0.25))
+            .fill(Color.appOnAccent.opacity(0.25))
             .frame(width: 64, height: 64)
             .overlay(
                 Circle()
-                    .stroke(.white.opacity(0.4), lineWidth: 2)
+                    .stroke(Color.appOnAccent.opacity(0.4), lineWidth: 2)
             )
             .overlay {
                 Text(vm.profile.initials)
-                    .font(.system(size: 26, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .font(.appSectionTitle)
+                    .foregroundStyle(Color.appOnAccent)
             }
     }
 
@@ -94,26 +93,26 @@ struct ProfileView: View {
             statItem(value: "\(vm.profile.stats.streak)", label: "STREAK", icon: "flame.fill")
             statItem(value: "\(vm.profile.stats.checkinsCount)", label: "CHECK-INS")
         }
-        .padding(10)
-        .background(.white.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .padding(12)
+        .background(Color.appOnAccent.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     private func statItem(value: String, label: String, icon: String? = nil) -> some View {
         VStack(spacing: 4) {
             HStack(spacing: 3) {
                 Text(value)
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(.white)
+                    .font(.appNumericDisplay)
+                    .foregroundStyle(Color.appOnAccent)
                 if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .font(.appCaption)
+                        .foregroundStyle(Color.appOnAccent.opacity(0.7))
                 }
             }
             Text(label)
-                .font(.system(size: 11))
-                .foregroundStyle(.white.opacity(0.7))
+                .font(.appCaption)
+                .foregroundStyle(Color.appOnAccent.opacity(0.7))
         }
         .frame(maxWidth: .infinity)
     }
@@ -133,7 +132,7 @@ struct ProfileView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Support Section
@@ -173,14 +172,14 @@ struct ProfileView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.appSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
     }
 
     // MARK: - Shared Components
 
     private func sectionTitle(_ title: String) -> some View {
         Text(title)
-            .font(.system(size: 13, weight: .semibold))
+            .font(.appCaptionBold)
             .foregroundStyle(Color.appTextSecondary)
             .textCase(.uppercase)
             .padding(.bottom, 8)
@@ -197,21 +196,21 @@ struct ProfileView: View {
             Text(title)
                 .navigationTitle(title)
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: icon)
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(iconColor)
                     .frame(width: 34, height: 34)
                     .background(iconBg)
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     if let subtitle {
                         Text(subtitle)
-                            .font(.system(size: 13))
+                            .font(.appCaption)
                             .foregroundStyle(Color.appTextSecondary)
                     }
                 }
@@ -219,10 +218,10 @@ struct ProfileView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -240,30 +239,30 @@ struct ProfileView: View {
         NavigationLink {
             EditProfileView(vm: vm, api: api, authStore: authStore)
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: "person.fill")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appPrimaryDark)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Edit Profile")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     Text("Name, photo")
-                        .font(.system(size: 13))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -275,30 +274,30 @@ struct ProfileView: View {
         NavigationLink {
             NotificationSettingsView(api: api, authStore: authStore)
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: "bell.fill")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appPrimary)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Notifications")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     Text("Reminders & schedules")
-                        .font(.system(size: 13))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -310,30 +309,30 @@ struct ProfileView: View {
         Button {
             Task { await vm.replayOnboarding() }
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 15))
+                    .font(.appBody)
                     .foregroundStyle(Color.appPrimary)
                     .frame(width: 34, height: 34)
                     .background(Color.appPrimary.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.chip, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Replay onboarding")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.appCardTitle)
                         .foregroundStyle(Color.appText)
                     Text("Run the setup wizard again")
-                        .font(.system(size: 13))
+                        .font(.appCaption)
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.appCaptionBold)
                     .foregroundStyle(Color.appBorder)
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -344,19 +343,19 @@ struct ProfileView: View {
             vm.logout()
         } label: {
             Text("Log Out")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.appBody.weight(.semibold))
                 .foregroundStyle(Color.appError)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(Color.appSurface)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         }
         .buttonStyle(.plain)
     }
 
     private var versionLabel: some View {
         Text("Protocare 1.0.0 (42)")
-            .font(.system(size: 12))
+            .font(.appCaption)
             .foregroundStyle(Color.appTextSecondary)
             .frame(maxWidth: .infinity)
     }

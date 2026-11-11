@@ -30,16 +30,16 @@ struct ProtocolDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 18) {
+            VStack(spacing: 16) {
                 hero
 
                 metrics
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, AppSpacing.pagePadding)
             .padding(.bottom, 8)
 
             stepsSection
-                .padding(.horizontal, 18)
+                .padding(.horizontal, AppSpacing.pagePadding)
                 .padding(.bottom, 32)
         }
         .scrollContentBackground(.hidden)
@@ -47,7 +47,8 @@ struct ProtocolDetailView: View {
         .refreshable {
             await viewModel.refresh()
         }
-        .navigationTitle("")
+        .navigationTitle(viewModel.currentProtocol.name)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -55,7 +56,7 @@ struct ProtocolDetailView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.appBody.weight(.semibold))
                         .foregroundStyle(Color.appPrimaryDark)
                 }
             }
@@ -82,8 +83,8 @@ struct ProtocolDetailView: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.primary : Color.white)
+                        .font(.appScreenTitle)
+                        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appText : Color.appOnAccent)
                 }
             }
         }
@@ -186,21 +187,17 @@ struct ProtocolDetailView: View {
             VStack(alignment: .leading, spacing: 8) {
                 if let category = viewModel.currentProtocol.category {
                     Text(category.displayName.uppercased())
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(viewModel.protocolImageURL == nil ? .secondary : Color.white.opacity(0.7))
+                        .font(.appCaptionBold)
+                        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent.opacity(0.7))
                         .tracking(1.5)
                 }
 
-                Text(viewModel.currentProtocol.name)
-                    .font(.system(size: 26, weight: .bold))
-                    .foregroundStyle(viewModel.protocolImageURL == nil ? Color.primary : Color.white)
-
-                HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     statusPill
                     stepsPill
                 }
             }
-            .padding(18)
+            .padding(16)
         }
     }
 
@@ -215,19 +212,19 @@ struct ProtocolDetailView: View {
             .clipped()
             .overlay(
                 LinearGradient(
-                    colors: [Color.black.opacity(0.15), Color.black.opacity(0.45)],
+                    colors: [Color.appText.opacity(0.15), Color.appText.opacity(0.45)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
             )
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous))
         } else {
             heroFallbackBackground
         }
     }
 
     private var heroFallbackBackground: some View {
-        RoundedRectangle(cornerRadius: 24, style: .continuous)
+        RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous)
             .fill(
                 LinearGradient(
                     colors: [Color(.systemGray6), Color(.systemGray5)],
@@ -237,7 +234,7 @@ struct ProtocolDetailView: View {
             )
             .frame(height: 200)
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: AppRadius.viewer, style: .continuous)
                     .stroke(Color(.separator).opacity(0.08))
             )
     }
@@ -259,7 +256,7 @@ struct ProtocolDetailView: View {
     private var stepsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Protocol Steps")
-                .font(.headline)
+                .font(.appSectionTitle)
                 .padding(.horizontal, 4)
 
             if viewModel.isLoadingStatus {
@@ -268,7 +265,7 @@ struct ProtocolDetailView: View {
                     .padding()
             } else if let status = viewModel.dailyStatus {
                 let sorted = status.actions.sorted(by: { $0.position < $1.position })
-                VStack(spacing: 10) {
+                VStack(spacing: 12) {
                     ForEach(sorted) { actionStatus in
                         let protocolAction = viewModel.currentProtocol.actions.first { $0.id == actionStatus.protocolActionId }
                         // Unified model (Step 23): single action_id resolution —
@@ -319,73 +316,73 @@ struct ProtocolDetailView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "plus.circle.fill")
                             Text("Add Action")
-                                .fontWeight(.semibold)
+                                .font(.appBody.weight(.semibold))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .padding(.vertical, 16)
                         .background(Color(.secondarySystemBackground))
                         .foregroundStyle(accent)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
             } else if let error = viewModel.statusError {
                 Text("Error loading status: \(error)")
-                    .foregroundStyle(.red)
-                    .font(.caption)
+                    .foregroundStyle(Color.appError)
+                    .font(.appCaption)
             }
         }
     }
 
     private func metricTile(title: String, value: String, system: String, highlight: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(title.uppercased())
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(.secondary)
-            HStack(spacing: 6) {
+                .font(.appCaptionBold)
+                .foregroundStyle(Color.appTextSecondary)
+            HStack(spacing: 4) {
                 Image(systemName: system)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(highlight ? accent : .secondary)
+                    .font(.appCaptionBold)
+                    .foregroundStyle(highlight ? accent : Color.appTextSecondary)
                 Text(value)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(highlight ? accent : .primary)
+                    .font(.appBody.weight(.semibold))
+                    .foregroundStyle(highlight ? accent : Color.appText)
             }
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(Color(.separator).opacity(0.08))
         )
     }
 
     private var statusPill: some View {
         Text(viewModel.currentProtocol.statusLabel.uppercased())
-            .font(.caption2.weight(.bold))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .font(.appCaptionBold)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(
                 viewModel.protocolImageURL == nil
                 ? (viewModel.currentProtocol.isActive == true ? accent.opacity(0.18) : Color(.systemGray5))
-                : Color.black.opacity(0.35)
+                : Color.appText.opacity(0.35)
             )
-            .foregroundStyle(viewModel.protocolImageURL == nil ? (viewModel.currentProtocol.isActive == true ? accent : .secondary) : Color.white)
+            .foregroundStyle(viewModel.protocolImageURL == nil ? (viewModel.currentProtocol.isActive == true ? accent : Color.appTextSecondary) : Color.appOnAccent)
             .clipShape(Capsule())
     }
 
     private var stepsPill: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 4) {
             Image(systemName: "list.bullet")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.appCaptionBold)
             Text(viewModel.currentProtocol.stepsLabel)
-                .font(.caption.weight(.semibold))
+                .font(.appCaptionBold)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(viewModel.protocolImageURL == nil ? Color(.systemGray5) : Color.black.opacity(0.35))
-        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.secondary : Color.white)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(viewModel.protocolImageURL == nil ? Color(.systemGray5) : Color.appText.opacity(0.35))
+        .foregroundStyle(viewModel.protocolImageURL == nil ? Color.appTextSecondary : Color.appOnAccent)
         .clipShape(Capsule())
     }
 
@@ -446,38 +443,38 @@ private struct StepRow: View {
     private let accent = Color.appPrimary
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             if isCompleted {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 28))
+                    .font(.appScreenTitle)
                     .foregroundStyle(accent)
             } else {
                 ZStack {
                     Circle()
                         .fill((category?.tagColor ?? Color(.systemGray5)).opacity(0.16))
                     Image(systemName: categoryIcon)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(category?.tagColor ?? .secondary)
+                        .font(.appCaptionBold)
+                        .foregroundStyle(category?.tagColor ?? Color.appTextSecondary)
                 }
                 .frame(width: 36, height: 36)
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.appCardTitle)
                     .strikethrough(isCompleted)
                 Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(isCompleted ? accent : .secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(isCompleted ? accent : Color.appTextSecondary)
                 // Unified model (Step 23): show category/modality instead of
                 // the old "Library"/"Custom" provenance labels.
                 if !isCompleted, let category {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 4) {
                         HStack(spacing: 4) {
                             Image(systemName: category.tagIcon)
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.appCaptionBold)
                             Text(category.displayName)
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.appCaptionBold)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -487,10 +484,10 @@ private struct StepRow: View {
 
                         if let modality {
                             Text(modality.displayName)
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.appCaption.weight(.medium))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.appTextSecondary)
                                 .background(Color(.systemGray5))
                                 .clipShape(Capsule())
                         }
@@ -504,17 +501,17 @@ private struct StepRow: View {
                 onSettings()
             } label: {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 16))
-                    .foregroundStyle(.secondary)
+                    .font(.appBody)
+                    .foregroundStyle(Color.appTextSecondary)
             }
             .buttonStyle(.plain)
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
                 .stroke(isCompleted ? accent.opacity(0.3) : Color(.separator).opacity(0.08), lineWidth: isCompleted ? 2 : 1)
         )
         .contentShape(Rectangle())
@@ -529,25 +526,25 @@ private struct StepRowDragPreview: View {
     let subtitle: String
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             Circle()
                 .fill(Color(.systemGray5))
                 .frame(width: 36, height: 36)
-                .overlay(Image(systemName: "star.fill").font(.system(size: 14, weight: .semibold)).foregroundStyle(.secondary))
+                .overlay(Image(systemName: "star.fill").font(.appCaptionBold).foregroundStyle(Color.appTextSecondary))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.appCardTitle)
                 Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.appCaption)
+                    .foregroundStyle(Color.appTextSecondary)
             }
 
             Spacer()
         }
-        .padding(14)
+        .padding(16)
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous))
         .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
         .frame(width: 300)
     }

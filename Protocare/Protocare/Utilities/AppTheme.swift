@@ -14,6 +14,9 @@ extension Color {
     static let appWarning = Color(red: 0.961, green: 0.678, blue: 0.329)
     static let appOverlay = Color.appPrimary.opacity(0.2)
 
+    /// Text/icons on appPrimary and other accent surfaces ONLY — never for regular text on light backgrounds.
+    static let appOnAccent = Color.white
+
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
         let scanner = Scanner(string: hex)

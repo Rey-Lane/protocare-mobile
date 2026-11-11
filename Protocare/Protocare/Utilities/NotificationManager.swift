@@ -6,6 +6,12 @@ import UserNotifications
 final class NotificationManager: NSObject, ObservableObject {
     static let shared = NotificationManager()
 
+    /// True when running inside an XCTest host process (unit test runner),
+    /// detected via the environment variable XCTest injects on launch.
+    private static var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
+
     @Published var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
     private let center = UNUserNotificationCenter.current()
@@ -16,6 +22,11 @@ final class NotificationManager: NSObject, ObservableObject {
     }
 
     func requestAuthorization() async -> Bool {
+        // In an XCTest host there is nobody to answer the system permission prompt:
+        // UNUserNotificationCenter.requestAuthorization() blocks forever, so any test
+        // that reaches a save/notification path hangs ("Test Case ... started" with no
+        // pass/fail). Report "not granted" without prompting instead.
+        guard !Self.isRunningTests else { return false }
         do {
             let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
             await refreshAuthorizationStatus()

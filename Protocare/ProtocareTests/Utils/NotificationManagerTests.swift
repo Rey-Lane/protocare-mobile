@@ -87,4 +87,13 @@ final class NotificationManagerTests: XCTestCase {
         let status = sut.authorizationStatus
         XCTAssertNotNil(status)
     }
+
+    func testRequestAuthorization_ReturnsFalseInTestHostWithoutPrompt() async {
+        // Regression: in the XCTest host the system permission prompt can never be
+        // answered, so a real UNUserNotificationCenter.requestAuthorization() call
+        // would hang the test forever (ProtocolBuilderViewModel.save() path).
+        // The test-env guard must return "not granted" without prompting.
+        let granted = await sut.requestAuthorization()
+        XCTAssertFalse(granted)
+    }
 }
